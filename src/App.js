@@ -10,14 +10,15 @@ import vote from "./pages/vote/vote";
 function App() {
   return (
     <BrowserRouter>
-        <Route path='/' component={homepage} />
-          <ul>
+        <Route exact path='/' component={homepage} />
+          {/* <ul>
             <li><Link to='/'>Home</Link></li>
             <li><Link to='/question'>Post a Question</Link></li>
             <li><Link to='/vote'>Vote</Link></li>
             <li><Link to='/login'>Log in</Link></li>
-          </ul>
+          </ul> */}
           <Switch>
+            <Route path='/homepage' component={homepage} />
             <Route path='/login' component={login} />
             <Route path='/question' component={question}/>
             <Route path='/vote' component={vote}/>
