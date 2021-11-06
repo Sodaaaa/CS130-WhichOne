@@ -6,6 +6,7 @@ import login from './pages/login/login'
 import homepage from "./pages/homepage/homepage";
 import question from "./pages/question/question";
 import vote from "./pages/vote/vote";
+import register from "./pages/register/register";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path='/login' component={login} />
             <Route path='/question' component={question}/>
             <Route path='/vote' component={vote}/>
+            <Route path='/register' component={register}/>
           </Switch>
     </BrowserRouter>
   );
