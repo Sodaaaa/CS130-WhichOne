@@ -1,18 +1,19 @@
 import React, { Component } from 'react';
 import {Link} from 'react-router-dom'
+
 import { Layout, Menu, Card, Row, Col, Button} from 'antd/lib';
 import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined, SmallDashOutlined } from '@ant-design/icons';
 import './homepage.css'
 
-const { Header, Content } = Layout;
+const { Header, Content, Footer } = Layout;
 
 export default class homepage extends Component {
   render() {
     return (
       <Layout className="layout">
         <Header>
-          <div className="logo"/>
-          <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["home"]}>
+        <div className="logo"> Which One </div>
+          <Menu theme="light" mode="horizontal" defaultSelectedKeys={["home"]}>
             <Menu.Item key="home" icon={<HomeOutlined />}>
               <Link to='/homepage'>Home</Link>
             </Menu.Item>
@@ -92,7 +93,8 @@ export default class homepage extends Component {
               More
             </Button>
           </div>
-        </Content>          
+        </Content>      
+        <Footer style={{ textAlign: 'center' }}>CS130 Project By Which One Team</Footer>    
       </Layout>    
     )
   }

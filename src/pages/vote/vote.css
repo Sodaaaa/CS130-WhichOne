@@ -1,0 +1,16 @@
+
+.vote-content {
+  background-color: white;
+}
+
+.vote-tags {
+  float: right;
+  height: 50px;
+  padding-top: 15px;
+}
+
+.vote-questions {
+  position: absolute;
+  margin-top: 50px;
+  width: 95%;
+}
