@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {Link} from 'react-router-dom'
 import { Layout, Menu} from 'antd/lib';
 import CustomTag from '../../components/tag/CustomTag'; 
+import OptionList from '../../components/optionList/OptionList';
 import { List, Avatar, Space } from 'antd';
 import { MessageOutlined, LikeOutlined, StarOutlined } from '@ant-design/icons';
 import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined } from '@ant-design/icons';
@@ -18,7 +19,7 @@ for (let i = 0; i < 23; i++) {
     description:
       'voting options - todo',
     content:
-      'voting options - todo'
+      <OptionList />
   });
 }
 
@@ -70,19 +71,20 @@ export default class vote extends Component {
                     dataSource={listData}
                     renderItem={item => (
                       <List.Item
+                        style={{backgroundColor: '#E2D4F3', marginTop: 10, borderRadius: 5}}
                         key={item.title}
                         actions={[
                           <IconText icon={StarOutlined} text="156" key="list-vertical-star-o" />,
                           <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />,
                           <IconText icon={MessageOutlined} text="2" key="list-vertical-message" />,
                         ]}
-                        extra={
-                          <img
-                            width={272}
-                            alt="logo"
-                            src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
-                          />
-                        }
+                        // extra={
+                        //   <img
+                        //     width={272}
+                        //     alt="logo"
+                        //     src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
+                        //   />
+                        // }
                       >
                         <List.Item.Meta
                           avatar={<Avatar src={item.avatar} />}

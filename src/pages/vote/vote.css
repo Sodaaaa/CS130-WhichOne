@@ -4,13 +4,17 @@
 }
 
 .vote-tags {
-  float: right;
   height: 50px;
   padding-top: 15px;
+  padding-left: 15px;
+  background-color: #E2D4F3;
+  border-radius: 5px;
+
 }
 
 .vote-questions {
-  position: absolute;
-  margin-top: 50px;
-  width: 95%;
+  /* position: absolute; */
+  width: 100%;
+  padding-bottom: 20px;
+  overflow-y: auto;
 }
