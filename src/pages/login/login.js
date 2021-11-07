@@ -12,17 +12,17 @@ export default class register extends Component {
       <Layout className="layout">
         <Header>
           <div className="logo"> Which One </div>
-          <Menu theme="light" mode="horizontal" defaultSelectedKeys={['2']}>
+          <Menu theme="light" mode="horizontal" defaultSelectedKeys={["login"]}>
             <Menu.Item key="home" icon={<HomeOutlined />}>
               <Link to='/homepage'>Home</Link>
             </Menu.Item>
-            <Menu.Item key="post" icon={<PlusCircleOutlined />}>
+            <Menu.Item key="question" icon={<PlusCircleOutlined />}>
               <Link to='/question'>Post</Link>
             </Menu.Item>
             <Menu.Item key="vote" icon={<BarsOutlined />}>
               <Link to='/vote'>Vote</Link>
             </Menu.Item>       
-            <Menu.Item key="user" icon={<UserOutlined />}>
+            <Menu.Item key="login" icon={<UserOutlined />}>
               <Link to='/login'>Login</Link>
             </Menu.Item>        
           </Menu>
