@@ -1,12 +1,25 @@
 .login-form {
+    /* margin-top: 50px;
+    margin-left: 40%;
+    max-width: 300px; */
     margin-top: 50px;
     margin-left: 40%;
     max-width: 300px;
+    max-height: fit-content;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    padding-left: 1%;
+    padding-right: 1%;
+    border-radius: 20px;
+    background-color: #E2D4F3;
   }
+
   .login-form-forgot {
     float: right;
   }
-  .login-form-forgot {
+  .ant-col-rtl .login-form-forgot {
     float: left;
   }
   .login-form-button {
