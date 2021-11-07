@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 import { Layout } from 'antd/lib';
 import CustomTag from '../../components/tag/CustomTag'; 
-<<<<<<< HEAD
 import OptionList from '../../components/optionList/OptionList';
-=======
 import MenuBar from '../../components/MenuBar/MenuBar'
->>>>>>> b26b84f29f232a890ddf4fd0b31674428975e244
 import { List, Avatar, Space } from 'antd';
 import { MessageOutlined, LikeOutlined, StarOutlined } from '@ant-design/icons';
 import "./vote.css";
