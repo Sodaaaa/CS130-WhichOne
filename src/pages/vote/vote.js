@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
-import {Link} from 'react-router-dom'
-import { Layout, Menu} from 'antd/lib';
+import { Layout } from 'antd/lib';
 import CustomTag from '../../components/tag/CustomTag'; 
+<<<<<<< HEAD
 import OptionList from '../../components/optionList/OptionList';
+=======
+import MenuBar from '../../components/MenuBar/MenuBar'
+>>>>>>> b26b84f29f232a890ddf4fd0b31674428975e244
 import { List, Avatar, Space } from 'antd';
 import { MessageOutlined, LikeOutlined, StarOutlined } from '@ant-design/icons';
-import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined } from '@ant-design/icons';
 import "./vote.css";
 import { cloneNode } from '@babel/types';
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 
 const listData = [];
 for (let i = 0; i < 23; i++) {
@@ -34,23 +36,7 @@ export default class vote extends Component {
   render() {
     return (
       <Layout className="layout">
-        <Header>
-          <div className="logo"> Which One </div>
-          <Menu theme="light" mode="horizontal" defaultSelectedKeys={["vote"]}>
-            <Menu.Item key="home" icon={<HomeOutlined />}>
-              <Link to='/homepage'>Home</Link>
-            </Menu.Item>
-            <Menu.Item key="question" icon={<PlusCircleOutlined />}>
-              <Link to='/question'>Post</Link>
-            </Menu.Item>
-            <Menu.Item key="vote" icon={<BarsOutlined />}>
-              <Link to='/vote'>Vote</Link>
-            </Menu.Item>       
-            <Menu.Item key="login" icon={<UserOutlined />}>
-              <Link to='/login'>Login</Link>
-            </Menu.Item>        
-          </Menu>
-        </Header>
+        <MenuBar selected="vote"></MenuBar>
         <Content style={{ padding: '0px 50px' }} className='vote-content'>
               <div className="vote-site-layout-content">
                 <div className="vote-tags"> 

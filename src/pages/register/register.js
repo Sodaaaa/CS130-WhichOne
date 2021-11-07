@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import {Link} from 'react-router-dom'
-import { Layout, Menu} from 'antd/lib';
-import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined, LockOutlined} from '@ant-design/icons';
+import { Layout } from 'antd/lib';
 import {
   Form,
   Input,
@@ -15,31 +13,18 @@ import {
   AutoComplete,
 } from 'antd';
 import './register.css';
+import MenuBar from '../../components/MenuBar/MenuBar'
+import Background from '../../img/background.jfif';
+
 const { Header, Content } = Layout;
 
 export default class login extends Component {
   render() {
     return (      
       <Layout className="layout">
-        <Header>
-          <div className="logo"> Which One </div>
-          <Menu theme="light" mode="horizontal" defaultSelectedKeys={['2']}>
-            <Menu.Item key="home" icon={<HomeOutlined />}>
-              <Link to='/homepage'>Home</Link>
-            </Menu.Item>
-            <Menu.Item key="post" icon={<PlusCircleOutlined />}>
-              <Link to='/question'>Post</Link>
-            </Menu.Item>
-            <Menu.Item key="vote" icon={<BarsOutlined />}>
-              <Link to='/vote'>Vote</Link>
-            </Menu.Item>       
-            <Menu.Item key="user" icon={<UserOutlined />}>
-              <Link to='/login'>Login</Link>
-            </Menu.Item>        
-          </Menu>
-        </Header>
-        <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
-              <div className="site-layout-content">
+        <MenuBar selected="login"></MenuBar>
+        <Content name = "register-content" style={{ background: `url(${Background}) no-repeat`, backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
+              <div className="register-layout-content">
                 <Form
                     name="normal_register"
                     className="register-form"
@@ -115,7 +100,7 @@ export default class login extends Component {
                   </Form.Item>
 
                   <Form.Item>
-                  <Button type="primary" htmlType="submit">
+                  <Button className="register-form-button" type="primary" htmlType="submit">
                     Register
                   </Button>
                 </Form.Item>

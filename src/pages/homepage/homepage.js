@@ -1,33 +1,16 @@
 import React, { Component } from 'react';
-import {Link} from 'react-router-dom'
-
-import { Layout, Menu, Card, Row, Col, Button} from 'antd/lib';
-import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined, SmallDashOutlined } from '@ant-design/icons';
+import { Layout, Card, Row, Col, Button} from 'antd/lib';
+import { SmallDashOutlined } from '@ant-design/icons';
 import './homepage.css'
+import MenuBar from '../../components/MenuBar/MenuBar';
 
-const { Header, Content, Footer } = Layout;
+const { Content, Footer } = Layout;
 
 export default class homepage extends Component {
   render() {
     return (
       <Layout className="layout">
-        <Header>
-        <div className="logo"> Which One </div>
-          <Menu theme="light" mode="horizontal" defaultSelectedKeys={["home"]}>
-            <Menu.Item key="home" icon={<HomeOutlined />}>
-              <Link to='/homepage'>Home</Link>
-            </Menu.Item>
-            <Menu.Item key="post" icon={<PlusCircleOutlined />}>
-              <Link to='/question'>Post</Link>
-            </Menu.Item>
-            <Menu.Item key="vote" icon={<BarsOutlined />}>
-              <Link to='/vote'>Vote</Link>
-            </Menu.Item>       
-            <Menu.Item key="user" icon={<UserOutlined />}>
-              <Link to='/login'>Login</Link>
-            </Menu.Item>        
-          </Menu>
-        </Header>
+        <MenuBar selected="home"></MenuBar>
         <Content className="homepage-content">
           <div className="homepage-title">
               Which One? <br/> Decide for you and others
@@ -55,7 +38,7 @@ export default class homepage extends Component {
                   headStyle={{color:"#FFFFFF"}}
                   style={{backgroundColor:"#75B4FF"}} 
                   bordered={true}>
-                  What music should ...
+                  Which song should I use as bgm for my vlog?
                 </Card>
               </Col>
             </Row>
