@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import {Link} from 'react-router-dom'
-
-import { Layout, Menu, Card, Row, Col, Button} from 'antd/lib';
-import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined, SmallDashOutlined } from '@ant-design/icons';
+import { Layout, Card, Row, Col, Button} from 'antd/lib';
+import { SmallDashOutlined } from '@ant-design/icons';
 import './homepage.css'
 import MenuBar from '../../components/MenuBar/MenuBar';
 
-const { Header, Content, Footer } = Layout;
+const { Content, Footer } = Layout;
 
 export default class homepage extends Component {
   render() {

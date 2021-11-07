@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import {Link} from 'react-router-dom'
-import { Layout, Menu} from 'antd/lib';
-import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined, LockOutlined} from '@ant-design/icons';
+import { Layout } from 'antd/lib';
 import {
   Form,
   Input,

@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
-import {Link} from 'react-router-dom'
-import { Layout, Menu} from 'antd/lib';
+import { Layout } from 'antd/lib';
 import CustomTag from '../../components/tag/CustomTag'; 
 import MenuBar from '../../components/MenuBar/MenuBar'
 import { List, Avatar, Space } from 'antd';
 import { MessageOutlined, LikeOutlined, StarOutlined } from '@ant-design/icons';
-import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined } from '@ant-design/icons';
 import "./vote.css";
 import { cloneNode } from '@babel/types';
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 
 const listData = [];
 for (let i = 0; i < 23; i++) {
