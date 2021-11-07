@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import {Link} from 'react-router-dom'
 import {Layout, Menu} from 'antd/lib';
 import {HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined } from '@ant-design/icons';
-// import './homepage.css'
-
 
 const { Header } = Layout;
 
