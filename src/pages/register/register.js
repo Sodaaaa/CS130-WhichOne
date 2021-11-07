@@ -24,7 +24,7 @@ export default class login extends Component {
     return (      
       <Layout className="layout">
         <MenuBar selected="login"></MenuBar>
-        <Content style={{ padding: '50px 50px' }}>
+        <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
               <div className="site-layout-content">
                 <Form
                     name="normal_register"

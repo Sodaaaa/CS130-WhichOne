@@ -1,7 +1,19 @@
   .register-form {
+    /* margin-top: 50px;
+    margin-left: 35%;
+    max-width: 500px; */
     margin-top: 50px;
     margin-left: 35%;
     max-width: 500px;
+    max-height: fit-content;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    padding-left: 1%;
+    padding-right: 1%;
+    border-radius: 20px;
+    background-color: #E2D4F3;
   }
   .register-form-button {
     width: 100%;

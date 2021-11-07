@@ -27,8 +27,8 @@ export default class register extends Component {
             </Menu.Item>        
           </Menu>
         </Header>
-        <Content style={{ padding: '50px 50px' }}>
-              <div className="site-layout-content">
+        <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
+              <div className="question-layout-content">
                 <Form
                   name="normal_login"
                   className="login-form"
