@@ -5,7 +5,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Form, Input, Button, Checkbox } from 'antd';
 import './login.css';
 import MenuBar from '../../components/MenuBar/MenuBar'
-
+import Background from '../../img/background.jfif';
 const { Content } = Layout;
 
 export default class register extends Component {
@@ -13,7 +13,7 @@ export default class register extends Component {
     return (      
       <Layout className="layout">
         <MenuBar selected="login"></MenuBar>
-        <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
+        <Content name = "login-content" style={{ background: `url(${Background}) no-repeat`, backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
               <div className="question-layout-content">
                 <Form
                   name="normal_login"

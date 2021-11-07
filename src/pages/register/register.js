@@ -14,6 +14,7 @@ import {
 } from 'antd';
 import './register.css';
 import MenuBar from '../../components/MenuBar/MenuBar'
+import Background from '../../img/background.jfif';
 
 const { Header, Content } = Layout;
 
@@ -22,8 +23,8 @@ export default class login extends Component {
     return (      
       <Layout className="layout">
         <MenuBar selected="login"></MenuBar>
-        <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
-              <div className="site-layout-content">
+        <Content name = "register-content" style={{ background: `url(${Background}) no-repeat`, backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
+              <div className="register-layout-content">
                 <Form
                     name="normal_register"
                     className="register-form"
@@ -99,7 +100,7 @@ export default class login extends Component {
                   </Form.Item>
 
                   <Form.Item>
-                  <Button type="primary" htmlType="submit">
+                  <Button className="register-form-button" type="primary" htmlType="submit">
                     Register
                   </Button>
                 </Form.Item>
