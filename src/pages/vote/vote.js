@@ -16,7 +16,7 @@ for (let i = 0; i < 23; i++) {
     title: `Question ${i+1}`,
     avatar: 'https://joeschmoe.io/api/v1/random',
     description:
-      'voting options - todo',
+      'tag',
     content:
       <OptionList />
   });
@@ -38,13 +38,6 @@ export default class vote extends Component {
               <div className="vote-site-layout-content">
                 <div className="vote-tags"> 
                   <CustomTag />
-                  {/* <Tag color="#A7DB42">Food</Tag> */}
-                  {/* <Tag color="#FDCB6E">Sports</Tag> */}
-                  {/* <Tag color="#FFC0CB">Movie</Tag> */}
-                  {/* <Tag color="#A29BFE">Travel</Tag> */}
-                  {/* <Tag color="#75B4FF">Music</Tag> */}
-                  {/* <Tag color="#FF7675">Book</Tag> */}
-                  {/* <Tag color="#00B894">Style</Tag> */}
                 </div>
                 <div className="vote-questions">
                   <List
