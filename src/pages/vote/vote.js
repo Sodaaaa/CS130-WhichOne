@@ -47,7 +47,7 @@ export default class vote extends Component {
                     dataSource={listData}
                     renderItem={item => (
                       <List.Item
-                        style={{backgroundColor: '#E2D4F3', marginTop: 10, borderRadius: 5}}
+                        style={{borderWidth: 3, borderStyle:'solid', borderColor: '#E2D4F3', marginTop: 10, borderRadius: 5, backgroundColor: 'rgba(211, 211, 211, 0.2)'}}
                         key={item.title}
                         actions={[
                           <IconText icon={StarOutlined} text="156" key="list-vertical-star-o" />,
