@@ -2,7 +2,7 @@
   background:  rgb(251, 249, 252) !important;
 } */
 .ant-layout{
-  height: 100vh;
+  /* height: 100vh; */
 }
 
 .ant-layout-header{
@@ -53,9 +53,12 @@
   }
 
 .layout{
-  overflow:hidden;
+  overflow-x:hidden;
 }
+
 .homepage-content{
+  padding-top: 20px;
+  padding-bottom: 20px;
   background-color:#FFFFFF;
 }
 

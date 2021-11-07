@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom'
 import { Layout, Menu, Form, Input, Button, Radio, Select, DatePicker, InputNumber, Upload, Switch} from 'antd/lib';
 import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined, UploadOutlined } from '@ant-design/icons';
 import "./question.css"
+import MenuBar from '../../components/MenuBar/MenuBar'
 
 const { Header, Content } = Layout;
 const normFile = (e) => {
@@ -19,23 +20,7 @@ export default class question extends Component {
   render() {
     return (
       <Layout className="layout">
-        <Header>
-          <div className="logo"> Which One </div>
-          <Menu theme="light" mode="horizontal" defaultSelectedKeys={["question"]}>
-            <Menu.Item key="home" icon={<HomeOutlined />}>
-              <Link to='/homepage'>Home</Link>
-            </Menu.Item>
-            <Menu.Item key="question" icon={<PlusCircleOutlined />}>
-              <Link to='/question'>Post</Link>
-            </Menu.Item>
-            <Menu.Item key="vote" icon={<BarsOutlined />}>
-              <Link to='/vote'>Vote</Link>
-            </Menu.Item>       
-            <Menu.Item key="login" icon={<UserOutlined />}>
-              <Link to='/login'>Login</Link>
-            </Menu.Item>        
-          </Menu>
-        </Header>
+        <MenuBar selected="question"></MenuBar>
         <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
           <div className="question-form">
             <Form
