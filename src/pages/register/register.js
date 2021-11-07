@@ -22,8 +22,8 @@ export default class login extends Component {
     return (      
       <Layout className="layout">
         <Header>
-          <div className="logo" />
-          <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']}>
+          <div className="logo"> Which One </div>
+          <Menu theme="light" mode="horizontal" defaultSelectedKeys={['2']}>
             <Menu.Item key="home" icon={<HomeOutlined />}>
               <Link to='/homepage'>Home</Link>
             </Menu.Item>
@@ -38,7 +38,7 @@ export default class login extends Component {
             </Menu.Item>        
           </Menu>
         </Header>
-        <Content style={{ padding: '0 50px' }}>
+        <Content style={{ padding: '50px 50px' }}>
               <div className="site-layout-content">
                 <Form
                     name="normal_register"
