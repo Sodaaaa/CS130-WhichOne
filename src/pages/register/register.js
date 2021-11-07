@@ -38,7 +38,7 @@ export default class login extends Component {
             </Menu.Item>        
           </Menu>
         </Header>
-        <Content style={{ padding: '50px 50px' }}>
+        <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
               <div className="site-layout-content">
                 <Form
                     name="normal_register"
