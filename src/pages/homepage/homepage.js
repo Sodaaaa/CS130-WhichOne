@@ -4,10 +4,7 @@ import { Layout, Menu, Card, Row, Col, Button} from 'antd/lib';
 import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined, SmallDashOutlined } from '@ant-design/icons';
 import './homepage.css'
 
-
 const { Header, Content } = Layout;
-const DemoBox = props => <p className={`height-${props.value}`}>{props.children}</p>;
-
 
 export default class homepage extends Component {
   render() {
