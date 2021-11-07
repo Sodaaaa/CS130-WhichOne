@@ -1,0 +1,58 @@
+.layout{
+  overflow:hidden;
+}
+.homepage-content{
+  background-color:#FFFFFF;
+}
+
+.homepage-title{
+    text-align: center;
+    top: 50px;
+
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 800;
+    font-size: 60px;
+    line-height: 90px;
+    /* or 173% */
+
+    display: block;
+    align-items: center;
+    text-align: center;
+    letter-spacing: -3px;
+
+    color: rgba(108, 92, 231, 0.65);
+
+    /* Text Shadow / White */
+
+    text-shadow: 0px 4px 0px #FFFFFF;        
+}
+
+.homepage-cards{
+  display: block;
+  text-align: center;
+}
+
+.homepage-card{
+  color:#FFFFFF;
+  font-size: medium;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.homepage-row{
+  margin-top: 30px;
+}
+.homepage-col{
+  text-align: center;
+  left: 12%;
+  color:#6C5CE7;
+}
+
+.homepage-btn{
+  color:#FFFFFF;
+  background-color: #6C5CE7;
+  float: right;
+  margin-right: 40px;
+  margin-bottom: 20px;
+}

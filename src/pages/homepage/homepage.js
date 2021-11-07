@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import {Link} from 'react-router-dom'
-import { Layout, Menu} from 'antd/lib';
-import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined } from '@ant-design/icons';
+import { Layout, Menu, Card, Row, Col, Button} from 'antd/lib';
+import { HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined, SmallDashOutlined } from '@ant-design/icons';
+import './homepage.css'
+
 const { Header, Content } = Layout;
 
 export default class homepage extends Component {
@@ -9,8 +11,8 @@ export default class homepage extends Component {
     return (
       <Layout className="layout">
         <Header>
-          <div className="logo" />
-          <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']}>
+          <div className="logo"/>
+          <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["home"]}>
             <Menu.Item key="home" icon={<HomeOutlined />}>
               <Link to='/homepage'>Home</Link>
             </Menu.Item>
@@ -25,9 +27,72 @@ export default class homepage extends Component {
             </Menu.Item>        
           </Menu>
         </Header>
-        <Content style={{ padding: '0 50px' }}>
-              <div className="site-layout-content">Home</div>
-        </Content>  
+        <Content className="homepage-content">
+          <div className="homepage-title">
+              Which One? <br/> Decide for you and others
+          </div>  
+          <div className="homepage-cards">
+            <Row className="homepage-row" gutter={40}>
+              <Col className="homepage-col" span={6}>
+                <Card className="homepage-card" title="Style"
+                  headStyle={{color:"#FFFFFF"}}
+                  style={{backgroundColor:"#00B894"}}
+                  bordered={true}>
+                  What should I wear for my date?
+                </Card>
+              </Col>
+              <Col className="homepage-col" span={6}>
+                <Card className="homepage-card" title="Sports" 
+                  headStyle={{color:"#FFFFFF"}}
+                  style={{backgroundColor:"#FDCB6E"}} 
+                  bordered={true}>
+                  What shoud I do for today’s workout?
+                </Card>
+              </Col>
+              <Col className="homepage-col" span={6}>
+                <Card className="homepage-card" title="Music"
+                  headStyle={{color:"#FFFFFF"}}
+                  style={{backgroundColor:"#75B4FF"}} 
+                  bordered={true}>
+                  What music should ...
+                </Card>
+              </Col>
+            </Row>
+            <Row className="homepage-row" gutter={40}>
+              <Col className="homepage-col" span={6}>
+                <Card className="homepage-card" title="Movie" 
+                  headStyle={{color:"#FFFFFF"}}
+                  style={{backgroundColor:"#FFC0CB"}} 
+                  bordered={true}>
+                  VenomII or 007?
+                </Card>
+              </Col>
+              <Col className="homepage-col" span={6}>
+                <Card className="homepage-card" title="Food" 
+                  headStyle={{color:"#FFFFFF"}}
+                  style={{backgroundColor:"#A7DB42"}}
+                  bordered={true}>
+                  What should I have for lunch today?
+                </Card>
+              </Col>
+              <Col className="homepage-col" className="homepage-col" span={6}>
+                <Card className="homepage-card" title="Travel"  
+                  headStyle={{color:"#FFFFFF"}}
+                  style={{backgroundColor:"#FF7675"}}
+                  bordered={true}>
+                  LA or NYC?
+                </Card>
+              </Col>
+            </Row>
+          </div>  
+          <div>
+            <Button className="homepage-btn" type="primary" 
+              shape="round" icon={<SmallDashOutlined />}
+              href="./vote">
+              More
+            </Button>
+          </div>
+        </Content>          
       </Layout>    
     )
   }
