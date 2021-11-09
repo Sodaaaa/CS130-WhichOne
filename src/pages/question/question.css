@@ -1,0 +1,28 @@
+.ant-form-item-label{
+    overflow: visible;
+}
+
+.question-form{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-top: 20px;
+    padding-bottom: 5px;
+    border-radius: 20px;
+    background-color: #E2D4F3;
+    color: #FFFFFF;
+}
+
+.question-post-btn{
+    float: right;
+    color:#FFFFFF;
+    background-color: #6C5CE7;
+    margin-right: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 20px;
+}
+
+.question-add-btn{
+    margin-left: 195px;
+    width: 150px;
+}
