@@ -1,7 +1,7 @@
 import time
 from os import name
 import enum
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -103,10 +103,19 @@ class Feedback(db.Model):
         return f"Feedback('{self.FeedbackID}', '{self.questionID}', '{self.text}')"
 
 
-@app.route('/api/recordPostedQuestion')
+@app.route('/api/recordPostedQuestion', methods=["POST"])
 def recordPostedQuestion(question):
     """ Record the posted question into our database. """
-    pass
+    method = request.method
+    if method.lower() == 'post':
+        ownerID = request['ownerID']
+        time = request['time']
+        tag = request['tag']
+        question = request['question']
+        anonymous = request['anonymous']
+        isAutoSelect = request['isAutoSelect']
+        timeLimit = request['timeLimit']
+    # TODO: options?
 
 
 @app.route('/api/recordVote')
