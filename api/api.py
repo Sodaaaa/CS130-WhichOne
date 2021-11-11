@@ -101,7 +101,37 @@ class Feedback(db.Model):
 
     def __repr__(self):
         return f"Feedback('{self.FeedbackID}', '{self.questionID}', '{self.text}')"
+    
+class UserVote(db.Model):
+    UserVoteID = db.Column(db.Integer, primary_key=True)
+    userID = db.Column(db.Integer, db.ForeignKey('user.UID question.QuestionID'), nullable=False)
+    questionID = db.Column(db.Integer, db.ForeignKey('question.QuestionID'), nullable=False)
+    # vote_result is an interger represents the option user choose
+    vote_result = db.Column(db.Integer, nullable=False)
 
+    def __init__(self, userID, questionID, vote_result):
+        self.userID = userID
+        self.questionID = questionID
+        self.vote_result = vote_result
+    
+    def __repr__(self):
+        return f"UserVote('{self.UserVoteID}', '{self.userID}', '{self.questionID}', '{self.vote_result}')"
+
+
+class UserAttitude(db.Model):
+    UserAttitudeID = db.Column(db.Integer, primary_key=True)
+    userID = db.Column(db.Integer, db.ForeignKey('user.UID question.QuestionID'), nullable=False)
+    questionID = db.Column(db.Integer, db.ForeignKey('question.QuestionID'), nullable=False)
+    # attitude is an interger, 0 represents like, 1 represents dislike
+    attitude = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, userID, questionID, attitude):
+        self.userID = userID
+        self.questionID = questionID
+        self.attitude = attitude
+    
+    def __repr__(self):
+        return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
 
 @app.route('/api/recordPostedQuestion', methods=["POST"])
 def recordPostedQuestion(question):
