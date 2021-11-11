@@ -1,8 +1,9 @@
 import time
 from os import name
 import enum
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, url_for, flash, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
+from forms import RegistrationForm, LoginForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -138,6 +139,21 @@ class UserAttitude(db.Model):
     def __repr__(self):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
 
+    
+    
+
+@app.route("/api/register", methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        # same as 'Account created for {username}!'.format(username=form.username.data)
+        flash(f'Account created for {form.username.data}!', 'success')
+        return redirect(url_for('home'))
+    return render_template('register.html', title='Register', form=form)
+
+@app.route("/api/login", methods=['GET', 'POST'])
+def login():
+    pass
 
 @app.route('/api/recordPostedQuestion', methods=["POST"])
 def recordPostedQuestion():
