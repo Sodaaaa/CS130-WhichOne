@@ -101,11 +101,14 @@ class Feedback(db.Model):
 
     def __repr__(self):
         return f"Feedback('{self.FeedbackID}', '{self.questionID}', '{self.text}')"
-    
+
+
 class UserVote(db.Model):
     UserVoteID = db.Column(db.Integer, primary_key=True)
-    userID = db.Column(db.Integer, db.ForeignKey('user.UID question.QuestionID'), nullable=False)
-    questionID = db.Column(db.Integer, db.ForeignKey('question.QuestionID'), nullable=False)
+    userID = db.Column(db.Integer, db.ForeignKey(
+        'user.UID question.QuestionID'), nullable=False)
+    questionID = db.Column(db.Integer, db.ForeignKey(
+        'question.QuestionID'), nullable=False)
     # vote_result is an interger represents the option user choose
     vote_result = db.Column(db.Integer, nullable=False)
 
@@ -113,15 +116,17 @@ class UserVote(db.Model):
         self.userID = userID
         self.questionID = questionID
         self.vote_result = vote_result
-    
+
     def __repr__(self):
         return f"UserVote('{self.UserVoteID}', '{self.userID}', '{self.questionID}', '{self.vote_result}')"
 
 
 class UserAttitude(db.Model):
     UserAttitudeID = db.Column(db.Integer, primary_key=True)
-    userID = db.Column(db.Integer, db.ForeignKey('user.UID question.QuestionID'), nullable=False)
-    questionID = db.Column(db.Integer, db.ForeignKey('question.QuestionID'), nullable=False)
+    userID = db.Column(db.Integer, db.ForeignKey(
+        'user.UID question.QuestionID'), nullable=False)
+    questionID = db.Column(db.Integer, db.ForeignKey(
+        'question.QuestionID'), nullable=False)
     # attitude is an interger, 0 represents like, 1 represents dislike
     attitude = db.Column(db.Integer, nullable=False)
 
@@ -129,13 +134,37 @@ class UserAttitude(db.Model):
         self.userID = userID
         self.questionID = questionID
         self.attitude = attitude
-    
+
     def __repr__(self):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
 
+
 @app.route('/api/recordPostedQuestion', methods=["POST"])
-def recordPostedQuestion(question):
-    """ Record the posted question into our database. """
+def recordPostedQuestion():
+    """ Record the posted question into our database. 
+    This API use the POST method.
+    The posted json object should be in the form below:
+
+    {
+        "ownerID"       : 123456,
+        "time"          : 1636665474,
+        "tag"           : "tagname",
+        "question"      : "question content",
+        "annoymous"     : TRUE,
+        "isAutoSelect"  : FALSE,
+        "timeLimit"     : 1636665474,
+        "options": [
+            {
+                "optionText":"option content",
+                "optionImage":"ImageFiliePath"
+            },
+            {
+                "optionText":"option content",
+                "optionImage":"ImageFiliePath"
+            }
+        ]
+    }
+    """
     method = request.method
     if method.lower() == 'post':
         ownerID = request['ownerID']
@@ -146,6 +175,12 @@ def recordPostedQuestion(question):
         isAutoSelect = request['isAutoSelect']
         timeLimit = request['timeLimit']
     # TODO: options?
+
+
+@app.route('/api/listTopics')
+def listTopics(tag):
+    """ Return all topics of a specific tag. """
+    pass
 
 
 @app.route('/api/recordVote')
@@ -199,12 +234,6 @@ def provideOptions(question):
 @app.route('/api/listHotTopics')
 def listHotTopics():
     """ Return the hottest topic of each tag. """
-    pass
-
-
-@app.route('/api/listTopics')
-def listTopics(tag):
-    """ Return all topics of a specific tag. """
     pass
 
 
