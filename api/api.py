@@ -133,8 +133,8 @@ def recordFeedback(user, feedback):
     pass
 
 
-@app.route('/api/getQuestions')
-def getQuestions(user):
+@app.route('/api/getHistoricalQuestions')
+def getHistoricalQuestions(user):
     """ Return all questions posted by a user. """
     pass
 
