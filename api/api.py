@@ -103,8 +103,8 @@ class Feedback(db.Model):
         return f"Feedback('{self.FeedbackID}', '{self.questionID}', '{self.text}')"
 
 
-@app.route('/api/recordPostQuestion')
-def recordPostQuestion(question):
+@app.route('/api/recordPostedQuestion')
+def recordPostedQuestion(question):
     """ Record the posted question into our database. """
     pass
 
