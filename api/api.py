@@ -13,7 +13,7 @@ db = SQLAlchemy(app)
 class User(db.Model):
     UID = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
-    email = db.zColumn(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
     questions = db.relationship('Question', backref='author', lazy=True)
@@ -25,7 +25,7 @@ class Question(db.Model):
     QuestionID = db.Column(db.Integer, primary_key=True)
     ownerID = db.Column(db.Integer, db.ForeignKey('user.UID'), nullable=False)
     time = db.Column(db.DateTime)
-    tag = db.Column(db.string)
+    tag = db.Column(db.String(20))
     question = db.Column(db.String(200))
     anonymous = db.Column(db.Boolean)
     options = db.Column(db.Text)
@@ -56,6 +56,50 @@ class Feedback(db.Model):
 
     def __repr__(self):
         return f"Feedback('{self.FeedbackID}', '{self.questionID}', '{self.text}')"
+
+def recordPostQuestion(question):
+    """ Record the posted question into our database. """
+    pass
+
+def recordVote(user, option):
+    """ Record the "vote" action of a user. """
+    pass
+
+def recordLike(user, question):
+    """ Record the "like" action of a user. """
+    pass
+
+def recordDislike(user, question):
+    """ Record the "dislike" action of a user. """
+    pass
+
+def recordFeedback(user, feedback):
+    """ Record the feedback of a user's question. """
+    pass
+
+def getQuestions(user):
+    """ Return all questions posted by a user. """
+    pass
+
+def getVotes(user):
+    """ Return all vote actions of a user. """
+    pass
+
+def getAttitudes(user):
+    """ Return all attitudes of a user. """
+    pass
+
+def provideOptions(question):
+    """ Return a list of possible options based on the question. """
+    pass
+
+def listHotTopics():
+    """ Return the hottest topic of each tag. """
+    pass
+
+def listTopics(tag):
+    """ Return all topics of a specific tag. """
+    pass
 
 @app.route('/time')
 def get_current_time():
