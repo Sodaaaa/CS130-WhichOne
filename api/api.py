@@ -103,56 +103,67 @@ class Feedback(db.Model):
         return f"Feedback('{self.FeedbackID}', '{self.questionID}', '{self.text}')"
 
 
+@app.route('/api/recordPostQuestion')
 def recordPostQuestion(question):
     """ Record the posted question into our database. """
     pass
 
 
+@app.route('/api/recordVote')
 def recordVote(user, option):
     """ Record the "vote" action of a user. """
     pass
 
 
+@app.route('/api/recordLike')
 def recordLike(user, question):
     """ Record the "like" action of a user. """
     pass
 
 
+@app.route('/api/recordDislike')
 def recordDislike(user, question):
     """ Record the "dislike" action of a user. """
     pass
 
 
+@app.route('/api/recordFeedback')
 def recordFeedback(user, feedback):
     """ Record the feedback of a user's question. """
     pass
 
 
+@app.route('/api/getQuestions')
 def getQuestions(user):
     """ Return all questions posted by a user. """
     pass
 
 
+@app.route('/api/getVotes')
 def getVotes(user):
     """ Return all vote actions of a user. """
     pass
 
 
+@app.route('/api/getAttitudes')
 def getAttitudes(user):
     """ Return all attitudes of a user. """
     pass
 
 
+@app.route('/api/provideOptions')
 def provideOptions(question):
     """ Return a list of possible options based on the question. """
     pass
 
 
+@app.route('/api/listHotTopics')
 def listHotTopics():
     """ Return the hottest topic of each tag. """
     pass
 
 
+@app.route('/api/listTopics')
 def listTopics(tag):
     """ Return all topics of a specific tag. """
     pass
