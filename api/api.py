@@ -200,26 +200,59 @@ def listTopics(tag):
     pass
 
 
-@app.route('/api/recordVote')
-def recordVote(user, option):
-    """ Record the "vote" action of a user. """
-    pass
+@app.route('/api/recordVote', methods=["POST"])
+def recordVote():
+    """ Record the "vote" action of a user. 
+    This API use the POST method.
+    The posted json object should be in the form below:
+    {
+        "userID"        : 123456,
+        "questionID"    : 123456,
+        "optionID"      : 123456
+    }
+    """
+    method = request.method
+    if method.lower() == 'post':
+        userID = request['userID']
+        questionID = request['questionID']
+        vote_result = request['optionID']
+        if userID and questionID and vote_result:
+            user_vote = UserVote(userID, questionID, vote_result)
+            db.session.add(user_vote)
+            option = Option.query.get(vote_result)
+            option.votes += 1
+            db.session.commit()
 
 
-@app.route('/api/recordLike')
-def recordLike(user, question):
-    """ Record the "like" action of a user. """
-    pass
-
-
-@app.route('/api/recordDislike')
-def recordDislike(user, question):
-    """ Record the "dislike" action of a user. """
-    pass
+@app.route('/api/recordAttitude', methods=["POST"])
+def recordAttitude():
+    """ Record the "like" or "dislike" action of a user. 
+    This API use the POST method.
+    The posted json object should be in the form below:
+    {
+        "userID"        : 123456,
+        "questionID"    : 123456,
+        "attitude"      : 0
+    }
+    """
+    method = request.method
+    if method.lower() == 'post':
+        userID = request['userID']
+        questionID = request['questionID']
+        attitude = request['attitude']
+        if userID and questionID and attitude:
+            user_attitude = UserAttitude(userID, questionID, attitude)
+            db.session.add(user_attitude)
+            question = Question.query.get(questionID)
+            if attitude == 0:
+                question.likes += 1
+            else:
+                question.dislikes += 1
+            db.session.commit()
 
 
 @app.route('/api/recordFeedback')
-def recordFeedback(user, feedback):
+def recordFeedback():
     """ Record the feedback of a user's question. """
     pass
 
