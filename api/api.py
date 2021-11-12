@@ -109,7 +109,7 @@ class Feedback(db.Model):
 class UserVote(db.Model):
     UserVoteID = db.Column(db.Integer, primary_key=True)
     userID = db.Column(db.Integer, db.ForeignKey(
-        'user.UID question.QuestionID'), nullable=False)
+        'user.UID'), nullable=False)
     questionID = db.Column(db.Integer, db.ForeignKey(
         'question.QuestionID'), nullable=False)
     # vote_result is an interger represents the option user choose
@@ -127,7 +127,7 @@ class UserVote(db.Model):
 class UserAttitude(db.Model):
     UserAttitudeID = db.Column(db.Integer, primary_key=True)
     userID = db.Column(db.Integer, db.ForeignKey(
-        'user.UID question.QuestionID'), nullable=False)
+        'user.UID'), nullable=False)
     questionID = db.Column(db.Integer, db.ForeignKey(
         'question.QuestionID'), nullable=False)
     # attitude is an interger, 0 represents like, 1 represents dislike
