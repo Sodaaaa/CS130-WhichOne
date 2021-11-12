@@ -139,8 +139,6 @@ class UserAttitude(db.Model):
     def __repr__(self):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
 
-    
-    
 
 @app.route("/api/register", methods=['GET', 'POST'])
 def register():
@@ -151,10 +149,12 @@ def register():
         return redirect(url_for('home'))
     return render_template('register.html', title='Register', form=form)
 
+
 @app.route("/api/login", methods=['GET', 'POST'])
 def login():
     """ verify existed user, if success return True, otherwise return False"""
     pass
+
 
 @app.route('/api/recordPostedQuestion', methods=["POST"])
 def recordPostedQuestion():
@@ -172,15 +172,19 @@ def recordPostedQuestion():
         "timeLimit"     : 1636665474,
         "options": [
             {
-                "optionText":"option content",
-                "optionImage":"ImageFiliePath"
+                "questionID"    : 12345
+                "optionText"    : "option content",
+                "optionImage"   : "ImageFiliePath"
             },
             {
-                "optionText":"option content",
-                "optionImage":"ImageFiliePath"
+                "questionID"    : 12345
+                "optionText"    : "option content",
+                "optionImage"   : "ImageFiliePath"
             }
         ]
     }
+
+    If no image, the "optionImage" field should be an empty string
     """
     method = request.method
     if method.lower() == 'post':
@@ -191,7 +195,29 @@ def recordPostedQuestion():
         anonymous = request['anonymous']
         isAutoSelect = request['isAutoSelect']
         timeLimit = request['timeLimit']
-    # TODO: options?
+
+        try:
+            question = Question(ownerID, time, tag, question,
+                                anonymous, isAutoSelect, timeLimit)
+            db.session.add(question)
+            db.session.commit()
+        except Exception as e:
+            return ({'error': e})
+        # TODO: get questionID
+        # Insert options in the Option table
+        for op in request['options']:
+            try:
+                if(op['optionImage'] == ''):
+                    option = Option(op['questionID'], op['optionText'])
+                else:
+                    option = Option(op['questionID'],
+                                    op['optionText'], op['optionImage'])
+                db.session.add(option)
+                db.session.commit()
+            except Exception as e:
+                pass
+
+    return ({'success': True})
 
 
 @app.route('/api/listTopics')
