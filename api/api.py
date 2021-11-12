@@ -174,12 +174,10 @@ def recordPostedQuestion():
         "timeLimit"     : 1636665474,
         "options": [
             {
-                "questionID"    : 12345
                 "optionText"    : "option content",
                 "optionImage"   : "ImageFiliePath"
             },
             {
-                "questionID"    : 12345
                 "optionText"    : "option content",
                 "optionImage"   : "ImageFiliePath"
             }
