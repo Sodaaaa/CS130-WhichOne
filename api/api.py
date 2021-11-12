@@ -44,7 +44,6 @@ def getUser(UID):
     user = list(filter(lambda x: x.UID == UID, users))[0]
     return {"UID": user.UID, "username": user.username, "email": user.email, "password": user.password}
 
-
 class Question(db.Model):
     QuestionID = db.Column(db.Integer, primary_key=True)
     ownerID = db.Column(db.Integer, db.ForeignKey('user.UID'), nullable=False)
@@ -145,10 +144,10 @@ class UserAttitude(db.Model):
     
     def __repr__(self):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
-
+    
 @app.route("/api/register", methods=["POST"])
 def register():
-    """ """
+    """ return {"success": True} if successfuly register a new user, otherwise return corresponding error"""
     try:
         email = request.json["email"]
         password = request.json["password"]
@@ -181,6 +180,28 @@ def register():
             print(error)
         return jsonify({"success": True})
 
+    except Exception as error:
+        print(error)
+        return jsonify({"error": "Invalid form"})
+
+
+@app.route("/api/login", methods=["POST"])
+def login():
+    """ return {"success": True} if successfuly login, otherwise return corresponding error"""
+    try:
+        email = request.json["email"]
+        password = request.json["password"]
+        if email and password:
+            user = list(filter(lambda x: x["email"] == email and x["password"] == password, getAllUsers()))
+            print("User Information:", user)
+            # Check if user exists
+            if len(user) == 1:
+                print("Successfully Login")
+                return jsonify({"success": True})
+            else:
+                return jsonify({"error": "Invalid credentials"})
+        else:
+            return jsonify({"error": "Invalid form"})
     except Exception as error:
         print(error)
         return jsonify({"error": "Invalid form"})
