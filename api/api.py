@@ -141,6 +141,7 @@ class UserAttitude(db.Model):
     def __repr__(self):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
 
+db.create_all()
 
 @app.route("/api/register", methods=['GET', 'POST'])
 def register():
