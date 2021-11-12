@@ -33,6 +33,16 @@ class User(db.Model):
     def __repr__(self):
         return f"User('{self.UID}', '{self.username}', '{self.email}', '{self.image_file}')"
 
+def getAllUsers():
+    """return a list of all current users' information dictionary""" 
+    users = User.query.all()
+    return [{"UID": i.UID, "username": i.username, "email": i.email, "password": i.password} for i in users]
+
+def getUser(UID):
+    users = User.query.all()
+    user = list(filter(lambda x: x.UID == UID, users))[0]
+    return {"UID": user.UID, "username": user.username, "email": user.email, "password": user.password}
+
 
 class Question(db.Model):
     QuestionID = db.Column(db.Integer, primary_key=True)
@@ -134,6 +144,45 @@ class UserAttitude(db.Model):
     
     def __repr__(self):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
+
+@app.route("/api/register", methods=["POST"])
+def register():
+    """ """
+    try:
+        email = request.json["email"]
+        password = request.json["password"]
+        confirm_password = request.json["confirm_password"]
+        username = request.json["username"]
+        print(email, password, confirm_password, username)
+
+        # registration information check 
+        if not (email and password and cofirm_password and username):
+            return jsonify({"error": "Invalid form"})
+        elif password != confirm_password:
+            return jsonify({"error": "Inconsistent confirm password"})
+        
+        # Email validation check
+        if not re.match(r"[\w._]{5,}@\w{3,}\.\w{2,4}", email):
+            return jsonify({"error": "Invalid email"})
+
+        # Check to see if user already exists
+        users = getAllUsers()
+        if len(list(filter(lambda x: x["email"] == email, users))) == 1:
+            return jsonify({"error": "Email address already existed"})
+
+        # add a new user
+        try:
+            user = User(username, email, password)
+            db.session.add(user)
+            db.session.commit()
+        except Exception as error:
+            print(error)
+
+        return jsonify({"success": True})
+
+    except Exception as error:
+        print(error)
+        return jsonify({"error": "Invalid form"})
 
 @app.route('/api/recordPostedQuestion', methods=["POST"])
 def recordPostedQuestion(question):
