@@ -200,6 +200,8 @@ def recordPostedQuestion():
             question = Question(ownerID, time, tag, question,
                                 anonymous, isAutoSelect, timeLimit)
             db.session.add(question)
+            db.session.refresh(question)
+            questionID = question.id
             db.session.commit()
         except Exception as e:
             return ({'error': e})
@@ -208,9 +210,9 @@ def recordPostedQuestion():
         for op in request['options']:
             try:
                 if(op['optionImage'] == ''):
-                    option = Option(op['questionID'], op['optionText'])
+                    option = Option(questionID, op['optionText'])
                 else:
-                    option = Option(op['questionID'],
+                    option = Option(questionID,
                                     op['optionText'], op['optionImage'])
                 db.session.add(option)
                 db.session.commit()
