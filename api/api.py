@@ -3,6 +3,7 @@ from os import name
 import enum
 from flask import Flask, request, jsonify, url_for, flash, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship
 from forms import RegistrationForm, LoginForm
 
 app = Flask(__name__)
@@ -40,20 +41,21 @@ class Question(db.Model):
     tag = db.Column(db.String(20))
     question = db.Column(db.String(200))
     anonymous = db.Column(db.Boolean)
-    options = db.Column(db.Text)
     likes = db.Column(db.Integer)
     dislikes = db.Column(db.Integer)
     feedback = db.Column(db.Integer)
     isAutoSelect = db.Column(db.Boolean)
     timeLimit = db.Column(db.Integer)
 
-    def __init__(self, ownerID, time, tag, question, anonymous, options, isAutoSelect, timeLimit):
+    options = db.relationship(
+        "Option", cascade="all, delete", backref="Question")
+
+    def __init__(self, ownerID, time, tag, question, anonymous, isAutoSelect, timeLimit):
         self.ownerID = ownerID
         self.time = time
         self.tag = tag
         self.question = question
         self.anonymous = anonymous
-        self.options = options
         self.likes = 0
         self.dislikes = 0
         self.feedbackID = -1
@@ -209,6 +211,7 @@ def recordPostedQuestion():
         # Insert options in the Option table
         for op in request['options']:
             try:
+                # TODO: should not add Option this way, because there is a relationship with Question
                 if(op['optionImage'] == ''):
                     option = Option(questionID, op['optionText'])
                 else:
@@ -217,6 +220,7 @@ def recordPostedQuestion():
                 db.session.add(option)
                 db.session.commit()
             except Exception as e:
+                # TODO: delete the question and cascade deletion of child
                 pass
 
     return ({'success': True})
