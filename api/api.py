@@ -12,26 +12,27 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '0bbabb38f22b256ab947284622266494'
 db = SQLAlchemy(app)
 
-
 class User(db.Model):
     UID = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
+    username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False,
-                           default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
-    questions = db.relationship('Question', backref='author', lazy=True)
+    # confirm_password = db.Column(db.String(60), nullable=False)
+    image_file = db.Column(db.String(20))
+    # , nullable=False, default='default.jpg')
+    # questions = db.relationship('Question', backref='author', lazy=True)
 
-    def __init__(self, username, email, password, image_file=None):
+    def __init__(self, username, email, password, confirm_password, image_file=None):
         self.username = username
         self.email = email
         self.password = password
+        # self.confirm_password = confirm_password
 
         if image_file != None:
             self.image_file = image_file
 
     def __repr__(self):
-        return f"User('{self.UID}', '{self.username}', '{self.email}', '{self.image_file}')"
+        return f"User('{self.UID}', '{self.username}', '{self.email}', '{self.password}', '{self.image_file}')"
 
 def getAllUsers():
     """return a list of all current users' information dictionary""" 
@@ -153,10 +154,10 @@ def register():
         password = request.json["password"]
         confirm_password = request.json["confirm_password"]
         username = request.json["username"]
-        print(email, password, confirm_password, username)
+        print({"email": email, "password": password, "confirm_password": confirm_password, "username": username})
 
         # registration information check 
-        if not (email and password and cofirm_password and username):
+        if not (email and password and confirm_password and username):
             return jsonify({"error": "Invalid form"})
         elif password != confirm_password:
             return jsonify({"error": "Inconsistent confirm password"})
@@ -172,12 +173,12 @@ def register():
 
         # add a new user
         try:
-            user = User(username, email, password)
+            user = User(username, email, password, confirm_password)
             db.session.add(user)
             db.session.commit()
+            print("Successfully add a user!")
         except Exception as error:
             print(error)
-
         return jsonify({"success": True})
 
     except Exception as error:
