@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router';
 import {Link, Redirect} from 'react-router-dom'
 import { Layout } from 'antd/lib';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
@@ -33,8 +34,10 @@ export default class login extends Component {
         document.getElementById("user").value = "";
         document.getElementById("pw").value = "";
       } else {
-        this.setState({loggedIn:true});
+        this.setState({username:document.getElementById("user").value, loggedIn:true});
         console.log(this.state.loggedIn);
+        localStorage.setItem('email', this.state.username)
+        localStorage.setItem('loggedIn', this.state.loggedIn)
       }
     });
   }

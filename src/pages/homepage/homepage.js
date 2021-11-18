@@ -76,7 +76,14 @@ export default class homepage extends Component {
               More
             </Button>
           </div>
-        </Content>      
+        </Content>
+        {/* <div>
+          {localStorage.getItem('email') && (
+              <div>
+                Name: <p>{localStorage.getItem('email')}</p>
+              </div>
+          )}
+        </div>   */}
         <Footer style={{ textAlign: 'center' }}>CS130 Project By Which One Team</Footer>    
       </Layout>    
     )
