@@ -14,6 +14,7 @@ db = SQLAlchemy(app)
 
 
 class User(db.Model):
+    __tablename__ = "user"
     UID = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -35,6 +36,7 @@ class User(db.Model):
 
 
 class Question(db.Model):
+    __tablename__ = "question"
     QuestionID = db.Column(db.Integer, primary_key=True)
     ownerID = db.Column(db.Integer, db.ForeignKey('user.UID'), nullable=False)
     time = db.Column(db.DateTime)
@@ -46,10 +48,10 @@ class Question(db.Model):
     feedback = db.Column(db.Integer)
     timeLimit = db.Column(db.Integer)
 
-    options = db.relationship(
-        "Option", cascade="all, delete", backref="Question")
+    option = db.relationship(
+        "option", cascade="all, delete", backref="question")
 
-    def __init__(self, ownerID, time, tag, question, anonymous, isAutoSelect, timeLimit):
+    def __init__(self, ownerID, time, tag, question, anonymous,  timeLimit):
         self.ownerID = ownerID
         self.time = time
         self.tag = tag
@@ -58,7 +60,6 @@ class Question(db.Model):
         self.likes = 0
         self.dislikes = 0
         self.feedbackID = -1
-        self.isAutoSelect = isAutoSelect
         self.timeLimit = timeLimit
 
     def __repr__(self):
@@ -66,6 +67,7 @@ class Question(db.Model):
 
 
 class Option(db.Model):
+    __tablename__ = "option"
     OptionID = db.Column(db.Integer, primary_key=True)
     questionID = db.Column(db.Integer, db.ForeignKey(
         'question.QuestionID'), nullable=False)
@@ -73,8 +75,7 @@ class Option(db.Model):
     image = db.Column(db.String(50))
     votes = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, questionID, name, image=None):
-        self.questionID = questionID
+    def __init__(self, name, image=None):
         self.name = name
         if image != None:
             self.image = None
@@ -87,6 +88,7 @@ class Option(db.Model):
 
 
 class Feedback(db.Model):
+    __tablename__ = "feedback"
     FeedbackID = db.Column(db.Integer, primary_key=True)
     questionID = db.Column(db.Integer, db.ForeignKey(
         'question.QuestionID'), nullable=False)
@@ -140,6 +142,8 @@ class UserAttitude(db.Model):
     def __repr__(self):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
 
+
+
 @app.route("/api/register", methods=['GET', 'POST'])
 def register():
     """ add new user to the database """
@@ -168,7 +172,6 @@ def recordPostedQuestion():
         "tag"           : "tagname",
         "question"      : "question content",
         "annoymous"     : TRUE,
-        "isAutoSelect"  : FALSE,
         "timeLimit"     : 1636665474,
         "options": [
             {
@@ -186,39 +189,32 @@ def recordPostedQuestion():
     """
     method = request.method
     if method.lower() == 'post':
-        ownerID = request['ownerID']
-        time = request['time']
-        tag = request['tag']
-        question = request['question']
-        anonymous = request['anonymous']
-        isAutoSelect = request['isAutoSelect']
-        timeLimit = request['timeLimit']
+        ownerID = request.json['ownerID']
+        time = request.json['time']
+        tag = request.json['tag']
+        question = request.json['question']
+        anonymous = request.json['anonymous']
+        timeLimit = request.json['timeLimit']
 
         try:
             question = Question(ownerID, time, tag, question,
-                                anonymous, isAutoSelect, timeLimit)
+                                anonymous, timeLimit)
+
+            for op in request.json['options']:
+                option = None
+                # TODO: should not add Option this way, because there is a relationship with Question
+                if(op['optionImage'] == ''):
+                    option = Option(op['optionText'])
+                else:
+                    option = Option(op['optionText'], op['optionImage'])
+                question.option.append(option)
+
             db.session.add(question)
             db.session.refresh(question)
             questionID = question.id
             db.session.commit()
         except Exception as e:
             return ({'error': e})
-        # TODO: get questionID
-        # Insert options in the Option table
-        for op in request['options']:
-            try:
-                # TODO: should not add Option this way, because there is a relationship with Question
-                if(op['optionImage'] == ''):
-                    option = Option(questionID, op['optionText'])
-                else:
-                    option = Option(questionID,
-                                    op['optionText'], op['optionImage'])
-                db.session.add(option)
-                db.session.commit()
-            except Exception as e:
-                # TODO: delete the question and cascade deletion of child
-                pass
-
     return ({'success': True})
 
 
@@ -326,6 +322,12 @@ def listHotTopics():
 @app.route('/time')
 def get_current_time():
     return {'time': time.time()}
+
+
+@app.route('/')
+def index():
+    db.create_all()
+    return "hello world"
 
 
 if __name__ == '__main__':
