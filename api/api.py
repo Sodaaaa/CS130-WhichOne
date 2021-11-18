@@ -39,9 +39,10 @@ def getAllUsers():
     users = User.query.all()
     return [{"UID": i.UID, "username": i.username, "email": i.email, "password": i.password} for i in users]
 
-def getUser(UID):
+def getUser(email):
+    """given user's email, return UID, username, email and password of this user"""
     users = User.query.all()
-    user = list(filter(lambda x: x.UID == UID, users))[0]
+    user = list(filter(lambda x: x.email == email, users))[0]
     return {"UID": user.UID, "username": user.username, "email": user.email, "password": user.password}
 
 class Question(db.Model):
