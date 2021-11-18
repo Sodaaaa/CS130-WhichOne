@@ -191,18 +191,18 @@ def recordPostedQuestion():
     """
     method = request.method
     if method.lower() == 'post':
-        ownerID = request['ownerID']
-        time = request['time']
-        tag = request['tag']
-        question = request['question']
-        anonymous = request['anonymous']
-        timeLimit = request['timeLimit']
+        ownerID = request.json['ownerID']
+        time = request.json['time']
+        tag = request.json['tag']
+        question = request.json['question']
+        anonymous = request.json['anonymous']
+        timeLimit = request.json['timeLimit']
 
         try:
             question = Question(ownerID, time, tag, question,
                                 anonymous, timeLimit)
 
-            for op in request['options']:
+            for op in request.json['options']:
                 option = None
                 # TODO: should not add Option this way, because there is a relationship with Question
                 if(op['optionImage'] == ''):
@@ -321,6 +321,7 @@ def get_current_time():
 @app.route('/')
 def index():
     db.create_all()
+    return "hello world"
 
 
 if __name__ == '__main__':
