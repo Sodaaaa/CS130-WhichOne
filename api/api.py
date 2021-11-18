@@ -48,7 +48,7 @@ class Question(db.Model):
     feedback = db.Column(db.Integer)
     timeLimit = db.Column(db.Integer)
 
-    options = db.relationship(
+    option = db.relationship(
         "option", cascade="all, delete", backref="question")
 
     def __init__(self, ownerID, time, tag, question, anonymous,  timeLimit):
@@ -75,8 +75,7 @@ class Option(db.Model):
     image = db.Column(db.String(50))
     votes = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, questionID, name, image=None):
-        self.questionID = questionID
+    def __init__(self, name, image=None):
         self.name = name
         if image != None:
             self.image = None
@@ -202,6 +201,7 @@ def recordPostedQuestion():
         try:
             question = Question(ownerID, time, tag, question,
                                 anonymous, timeLimit)
+            question.option.append(Option())
             db.session.add(question)
             db.session.refresh(question)
             questionID = question.id
@@ -323,6 +323,11 @@ def listHotTopics():
 @app.route('/time')
 def get_current_time():
     return {'time': time.time()}
+
+
+@app.route('/')
+def index():
+    db.create_all()
 
 
 if __name__ == '__main__':
