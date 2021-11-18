@@ -44,7 +44,6 @@ class Question(db.Model):
     likes = db.Column(db.Integer)
     dislikes = db.Column(db.Integer)
     feedback = db.Column(db.Integer)
-    isAutoSelect = db.Column(db.Boolean)
     timeLimit = db.Column(db.Integer)
 
     options = db.relationship(
@@ -140,8 +139,6 @@ class UserAttitude(db.Model):
 
     def __repr__(self):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
-
-db.create_all()
 
 @app.route("/api/register", methods=['GET', 'POST'])
 def register():
@@ -242,8 +239,7 @@ def recordVote():
         "optionID"      : 123456
     }
     """
-    method = request.method
-    if method.lower() == 'post':
+    try:
         userID = request['userID']
         questionID = request['questionID']
         vote_result = request['optionID']
@@ -253,6 +249,11 @@ def recordVote():
             option = Option.query.get(vote_result)
             option.votes += 1
             db.session.commit()
+            return ({"success": True})
+        else:
+            return ({"error": "Missing userID or questionID or attitude"})
+    except Exception as e:
+        return ({"error": e})
 
 
 @app.route('/api/recordAttitude', methods=["POST"])
@@ -266,8 +267,7 @@ def recordAttitude():
         "attitude"      : 0
     }
     """
-    method = request.method
-    if method.lower() == 'post':
+    try:
         userID = request['userID']
         questionID = request['questionID']
         attitude = request['attitude']
@@ -277,9 +277,16 @@ def recordAttitude():
             question = Question.query.get(questionID)
             if attitude == 0:
                 question.likes += 1
-            else:
+            elif attitude == 1:
                 question.dislikes += 1
+            else:
+                return ({"error": "invalid attitude"})
             db.session.commit()
+            return ({"success": True})
+        else:
+            return ({"error": "Missing userID or questionID or attitude"})
+    except Exception as e:
+        return ({"error": e})
 
 
 @app.route('/api/recordFeedback')
@@ -312,11 +319,9 @@ def provideOptions(question):
     pass
 
 
-@app.route('/api/listHotTopics')
+@app.route('/api/listHotTopics', methods=["GET"])
 def listHotTopics():
-    """ Return the hottest topic of each tag. """
     pass
-
 
 @app.route('/time')
 def get_current_time():
