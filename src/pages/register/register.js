@@ -18,7 +18,7 @@ import Background from '../../img/background.jfif';
 
 const { Header, Content } = Layout;
 
-export default class login extends Component {
+export default class register extends Component {
   render() {
     return (      
       <Layout className="layout">

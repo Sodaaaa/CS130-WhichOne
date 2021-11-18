@@ -1,15 +1,58 @@
 import React, { Component } from 'react';
-import {Link} from 'react-router-dom'
+import {Link, Redirect} from 'react-router-dom'
 import { Layout } from 'antd/lib';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Form, Input, Button, Checkbox } from 'antd';
 import './login.css';
 import MenuBar from '../../components/MenuBar/MenuBar'
 import Background from '../../img/background.jfif';
+import { conditionalExpression } from '@babel/types';
+import axios from 'axios';
 const { Content } = Layout;
 
-export default class register extends Component {
+export default class login extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {username:"", password:"", loggedIn:false};
+  }
+
+  handleSubmit = event => {
+    event.preventDefault();
+    //console.log(this.state.username);
+    //console.log(this.state.password);
+    //s.login();
+    axios.post("/api/login", {
+      email: document.getElementById("user").value,
+      password: document.getElementById("pw").value
+    }).then((res) => {
+      console.log(res)
+      if (res.data.error) {
+        console.log("error");
+        //this.setState({loggedIn:false});
+        alert("Log in failed: please check your username or password.")
+        document.getElementById("user").value = "";
+        document.getElementById("pw").value = "";
+      } else {
+        this.setState({loggedIn:true});
+        console.log(this.state.loggedIn);
+      }
+    });
+  }
+
+  // onUserNameChange = event => {
+  //   this.setState({
+  //     username: event.target.value
+  //   });
+  // }
+
+  // onPasswordChange = event => {
+  //   this.setState({
+  //     password: event.target.value
+  //   });
+  // }
+
   render() {
+    if (this.state.loggedIn) return <Redirect to='/homepage'/>
     return (      
       <Layout className="layout">
         <MenuBar selected="login"></MenuBar>
@@ -32,7 +75,12 @@ export default class register extends Component {
                       },
                     ]}
                   >
-                    <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
+                    <Input 
+                      prefix={<UserOutlined className="site-form-item-icon" />} 
+                      placeholder="Username" 
+                      id="user"
+                      //onChange={this.onUserNameChange}
+                    />
                   </Form.Item>
                   <Form.Item
                     name="password"
@@ -47,6 +95,8 @@ export default class register extends Component {
                       prefix={<LockOutlined className="site-form-item-icon" />}
                       type="password"
                       placeholder="Password"
+                      id="pw"
+                      //onChange={this.onPasswordChange}
                     />
                   </Form.Item>
                   <Form.Item>
@@ -60,7 +110,11 @@ export default class register extends Component {
                   </Form.Item>
 
                   <Form.Item>
-                    <Button type="primary" htmlType="submit" className="login-form-button">
+                    <Button 
+                      type="primary" 
+                      htmlType="submit" 
+                      className="login-form-button" 
+                      onClick={this.handleSubmit}>
                       Log in
                     </Button>
                     Or <Link to='/register'>Register</Link>
