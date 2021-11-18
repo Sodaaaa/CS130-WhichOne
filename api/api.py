@@ -14,6 +14,7 @@ db = SQLAlchemy(app)
 
 
 class User(db.Model):
+    __tablename__ = "user"
     UID = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -35,6 +36,7 @@ class User(db.Model):
 
 
 class Question(db.Model):
+    __tablename__ = "question"
     QuestionID = db.Column(db.Integer, primary_key=True)
     ownerID = db.Column(db.Integer, db.ForeignKey('user.UID'), nullable=False)
     time = db.Column(db.DateTime)
@@ -44,13 +46,12 @@ class Question(db.Model):
     likes = db.Column(db.Integer)
     dislikes = db.Column(db.Integer)
     feedback = db.Column(db.Integer)
-    isAutoSelect = db.Column(db.Boolean)
     timeLimit = db.Column(db.Integer)
 
     options = db.relationship(
-        "Option", cascade="all, delete", backref="Question")
+        "option", cascade="all, delete", backref="question")
 
-    def __init__(self, ownerID, time, tag, question, anonymous, isAutoSelect, timeLimit):
+    def __init__(self, ownerID, time, tag, question, anonymous,  timeLimit):
         self.ownerID = ownerID
         self.time = time
         self.tag = tag
@@ -59,7 +60,6 @@ class Question(db.Model):
         self.likes = 0
         self.dislikes = 0
         self.feedbackID = -1
-        self.isAutoSelect = isAutoSelect
         self.timeLimit = timeLimit
 
     def __repr__(self):
@@ -67,6 +67,7 @@ class Question(db.Model):
 
 
 class Option(db.Model):
+    __tablename__ = "option"
     OptionID = db.Column(db.Integer, primary_key=True)
     questionID = db.Column(db.Integer, db.ForeignKey(
         'question.QuestionID'), nullable=False)
@@ -88,6 +89,7 @@ class Option(db.Model):
 
 
 class Feedback(db.Model):
+    __tablename__ = "feedback"
     FeedbackID = db.Column(db.Integer, primary_key=True)
     questionID = db.Column(db.Integer, db.ForeignKey(
         'question.QuestionID'), nullable=False)
@@ -141,7 +143,9 @@ class UserAttitude(db.Model):
     def __repr__(self):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
 
+
 db.create_all()
+
 
 @app.route("/api/register", methods=['GET', 'POST'])
 def register():
@@ -171,7 +175,6 @@ def recordPostedQuestion():
         "tag"           : "tagname",
         "question"      : "question content",
         "annoymous"     : TRUE,
-        "isAutoSelect"  : FALSE,
         "timeLimit"     : 1636665474,
         "options": [
             {
@@ -194,12 +197,11 @@ def recordPostedQuestion():
         tag = request['tag']
         question = request['question']
         anonymous = request['anonymous']
-        isAutoSelect = request['isAutoSelect']
         timeLimit = request['timeLimit']
 
         try:
             question = Question(ownerID, time, tag, question,
-                                anonymous, isAutoSelect, timeLimit)
+                                anonymous, timeLimit)
             db.session.add(question)
             db.session.refresh(question)
             questionID = question.id
