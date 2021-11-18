@@ -201,29 +201,22 @@ def recordPostedQuestion():
         try:
             question = Question(ownerID, time, tag, question,
                                 anonymous, timeLimit)
-            question.option.append(Option())
+
+            for op in request['options']:
+                option = None
+                # TODO: should not add Option this way, because there is a relationship with Question
+                if(op['optionImage'] == ''):
+                    option = Option(op['optionText'])
+                else:
+                    option = Option(op['optionText'], op['optionImage'])
+                question.option.append(option)
+
             db.session.add(question)
             db.session.refresh(question)
             questionID = question.id
             db.session.commit()
         except Exception as e:
             return ({'error': e})
-        # TODO: get questionID
-        # Insert options in the Option table
-        for op in request['options']:
-            try:
-                # TODO: should not add Option this way, because there is a relationship with Question
-                if(op['optionImage'] == ''):
-                    option = Option(questionID, op['optionText'])
-                else:
-                    option = Option(questionID,
-                                    op['optionText'], op['optionImage'])
-                db.session.add(option)
-                db.session.commit()
-            except Exception as e:
-                # TODO: delete the question and cascade deletion of child
-                pass
-
     return ({'success': True})
 
 
