@@ -12,6 +12,7 @@ import axios from 'axios';
 const { Content } = Layout;
 
 export default class login extends Component {
+  formRef = React.createRef();
   constructor(props) {
     super(props);
     this.state = {username:"", password:"", loggedIn:false};
@@ -33,6 +34,7 @@ export default class login extends Component {
         alert("Log in failed: please check your username or password.")
         document.getElementById("user").value = "";
         document.getElementById("pw").value = "";
+        this.formRef.current.resetFields();
       } else {
         this.setState({username:document.getElementById("user").value, loggedIn:true});
         console.log(this.state.loggedIn);
@@ -66,6 +68,7 @@ export default class login extends Component {
         <Content name = "login-content" style={{ background: `url(${Background}) no-repeat`, backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
               <div className="question-layout-content">
                 <Form
+                  ref={this.formRef}
                   name="normal_login"
                   className="login-form"
                   initialValues={{
