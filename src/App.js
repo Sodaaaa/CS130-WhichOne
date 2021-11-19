@@ -7,8 +7,10 @@ import homepage from "./pages/homepage/homepage";
 import question from "./pages/question/question";
 import vote from "./pages/vote/vote";
 import register from "./pages/register/register";
+import profile from "./pages/profile/profile";
 
 function App() {
+  localStorage.setItem('loggedIn', false);
   return (
     <BrowserRouter>
         <Route exact path='/' component={homepage} />
@@ -24,6 +26,7 @@ function App() {
             <Route path='/question' component={question}/>
             <Route path='/vote' component={vote}/>
             <Route path='/register' component={register}/>
+            <Route path='/profile' component={profile}/>
           </Switch>
     </BrowserRouter>
   );
