@@ -38,6 +38,7 @@ export default class login extends Component {
         console.log(this.state.loggedIn);
         localStorage.setItem('email', this.state.username)
         localStorage.setItem('loggedIn', this.state.loggedIn)
+        this.props.history.push('/homepage')
       }
     });
   }
@@ -55,7 +56,10 @@ export default class login extends Component {
   // }
 
   render() {
-    if (this.state.loggedIn) return <Redirect to='/homepage'/>
+    // if (this.state.loggedIn) {
+    //   return <Redirect to='/homepage'/>
+    //   // history.pushState('/homepage')
+    // }
     return (      
       <Layout className="layout">
         <MenuBar selected="login"></MenuBar>

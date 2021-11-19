@@ -19,7 +19,7 @@ class MenuBar extends Component {
     if (localStorage.getItem('loggedIn')=="true") {
       UserMenu = <Menu.Item key="profile" icon={<UserOutlined />}>
                   <Link to='/profile'>Profile</Link>
-                </Menu.Item>;                
+                </Menu.Item>;        
     } else {
       UserMenu = <Menu.Item key="login" icon={<UserOutlined />}>
                   <Link to='/login'>Login</Link>
