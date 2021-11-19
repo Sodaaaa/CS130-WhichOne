@@ -12,22 +12,69 @@ import {
   Button,
   AutoComplete,
 } from 'antd';
+import {Redirect} from 'react-router-dom'
 import './register.css';
 import MenuBar from '../../components/MenuBar/MenuBar'
 import Background from '../../img/background.jfif';
+import axios from 'axios';
 
 const { Header, Content } = Layout;
 
 export default class register extends Component {
+  formRef = React.createRef();
+  constructor(props) {
+    super(props);
+    this.state = {username:"", password:""};
+  }
+
+  handleSubmit = () => {
+    //event.preventDefault();
+    console.log("submitted");
+
+    axios.post("/api/register", {
+      email: document.getElementById("registerEmail").value,
+      password: document.getElementById("registerPW").value,
+      confirm_password: document.getElementById("registerConfirm").value,
+      username: document.getElementById("registerUserName").value
+    }).then((res) => {
+      console.log(res)
+      if (res.data.error) {
+        console.log("error");
+        //this.setState({loggedIn:false});
+        alert(res.data.error);
+        this.formRef.current.resetFields();
+      } else {
+        //this.setState({ signedUp:true });
+        console.log("Successfully signed up.");
+        this.props.history.push('/login');
+        // localStorage.setItem('email', this.state.username)
+        // localStorage.setItem('loggedIn', this.state.loggedIn)
+      }
+    });
+  };
+
+  onFinish = () => {
+    this.handleSubmit();
+  };
+
+  onFinishFailed = () => {
+    console.log("Validation failed.");
+    alert("Please check and correct your input.");
+  };
+
   render() {
+    if (this.state.signedUp) return <Redirect to="/login"/>;
     return (      
       <Layout className="layout">
         <MenuBar selected="login"></MenuBar>
         <Content name = "register-content" style={{ background: `url(${Background}) no-repeat`, backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
               <div className="register-layout-content">
                 <Form
+                    ref={this.formRef}
                     name="normal_register"
                     className="register-form"
+                    onFinish={this.onFinish}
+                    onFinishFailed={this.onFinishFailed}
                 >
                   <Form.Item
                     name="email"
@@ -43,7 +90,7 @@ export default class register extends Component {
                       },
                     ]}
                   >
-                    <Input />
+                    <Input id="registerEmail" />
                   </Form.Item>
 
                   <Form.Item
@@ -57,7 +104,7 @@ export default class register extends Component {
                     ]}
                     hasFeedback
                   >
-                    <Input.Password />
+                    <Input.Password id="registerPW"/>
                   </Form.Item>
 
                   <Form.Item
@@ -81,7 +128,7 @@ export default class register extends Component {
                       }),
                     ]}
                   >
-                    <Input.Password />
+                    <Input.Password id="registerConfirm"/>
                   </Form.Item>
 
                   <Form.Item
@@ -96,11 +143,16 @@ export default class register extends Component {
                       },
                     ]}
                   >
-                    <Input />
+                    <Input id="registerUserName"/>
                   </Form.Item>
 
                   <Form.Item>
-                  <Button className="register-form-button" type="primary" htmlType="submit">
+                  <Button 
+                    className="register-form-button" 
+                    type="primary" 
+                    htmlType="submit"
+                    //onClick={this.handleSubmit}
+                  >
                     Register
                   </Button>
                 </Form.Item>

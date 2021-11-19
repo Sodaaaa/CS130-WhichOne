@@ -18,10 +18,10 @@ export default class login extends Component {
     this.state = {username:"", password:"", loggedIn:false};
   }
 
-  handleSubmit = event => {
-    event.preventDefault();
+  handleSubmit = () =>  {
+    //event.preventDefault();
     //console.log(this.state.username);
-    //console.log(this.state.password);
+    console.log(this.state.verified);
     //s.login();
     axios.post("/api/login", {
       email: document.getElementById("user").value,
@@ -31,19 +31,31 @@ export default class login extends Component {
       if (res.data.error) {
         console.log("error");
         //this.setState({loggedIn:false});
-        alert("Log in failed: please check your username or password.")
+        //alert("Log in failed: please check your username or password.")
+        alert(res.data.error);
         document.getElementById("user").value = "";
         document.getElementById("pw").value = "";
         this.formRef.current.resetFields();
       } else {
         this.setState({username:document.getElementById("user").value, loggedIn:true});
         console.log(this.state.loggedIn);
-        localStorage.setItem('email', this.state.username)
-        localStorage.setItem('loggedIn', this.state.loggedIn)
-        this.props.history.push('/homepage')
+        localStorage.setItem('email', this.state.username);
+        localStorage.setItem('loggedIn', this.state.loggedIn);
+        this.props.history.push('/homepage');
       }
     });
   }
+  onFinish = () => {
+    // event.preventDefault();
+    console.log("finished");
+    //this.setState({verified:true});
+    this.handleSubmit();
+  };
+
+  onFinishFailed = () => {
+    console.log("failed validation");
+    alert("Please check and correct your input.");
+  };
 
   // onUserNameChange = event => {
   //   this.setState({
@@ -74,7 +86,8 @@ export default class login extends Component {
                   initialValues={{
                     remember: true,
                   }}
-                  // onFinish={onFinish}
+                  onFinish={this.onFinish}
+                  onFinishFailed={this.onFinishFailed}
                 >
                   <Form.Item
                     name="username"
@@ -123,8 +136,8 @@ export default class login extends Component {
                     <Button 
                       type="primary" 
                       htmlType="submit" 
-                      className="login-form-button" 
-                      onClick={this.handleSubmit}>
+                      className="login-form-button" >
+                       {/* onClick={this.handleSubmit}> */}
                       Log in
                     </Button>
                     Or <Link to='/register'>Register</Link>
