@@ -7,20 +7,21 @@ import { List, Avatar, Space } from 'antd';
 import { MessageOutlined, LikeOutlined, StarOutlined } from '@ant-design/icons';
 import "./vote.css";
 import { cloneNode } from '@babel/types';
+import QuestionList from '../../components/questionList/questionList';
 
 const { Content } = Layout;
 
-const listData = [];
-for (let i = 0; i < 23; i++) {
-  listData.push({
-    title: `Question ${i+1}`,
-    avatar: 'https://joeschmoe.io/api/v1/random',
-    description:
-      'tag',
-    content:
-      <OptionList />
-  });
-}
+// const listData = [];
+// for (let i = 0; i < 23; i++) {
+//   listData.push({
+//     title: `Question ${i+1}`,
+//     avatar: 'https://joeschmoe.io/api/v1/random',
+//     description:
+//       'tag',
+//     content:
+//       <OptionList />
+//   });
+// }
 
 const IconText = ({ icon, text }) => (
   <Space>
@@ -40,7 +41,8 @@ export default class vote extends Component {
                   <CustomTag />
                 </div>
                 <div className="vote-questions">
-                  <List
+                  <QuestionList />
+                  {/* <List
                     itemLayout="vertical"
                     size="large"
                     pagination={{ onChange: page => { console.log(page); }, pageSize: 8, }}
@@ -70,7 +72,7 @@ export default class vote extends Component {
                         {item.content}
                       </List.Item>
                     )}
-                  />
+                  /> */}
                 </div>
               </div>
         </Content>  
