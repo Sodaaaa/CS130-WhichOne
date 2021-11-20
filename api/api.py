@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, url_for, flash, redirect, render_temp
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from forms import RegistrationForm, LoginForm
+import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -49,7 +50,7 @@ class Question(db.Model):
     timeLimit = db.Column(db.Integer)
 
     option = db.relationship(
-        "option", cascade="all, delete", backref="question")
+        "Option", cascade="all, delete", backref="Question")
 
     def __init__(self, ownerID, time, tag, question, anonymous,  timeLimit):
         self.ownerID = ownerID
@@ -164,7 +165,7 @@ def login():
 
 @app.route('/api/recordPostedQuestion', methods=["POST"])
 def recordPostedQuestion():
-    """ Record the posted question into our database. 
+    """ Record the posted question into our database.
     This API use the POST method.
     The posted json object should be in the form below:
 
@@ -192,30 +193,31 @@ def recordPostedQuestion():
     method = request.method
     if method.lower() == 'post':
         ownerID = request.json['ownerID']
-        time = request.json['time']
+        time = datetime.datetime.fromtimestamp(request.json['time'])
         tag = request.json['tag']
         question = request.json['question']
         anonymous = request.json['anonymous']
         timeLimit = request.json['timeLimit']
 
-        try:
-            question = Question(ownerID, time, tag, question,
-                                anonymous, timeLimit)
+        question = Question(ownerID, time, tag, question,
+                            anonymous, timeLimit)
 
-            for op in request.json['options']:
-                option = None
-                # TODO: should not add Option this way, because there is a relationship with Question
-                if(op['optionImage'] == ''):
-                    option = Option(op['optionText'])
-                else:
-                    option = Option(op['optionText'], op['optionImage'])
-                question.option.append(option)
+        for op in request.json['options']:
+            option = None
+            if(op['optionImage'] == ''):
+                option = Option(op['optionText'])
+            else:
+                option = Option(op['optionText'], op['optionImage'])
+            question.option.append(option)
+        try:
 
             db.session.add(question)
-            db.session.refresh(question)
-            questionID = question.id
+            # db.session.refresh(question)
+            # questionID = question.id
             db.session.commit()
+
         except Exception as e:
+            print(e)
             return ({'error': e})
     return ({'success': True})
 
