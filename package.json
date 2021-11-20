@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.1.10",
     "antd": "^4.16.13",
     "react": "^17.0.2",
+    "react-axios": "^2.0.5",
     "react-dom": "^17.0.2",
     "react-router": "^6.0.1",
     "react-router-dom": "^5.3.0",
@@ -16,7 +17,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start-api": "cd api && venv/bin/flask run --no-debugger",
+    "start-api": "cd api && venv\\Scripts\\flask run --no-debugger",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
