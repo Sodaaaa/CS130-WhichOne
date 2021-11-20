@@ -60,6 +60,35 @@ class MyTestClass(unittest.TestCase):
         self.assertEqual(response.getcode(), 200)
         print("Finish test : seccessfully record a posted question , code is 200")
 
+    def test_record_vote(self):
+        self.__request_data = {
+            "userID"        : 123456,
+            "questionID"    : 123456,
+            "optionID"      : 123456
+        }
+        self.__url = "http://127.0.0.1:3000/api/recordVote"
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("Start to test record vote function")
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success, code is 200")
+
+    def test_record_attitude(self):
+        self.__request_data = {
+            "userID"        : 123456,
+            "questionID"    : 123456,
+            "attitude"      : 0
+        }
+        self.__url = "http://127.0.0.1:3000/api/recordAttitude"
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("Start to test record attitude function")
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success, code is 200")
 
 # runs the unit tests in the module
 if __name__ == '__main__':

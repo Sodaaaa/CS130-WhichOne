@@ -1,7 +1,7 @@
 import time
 from os import name
 import enum
-from flask import Flask, request, jsonify, url_for, flash, redirect, render_template
+from flask import Flask, json, request, jsonify, url_for, flash, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from forms import RegistrationForm, LoginForm
@@ -144,8 +144,6 @@ class UserAttitude(db.Model):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
 
 
-db.create_all()
-
 
 @app.route("/api/register", methods=['GET', 'POST'])
 def register():
@@ -239,17 +237,21 @@ def recordVote():
         "optionID"      : 123456
     }
     """
-    method = request.method
-    if method.lower() == 'post':
-        userID = request['userID']
-        questionID = request['questionID']
-        vote_result = request['optionID']
+    try:
+        userID = request.json['userID']
+        questionID = request.json['questionID']
+        vote_result = request.json['optionID']
         if userID and questionID and vote_result:
             user_vote = UserVote(userID, questionID, vote_result)
             db.session.add(user_vote)
             option = Option.query.get(vote_result)
             option.votes += 1
             db.session.commit()
+            return jsonify({"success": True})
+        else:
+            return jsonify({"error": "Missing userID or questionID or vote_result"})
+    except Exception as e:
+        return jsonify({"error": e})
 
 
 @app.route('/api/recordAttitude', methods=["POST"])
@@ -263,20 +265,26 @@ def recordAttitude():
         "attitude"      : 0
     }
     """
-    method = request.method
-    if method.lower() == 'post':
-        userID = request['userID']
-        questionID = request['questionID']
-        attitude = request['attitude']
+    try:
+        userID = request.json['userID']
+        questionID = request.json['questionID']
+        attitude = request.json['attitude']
         if userID and questionID and attitude:
             user_attitude = UserAttitude(userID, questionID, attitude)
             db.session.add(user_attitude)
             question = Question.query.get(questionID)
             if attitude == 0:
                 question.likes += 1
-            else:
+            elif attitude == 1:
                 question.dislikes += 1
+            else:
+                return jsonify({"error": "invalid attitude"})
             db.session.commit()
+            return jsonify({"success": True})
+        else:
+            return jsonify({"error": "Missing userID or questionID or attitude"})
+    except Exception as e:
+        return jsonify({"error": e})
 
 
 @app.route('/api/recordFeedback')
@@ -309,11 +317,84 @@ def provideOptions(question):
     pass
 
 
-@app.route('/api/listHotTopics')
+@app.route('/api/listHotTopics', methods=["GET"])
 def listHotTopics():
-    """ Return the hottest topic of each tag. """
-    pass
+    """ Return the hottest topic of each tag. 
+    This API use the GET method.
+    The returned json object is be in the form below:
+    {
+        "Food" :
+        {
+            "questionID"    : 123456,
+            "ownerID"       : 123456,
+            "time"          : ,
+            "tag"
+            "question"
+            "anonymous"
+            "likes"
+            "dislikes"
+            "feedback"
+            "timeLimit"
+            "options"       :
+            [
+                {
+                    "optionID"  : 
+                    "name"      :
+                    "image"     :
+                    "votes"     :
+                },
+                {
+                    ...
+                },
+                ...
+            ]
+        },
+        "Travel" :
+        {
+            ...
+        },
+        ...
+    }
+    """
+    try:
+        tags = ["Style", "Sports", "Music", "Movie", "Food", "Travel"]
+        ret_dict = {}
+        for tag_ in tags:
+            q = Question.query\
+                .filter_by(tag=tag_)\
+                .order_by((Question.likes+Question.dislikes).desc())\
+                .first()
+            ret_dict[tag_] = getQuestion(q)
+        return jsonify(ret_dict)
+    except Exception as e:
+        return jsonify({"error": e})
 
+def getQuestion(q):
+    id = q.QuestionID
+    options = Option.query.filter_by(questionID=id).all()
+    option_list = []
+    for op in options:
+        op_dict = {}
+        op_dict["optionID"] = op.OptionID
+        op_dict["name"] = op.name
+        op_dict["image"] = op.image
+        op_dict["votes"] = op.votes
+        option_list.append(op_dict)
+    
+    q_dict = {
+        "questionID"    : id,
+        "ownerID"       : q.ownerID,
+        "time"          : q.time,
+        "tag"           : q.tag,
+        "question"      : q.question,
+        "anonymous"     : q.anonymous,
+        "likes"         : q.likes,
+        "dislikes"      : q.dislikes,
+        "feedback"      : q.feedback,
+        "timeLimit"     : q.timeLimit,
+        "options"       : option_list
+    }
+    return jsonify(q_dict)
 
 @app.route('/time')
 def get_current_time():
