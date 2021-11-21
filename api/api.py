@@ -38,7 +38,7 @@ class User(db.Model):
 
 class Question(db.Model):
     __tablename__ = "question"
-    QuestionID = db.Column(db.Integer, primary_key=True)
+    questionID = db.Column(db.Integer, primary_key=True)
     ownerID = db.Column(db.Integer, db.ForeignKey('user.UID'), nullable=False)
     time = db.Column(db.DateTime)
     tag = db.Column(db.String(20))
@@ -46,8 +46,8 @@ class Question(db.Model):
     anonymous = db.Column(db.Boolean)
     likes = db.Column(db.Integer)
     dislikes = db.Column(db.Integer)
-    feedback = db.Column(db.Integer)
-    timeLimit = db.Column(db.Integer)
+    feedbackID = db.Column(db.Integer)
+    timeLimit = db.Column(db.DateTime)
 
     option = db.relationship(
         "Option", cascade="all, delete", backref="Question")
@@ -64,14 +64,14 @@ class Question(db.Model):
         self.timeLimit = timeLimit
 
     def __repr__(self):
-        return f"Question('{self.QuestionID}', '{self.ownerID}', '{self.time}')"
+        return f"Question('{self.questionID}', '{self.ownerID}', '{self.time}')"
 
 
 class Option(db.Model):
     __tablename__ = "option"
     OptionID = db.Column(db.Integer, primary_key=True)
     questionID = db.Column(db.Integer, db.ForeignKey(
-        'question.QuestionID'), nullable=False)
+        'question.questionID'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     image = db.Column(db.String(50))
     votes = db.Column(db.Integer, nullable=False)
@@ -92,7 +92,7 @@ class Feedback(db.Model):
     __tablename__ = "feedback"
     FeedbackID = db.Column(db.Integer, primary_key=True)
     questionID = db.Column(db.Integer, db.ForeignKey(
-        'question.QuestionID'), nullable=False)
+        'question.questionID'), nullable=False)
     text = db.Column(db.String(500))
     image = db.Column(db.String(50))
 
@@ -113,7 +113,7 @@ class UserVote(db.Model):
     userID = db.Column(db.Integer, db.ForeignKey(
         'user.UID'), nullable=False)
     questionID = db.Column(db.Integer, db.ForeignKey(
-        'question.QuestionID'), nullable=False)
+        'question.questionID'), nullable=False)
     # vote_result is an interger represents the option user choose
     vote_result = db.Column(db.Integer, nullable=False)
 
@@ -131,7 +131,7 @@ class UserAttitude(db.Model):
     userID = db.Column(db.Integer, db.ForeignKey(
         'user.UID'), nullable=False)
     questionID = db.Column(db.Integer, db.ForeignKey(
-        'question.QuestionID'), nullable=False)
+        'question.questionID'), nullable=False)
     # attitude is an interger, 0 represents like, 1 represents dislike
     attitude = db.Column(db.Integer, nullable=False)
 
@@ -142,7 +142,6 @@ class UserAttitude(db.Model):
 
     def __repr__(self):
         return f"UserVote('{self.UserAttitudeID}', '{self.userID}', '{self.questionID}', '{self.attitude}')"
-
 
 
 @app.route("/api/register", methods=['GET', 'POST'])
@@ -186,6 +185,8 @@ def recordPostedQuestion():
         ]
     }
 
+    "time" should be a unix timestamp indicating the time the question is posted
+    "timeLimit" should be a unix timestamp indicating the time the question expires
     If no image, the "optionImage" field should be an empty string
     """
     method = request.method
@@ -195,7 +196,7 @@ def recordPostedQuestion():
         tag = request.json['tag']
         question = request.json['question']
         anonymous = request.json['anonymous']
-        timeLimit = request.json['timeLimit']
+        timeLimit = datetime.datetime.fromtimestamp(request.json['timeLimit'])
 
         question = Question(ownerID, time, tag, question,
                             anonymous, timeLimit)
@@ -220,9 +221,98 @@ def recordPostedQuestion():
     return ({'success': True})
 
 
-@app.route('/api/listTopics')
-def listTopics(tag):
-    """ Return all topics of a specific tag. """
+@app.route('/api/getAllQuestions', methods=["GET"])
+def getAllQuestions():
+    """ 
+    Return all questions. 
+    The returned data should be in format below:
+    [{
+        "questionID"    : 123456,
+        "ownerID"       : 123456,
+        "time"          : 1636665474,
+        "tag"           : "tagname",
+        "question"      : "question content",
+        "annoymous"     : TRUE,
+        "timeLimit"     : 1636665474,
+        "options": [
+            {
+                "optionText"    : "option content",
+                "optionImage"   : "ImageFiliePath"
+            },
+            {
+                "optionText"    : "option content",
+                "optionImage"   : "ImageFiliePath"
+            }
+        ]
+    }]
+    """
+    questions = Question.query.all()
+    question_dicts = [{'questionID': q.questionID,
+                       'ownerID': q.ownerID,
+                       'time': int(q.time.timestamp()),
+                       'tag': q.tag,
+                       'question': q.question,
+                       'anonymous': q.anonymous,
+                       'likes': q.likes,
+                       'dislikes': q.dislikes,
+                       'feedbackID': q.feedbackID,
+                       'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
+    for q in question_dicts:
+        options = Option.query.filter(
+            Option.questionID == q['questionID']).all()
+        # TODO: return image
+        option_dicts = [{'optionText': o.name, 'optionImage': ''}
+                        for o in options]
+        q['options'] = option_dicts
+    return jsonify(question_dicts)
+
+
+@app.route('/api/listTopics', methods=["GET"])
+def listTopics():
+    """ 
+    The request should provide a 'tag' parameter
+    Return all topics of a specific tag. 
+    The returned data should be in format below:
+    [{
+        "questionID"    : 123456,
+        "ownerID"       : 123456,
+        "time"          : 1636665474,
+        "tag"           : "tagname",
+        "question"      : "question content",
+        "annoymous"     : TRUE,
+        "timeLimit"     : 1636665474,
+        "options": [
+            {
+                "optionText"    : "option content",
+                "optionImage"   : "ImageFiliePath"
+            },
+            {
+                "optionText"    : "option content",
+                "optionImage"   : "ImageFiliePath"
+            }
+        ]
+    }]
+    """
+    questions = Question.query.filter(
+        Question.tag == request.args.get('tag')).all()
+    question_dicts = [{'questionID': q.questionID,
+                       'ownerID': q.ownerID,
+                       'time': int(q.time.timestamp()),
+                       'tag': q.tag,
+                       'question': q.question,
+                       'anonymous': q.anonymous,
+                       'likes': q.likes,
+                       'dislikes': q.dislikes,
+                       'feedbackID': q.feedbackID,
+                       'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
+    for q in question_dicts:
+        options = Option.query.filter(
+            Option.questionID == q['questionID']).all()
+        # TODO: return image
+        option_dicts = [{'optionText': o.name, 'optionImage': ''}
+                        for o in options]
+        q['options'] = option_dicts
+    return jsonify(question_dicts)
     pass
 
 
@@ -369,8 +459,9 @@ def listHotTopics():
     except Exception as e:
         return jsonify({"error": e})
 
+
 def getQuestion(q):
-    id = q.QuestionID
+    id = q.questionID
     options = Option.query.filter_by(questionID=id).all()
     option_list = []
     for op in options:
@@ -380,21 +471,22 @@ def getQuestion(q):
         op_dict["image"] = op.image
         op_dict["votes"] = op.votes
         option_list.append(op_dict)
-    
+
     q_dict = {
-        "questionID"    : id,
-        "ownerID"       : q.ownerID,
-        "time"          : q.time,
-        "tag"           : q.tag,
-        "question"      : q.question,
-        "anonymous"     : q.anonymous,
-        "likes"         : q.likes,
-        "dislikes"      : q.dislikes,
-        "feedback"      : q.feedback,
-        "timeLimit"     : q.timeLimit,
-        "options"       : option_list
+        "questionID": id,
+        "ownerID": q.ownerID,
+        "time": q.time,
+        "tag": q.tag,
+        "question": q.question,
+        "anonymous": q.anonymous,
+        "likes": q.likes,
+        "dislikes": q.dislikes,
+        "feedback": q.feedback,
+        "timeLimit": q.timeLimit,
+        "options": option_list
     }
     return jsonify(q_dict)
+
 
 @app.route('/time')
 def get_current_time():
