@@ -491,8 +491,7 @@ def listHotTopics():
     """ Return the hottest topic of each tag. 
     This API use the GET method.
     The returned json object is be in the form below:
-    {
-        "Food" :
+    [
         {
             "questionID"    : 123456,
             "ownerID"       : 123456,
@@ -512,18 +511,11 @@ def listHotTopics():
                     "image"     :
                     "votes"     :
                 },
-                {
-                    ...
-                },
                 ...
             ]
         },
-        "Travel" :
-        {
-            ...
-        },
         ...
-    }
+    ]
     """
     try:
         tags = ["Style", "Sports", "Music", "Movie", "Food", "Travel"]
