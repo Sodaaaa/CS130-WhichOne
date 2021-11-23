@@ -212,7 +212,7 @@ def login():
             # Check if user exists
             if len(user) == 1:
                 print("Successfully Login")
-                return jsonify({"success": True})
+                return jsonify({"success": user.UID})
             else:
                 return jsonify({"error": "Invalid credentials"})
         else:
