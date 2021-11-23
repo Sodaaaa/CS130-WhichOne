@@ -8,6 +8,12 @@ import MenuBar from '../../components/MenuBar/MenuBar'
 
 const { Header, Content } = Layout;
 
+const dataSource = [
+  {key: '1', name: 'daFei', age: 32},
+  {key: '2', name: 'foo', age: 42},
+  {key: '3', name: 'bar', age: 32},
+];
+
 export default class profile extends Component {
   constructor(props) {
     super(props);
@@ -43,8 +49,8 @@ export default class profile extends Component {
               </Button>
             </div>
             <Descriptions bordered>
-              <Descriptions.Item label="UserName">testuser</Descriptions.Item>
-              <Descriptions.Item label="Email">testuser@gmail.com</Descriptions.Item>
+              <Descriptions.Item label="UserName">Testuser</Descriptions.Item>
+              <Descriptions.Item label="Email">{localStorage.getItem('email')}</Descriptions.Item>
             </Descriptions>
           </div>
           <div className="posted-questions">Question List</div>

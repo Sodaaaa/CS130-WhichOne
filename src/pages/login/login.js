@@ -29,7 +29,7 @@ export default class login extends Component {
     }).then((res) => {
       console.log(res)
       if (res.data.error) {
-        console.log("error");
+        // console.log("error");
         //this.setState({loggedIn:false});
         //alert("Log in failed: please check your username or password.")
         alert(res.data.error);
@@ -41,6 +41,8 @@ export default class login extends Component {
         console.log(this.state.loggedIn);
         localStorage.setItem('email', this.state.username);
         localStorage.setItem('loggedIn', this.state.loggedIn);
+        localStorage.setItem('UID', res.data.success);
+        // console.log('UID is', res.data.success);
         this.props.history.push('/homepage');
       }
     });
