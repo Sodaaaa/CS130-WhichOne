@@ -11,14 +11,20 @@ user_data = [
 
 question_data = [
     {'ownerId': 1, 'time': datetime.datetime(2021, 11, 20), 'tag': 'Food', 'question': 'What food should I choose?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 30)},
-    {'ownerId': 2, 'time': datetime.datetime(2021, 11, 20), 'tag': 'Movie', 'question': 'What movie should I choose?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 30)}
+    {'ownerId': 2, 'time': datetime.datetime(2021, 11, 20), 'tag': 'Movie', 'question': 'What movie should I choose today?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 30)},
+    {'ownerId': 2, 'time': datetime.datetime(2021, 11, 20), 'tag': 'Movie', 'question': 'What movie should I choose tomorrow?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 30)},
+    {'ownerId': 2, 'time': datetime.datetime(2021, 11, 20), 'tag': 'Movie', 'question': 'What movie should I choose next week?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 30)}
 ]
 
 option_data = [
     {'name': 'Food1', 'questionID': 1},
     {'name': 'Food2', 'questionID': 1},
     {'name': 'Movie1', 'questionID': 2},
-    {'name': 'Movie2', 'questionID': 2}
+    {'name': 'Movie2', 'questionID': 2},
+    {'name': 'Movie3', 'questionID': 3},
+    {'name': 'Movie4', 'questionID': 3},
+    {'name': 'Movie5', 'questionID': 4},
+    {'name': 'Movie6', 'questionID': 4}
 ]
 
 for data in user_data:

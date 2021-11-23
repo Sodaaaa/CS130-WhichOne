@@ -484,28 +484,28 @@ def provideOptions(question):
 
 @app.route('/api/listHotTopics', methods=["GET"])
 def listHotTopics():
-    """ Return the hottest topic of each tag. 
+    """ Return the hottest topic (with most likes + dislikes) of each tag. 
     This API use the GET method.
     The returned json object is be in the form below:
     [
         {
             "questionID"    : 123456,
             "ownerID"       : 123456,
-            "time"          : ,
-            "tag"
-            "question"
-            "anonymous"
-            "likes"
-            "dislikes"
-            "feedback"
-            "timeLimit"
+            "time"          : <timestamp>,
+            "tag"           : "Food",
+            "question"      : "What ... ?",
+            "anonymous"     : False,
+            "likes"         : 2,
+            "dislikes"      : 2,
+            "feedbackID"    : 1,
+            "timeLimit"     : <timestamp>,
             "options"       :
             [
                 {
-                    "optionID"  : 
-                    "name"      :
-                    "image"     :
-                    "votes"     :
+                    "optionID"  : 1,
+                    "name"      : "xxx",
+                    "image"     : "xxx",
+                    "votes"     : 5
                 },
                 ...
             ]
@@ -515,44 +515,45 @@ def listHotTopics():
     """
     try:
         tags = ["Style", "Sports", "Music", "Movie", "Food", "Travel"]
-        ret_dict = {}
+        ret_list = []
         for tag_ in tags:
             q = Question.query\
                 .filter_by(tag=tag_)\
                 .order_by((Question.likes+Question.dislikes).desc())\
                 .first()
-            ret_dict[tag_] = getQuestion(q)
-        return jsonify(ret_dict)
+            if not q:
+                continue
+            id = q.questionID
+            options = Option.query.filter_by(questionID=id).all()
+            option_list = []
+            for op in options:
+                op_dict = {}
+                op_dict["optionID"] = op.OptionID
+                op_dict["name"] = op.name
+                op_dict["image"] = op.image
+                op_dict["votes"] = op.votes
+                option_list.append(op_dict)
+                
+            q_dict = {
+                "questionID": id,
+                "ownerID": q.ownerID,
+                "time": int(q.time.timestamp()),
+                "tag": q.tag,
+                "question": q.question,
+                "anonymous": q.anonymous,
+                "likes": q.likes,
+                "dislikes": q.dislikes,
+                "feedbackID": q.feedbackID,
+                "timeLimit": int(q.timeLimit.timestamp()),
+                "options": option_list
+            }
+            ret_list.append(q_dict)
+        print(ret_list)
+        return jsonify(ret_list)
+    
     except Exception as e:
+        print(e)
         return jsonify({"error": e})
-
-
-def getQuestion(q):
-    id = q.questionID
-    options = Option.query.filter_by(questionID=id).all()
-    option_list = []
-    for op in options:
-        op_dict = {}
-        op_dict["optionID"] = op.OptionID
-        op_dict["name"] = op.name
-        op_dict["image"] = op.image
-        op_dict["votes"] = op.votes
-        option_list.append(op_dict)
-
-    q_dict = {
-        "questionID": id,
-        "ownerID": q.ownerID,
-        "time": q.time,
-        "tag": q.tag,
-        "question": q.question,
-        "anonymous": q.anonymous,
-        "likes": q.likes,
-        "dislikes": q.dislikes,
-        "feedback": q.feedback,
-        "timeLimit": q.timeLimit,
-        "options": option_list
-    }
-    return jsonify(q_dict)
 
 
 @app.route('/time')
