@@ -3,10 +3,16 @@ import { Layout, Card, Row, Col, Button} from 'antd/lib';
 import { SmallDashOutlined } from '@ant-design/icons';
 import './homepage.css'
 import MenuBar from '../../components/MenuBar/MenuBar';
+import axios from 'axios';
 
 const { Content, Footer } = Layout;
 
 export default class homepage extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {styleTopic:"", sportsTopic:"", musicTopic:"", movieTopic:"", foodTopic:"", travelTopic:""};
+  }
+  
   render() {
     return (
       <Layout className="layout">
@@ -59,7 +65,7 @@ export default class homepage extends Component {
                   What should I have for lunch today?
                 </Card>
               </Col>
-              <Col className="homepage-col" className="homepage-col" span={6}>
+              <Col className="homepage-col" span={6}>
                 <Card className="homepage-card" title="Travel"  
                   headStyle={{color:"#FFFFFF"}}
                   style={{backgroundColor:"#FF7675"}}
