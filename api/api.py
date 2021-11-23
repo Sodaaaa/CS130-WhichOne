@@ -399,15 +399,18 @@ def recordVote():
         questionID = request.json['questionID']
         vote_result = request.json['optionID']
         if userID and questionID and vote_result:
-            user_vote = UserVote(userID, questionID, vote_result)
-            db.session.add(user_vote)
             option = Option.query.get(vote_result)
             option.votes += 1
+            user_vote = UserVote(userID, questionID, vote_result)
+            db.session.add(user_vote)
             db.session.commit()
+            print("Success!")
             return jsonify({"success": True})
         else:
+            print("missing data")
             return jsonify({"error": "Missing userID or questionID or vote_result"})
     except Exception as e:
+        print(e)
         return jsonify({"error": e})
 
 
@@ -416,6 +419,7 @@ def recordAttitude():
     """ Record the "like" or "dislike" action of a user. 
     This API use the POST method.
     The posted json object should be in the form below:
+    ("attitude" is an interger, 0 represents like, 1 represents dislike.)
     {
         "userID"        : 123456,
         "questionID"    : 123456,
@@ -427,8 +431,6 @@ def recordAttitude():
         questionID = request.json['questionID']
         attitude = request.json['attitude']
         if userID and questionID:
-            user_attitude = UserAttitude(userID, questionID, attitude)
-            db.session.add(user_attitude)
             question = Question.query.get(questionID)
             if attitude == 0:
                 question.likes += 1
@@ -437,6 +439,8 @@ def recordAttitude():
             else:
                 print("invalid attitude")
                 return jsonify({"error": "invalid attitude"})
+            user_attitude = UserAttitude(userID, questionID, attitude)
+            db.session.add(user_attitude)
             db.session.commit()
             print("Success!")
             return jsonify({"success": True})
