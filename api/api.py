@@ -49,6 +49,10 @@ def getUser(email):
     user = list(filter(lambda x: x.email == email, users))[0]
     return {"UID": user.UID, "username": user.username, "email": user.email, "password": user.password}
 
+def getUID(email):
+    users = User.query.all()
+    user = list(filter(lambda x: x.email == email, users))[0]
+    return user.UID
 
 class Question(db.Model):
     __tablename__ = "question"
@@ -212,7 +216,8 @@ def login():
             # Check if user exists
             if len(user) == 1:
                 print("Successfully Login")
-                return jsonify({"success": user.UID})
+                UID = getUID(email)
+                return jsonify({"success": UID})
             else:
                 return jsonify({"error": "Invalid credentials"})
         else:
