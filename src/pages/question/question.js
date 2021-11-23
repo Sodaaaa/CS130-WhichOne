@@ -75,7 +75,8 @@ export default class question extends Component {
                 rules={[{ required: true, message: 'Missing topic' }]}>
                 <Input />
               </Form.Item>
-              <Form.Item label="Tag" name="tag">
+              <Form.Item label="Tag" name="tag"
+                rules={[{ required: true, message: 'Missing tag' }]}>
                 <Select>
                   <Select.Option value="food">Food</Select.Option>
                   <Select.Option value="sports">Sports</Select.Option>
