@@ -2,9 +2,13 @@ import React, { Component } from 'react';
 import { Radio, Input, Space } from 'antd';
 
 class OptionList extends Component {
-  state = {
-    value: 1,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: 0,
+      listData: this.props.options
+    };
+  }
 
   onChange = e => {
     console.log('radio checked', e.target.value);
@@ -14,11 +18,25 @@ class OptionList extends Component {
   };
 
   render() {
-    const { value } = this.state;
+    const { value, listData } = this.state;
+    //console.log("optionList" + listData);
+    //listData.map((option) => (console.log("option: " + option.optionText)));
     return (
       <Radio.Group className="optionList-radiogroup" onChange={this.onChange} value={value}>
         <Space direction="vertical">
-          <Radio className="option" value={1}>
+          {
+            listData.map((option, i) => (
+              <Radio className="option" value={i} key={i}>
+                <p>{option.optionText}</p>
+                {/* <img 
+                  width={272}
+                  alt="logo"
+                  src="https://www.k9ofmine.com/wp-content/uploads/2021/03/white-colored-maltese-850x520.jpg"
+                /> */}
+              </Radio>
+            ))
+          }
+          {/* <Radio className="option" value={1}>
             <p>Option A</p>
             <img 
               width={272}
@@ -45,7 +63,7 @@ class OptionList extends Component {
           <Radio value={4}>
             More...
             {value === 4 ? <Input style={{ width: 100, marginLeft: 10 }} /> : null}
-          </Radio>
+          </Radio> */}
         </Space>
       </Radio.Group>
     );

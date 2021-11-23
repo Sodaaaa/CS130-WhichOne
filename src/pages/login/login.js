@@ -21,7 +21,7 @@ export default class login extends Component {
   handleSubmit = () =>  {
     //event.preventDefault();
     //console.log(this.state.username);
-    console.log(this.state.verified);
+    //console.log(this.state.verified);
     //s.login();
     axios.post("/api/login", {
       email: document.getElementById("user").value,

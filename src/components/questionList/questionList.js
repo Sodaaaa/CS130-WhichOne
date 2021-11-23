@@ -1,20 +1,20 @@
 
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import OptionList from '../../components/optionList/OptionList';
 import { MessageOutlined, LikeOutlined, StarOutlined } from '@ant-design/icons';
 import { List, Avatar, Space} from 'antd';
 
-const listData = [];
-for (let i = 0; i < 23; i++) {
-  listData.push({
-    title: `Question ${i+1}`,
-    avatar: 'https://joeschmoe.io/api/v1/random',
-    description:
-      'tag',
-    content:
-      <OptionList />
-  });
-}
+// const listData = [];
+// for (let i = 0; i < 23; i++) {
+//   listData.push({
+//     title: `Question ${i+1}`,
+//     avatar: 'https://joeschmoe.io/api/v1/random',
+//     description:
+//       'tag',
+//     content:
+//       <OptionList />
+//   });
+// }
 
 const IconText = ({ icon, text }) => (
   <Space>
@@ -24,13 +24,28 @@ const IconText = ({ icon, text }) => (
 );
 
 class QuestionList extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      listData: this.props.questionList,
+      //optionList: this.props.optionList
+    };
+  }
   render() {
+    //console.log(this.state.listData);
+    //const { listData, optionList } = this.state;
+    //console.log("optionList: " + optionList)
+    // listData.map((question, i) => (
+    //   //console.log(this.props.optionList[i].content)
+    //   question.content = <OptionList options={this.props.optionList[i].content} />
+    // ));
+    //optionList.map((option) => (console.log(option)))
     return (
       <List
         itemLayout="vertical"
         size="large"
         pagination={{ onChange: page => { console.log(page); }, pageSize: 8, }}
-        dataSource={listData}
+        dataSource={this.state.listData}
         renderItem={item => (
           <List.Item
             style={{borderWidth: 3, borderStyle:'solid', borderColor: '#E2D4F3', marginTop: 10, borderRadius: 5, backgroundColor: 'rgba(211, 211, 211, 0.2)'}}
