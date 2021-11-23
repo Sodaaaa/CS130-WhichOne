@@ -1,6 +1,7 @@
 import time
 import re
 import enum
+import pprint
 from flask import Flask, json, request, jsonify, url_for, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
@@ -11,6 +12,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '0bbabb38f22b256ab947284622266494'
 db = SQLAlchemy(app)
+pp = pprint.PrettyPrinter(indent=4)
 
 
 class User(db.Model):
@@ -53,6 +55,11 @@ def getUID(email):
     users = User.query.all()
     user = list(filter(lambda x: x.email == email, users))[0]
     return user.UID
+
+def getUsername(UID):
+    users = User.query.all()
+    user = list(filter(lambda x: x.UID == UID, users))[0]
+    return user.username
 
 class Question(db.Model):
     __tablename__ = "question"
@@ -458,22 +465,147 @@ def recordFeedback():
     pass
 
 
-@app.route('/api/getHistoricalQuestions')
-def getHistoricalQuestions(user):
-    """ Return all questions posted by a user. """
-    pass
+@app.route('/api/getHistoricalQuestions', methods=["POST"])
+def getHistoricalQuestions():
+    """ Return all questions and corresponding option information posted by a user and the user's username, 
+    not include its feeback and anoymous option. 
+    This API use the POST method.
+    The returned json object is be in the form below:
+    [{   'dislikes': 0,
+        'likes': 0,
+        'option_list': [   {   'optionID': 5,
+                               'option_image': 'none',
+                               'option_name': 'Dune',
+                               'option_vote': 0},
+                           {   'optionID': 6,
+                               'option_image': 'none',
+                               'option_name': 'No Time To Die',
+                               'option_vote': 0},
+                           {   'optionID': 7,
+                               'option_image': 'none',
+                               'option_name': 'Eternals',
+                               'option_vote': 0},
+                           {   'optionID': 8,
+                               'option_image': 'none',
+                               'option_name': 'Shangqi',
+                               'option_vote': 0}],
+        'ownerID': 3,
+        'question': 'What movie should I choose for date?',
+        'questionID': 3,
+        'tag': 'Movie',
+        'time': datetime.datetime(2021, 11, 11, 0, 0),
+        'uid': 3,
+        'username': 'xinyu'}]"""
+
+    try:
+        uid = request.json["UID"]
+        questions = Question.query.all()
+        postedQ = list(filter(lambda x: x.ownerID == uid, questions))
+        options = Option.query.all()
+        result = []
+        for q in postedQ:
+            options2 = list(filter(lambda x: x.questionID == q.questionID, options))
+            option_list = []
+            for o in options2:
+                option_list.append({'optionID': o.OptionID, 'option_name': o.name, 'option_image': o.image, 'option_vote': o.votes})
+            info = {'uid': uid, 'questionID': q.questionID, 'ownerID': q.ownerID, 'username': getUsername(uid), 'time': q.time, 
+                    'tag': q.tag, 'question': q.question, 'likes': q.likes, 'dislikes': q.dislikes, 'option_list': option_list}
+            result.append(info)
+        print('------------------successful ---------------------')
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as e:
+        print(e)
+        return jsonify({"error": e})
 
 
-@app.route('/api/getVotes')
-def getVotes(user):
-    """ Return all vote actions of a user. """
-    pass
+@app.route('/api/getVotes', methods=["POST"])
+def getVotes():
+    """ request an UID, return all vote actions of a this user and its user name. For each vote action, 
+    return the questionID, ownerID, time, tag , question(description) and the voted option name
+    This API use the POST method.
+    The returned json object is be in the form below:
+    [{   'option_name': 'Armani 206',
+        'ownerID': 4,
+        'question': 'Which lipstick color is better?',
+        'questionID': 5,
+        'tag': 'Style',
+        'time': datetime.datetime(2021, 11, 16, 0, 0),
+        'uid': 5,
+        'username': 'voteUser1'},
+    {   'option_name': 'Food1',
+        'ownerID': 1,
+        'question': 'What food should I choose?',
+        'questionID': 1,
+        'tag': 'Food',
+        'time': datetime.datetime(2021, 11, 20, 0, 0),
+        'uid': 5,
+        'username': 'voteUser1'}]
+    """
+    try:
+        uid = request.json["UID"]
+        userVotes = UserVote.query.all()
+        questions = Question.query.all()
+        options = Option.query.all()
+        userVotes = list(filter(lambda x: x.userID == uid, userVotes))
+        result = []
+        for vote in userVotes:
+            q =  list(filter(lambda x: x.questionID == vote.questionID, questions))[0]
+            o = list(filter(lambda x: x.OptionID == vote.vote_result, options))[0]
+            info = {'uid': uid, 'questionID': q.questionID, 'ownerID': q.ownerID, 'time': q.time, 
+                    'tag': q.tag, 'question': q.question, 'option_name': o.name, 'username': getUsername(uid)}
+            result.append(info)
+        print('------------------successful ---------------------')
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as e:
+        print(e)
+        return jsonify({"error": e})
 
-
-@app.route('/api/getAttitudes')
-def getAttitudes(user):
+@app.route('/api/getAttitudes', methods=["POST"])
+def getAttitudes():
     """ Return all attitudes of a user. """
-    pass
+    """ request an UID, return all attitude actions of a this user and its usernamec. For each attitude action, 
+    return the questionID, ownerID, time, tag , question(description) and the attidue as Like or Dislike
+    This API use the POST method.
+    The returned json object is be in the form below:
+
+    [   {   'attitude': 'Dislike',
+        'ownerID': 3,
+        'question': 'What movie should I choose for date?',
+        'questionID': 3,
+        'tag': 'Movie',
+        'time': datetime.datetime(2021, 11, 11, 0, 0),
+        'uid': 6,
+        'username': 'voteUser2'},
+    {   'attitude': 'Like',
+        'ownerID': 3,
+        'question': 'What movie should I choose for date?',
+        'questionID': 3,
+        'tag': 'Movie',
+        'time': datetime.datetime(2021, 11, 11, 0, 0),
+        'uid': 6,
+        'username': 'voteUser2'}]"""
+    try:
+        uid = request.json["UID"]
+        userAttitudes = UserAttitude.query.all()
+        questions = Question.query.all()
+        userAttitudes = list(filter(lambda x: x.userID == uid, userAttitudes))
+        result = []
+        for att in userAttitudes:
+            res = 'Like'
+            if att.attitude != 0:
+                res = 'Dislike'
+            q =  list(filter(lambda x: x.questionID == att.questionID, questions))[0]
+            info = {'uid': uid, 'questionID': q.questionID, 'ownerID': q.ownerID, 'time': q.time, 
+                    'tag': q.tag, 'question': q.question, 'attitude': res, 'username': getUsername(uid)}
+            result.append(info)
+        print('------------------successful ---------------------')
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as e:
+        print(e)
+        return jsonify({"error": e})
 
 
 @app.route('/api/provideOptions')
