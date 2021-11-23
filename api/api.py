@@ -426,7 +426,7 @@ def recordAttitude():
         userID = request.json['userID']
         questionID = request.json['questionID']
         attitude = request.json['attitude']
-        if userID and questionID and attitude:
+        if userID and questionID:
             user_attitude = UserAttitude(userID, questionID, attitude)
             db.session.add(user_attitude)
             question = Question.query.get(questionID)
@@ -435,12 +435,16 @@ def recordAttitude():
             elif attitude == 1:
                 question.dislikes += 1
             else:
+                print("invalid attitude")
                 return jsonify({"error": "invalid attitude"})
             db.session.commit()
+            print("Success!")
             return jsonify({"success": True})
         else:
-            return jsonify({"error": "Missing userID or questionID or attitude"})
+            print("Missing userID or questionID")
+            return jsonify({"error": "Missing userID or questionID"})
     except Exception as e:
+        print(e)
         return jsonify({"error": e})
 
 
