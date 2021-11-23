@@ -28,7 +28,37 @@ class MyTestClass(unittest.TestCase):
         response = urllib.request.urlopen(req)
         print("Start to test register function")
         self.assertEqual(response.getcode(), 200)
-        print("Finish test : success the unsucessful registrition, code is 200")
+        print("Finish test : success the login function, code is 200")
+    
+    def test_right_get_Vote(self):
+        self.__request_data = {'UID': 5}
+        self.__url = "http://127.0.0.1:3000/api/getVotes"
+        req = urllib.request.Request(self.__url, data=json.dumps(self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("Start to test getVote function")
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success the getVote function, code is 200")
+
+    def test_right_get_Attitude(self):
+        self.__request_data = {'UID': 6}
+        self.__url = "http://127.0.0.1:3000/api/getAttitudes"
+        req = urllib.request.Request(self.__url, data=json.dumps(self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("Start to test getVote function")
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success the getAttitude function, code is 200")
+
+    def test_right_get_HistoricalQuestions(self):
+        self.__request_data = {'UID': 3}
+        self.__url = "http://127.0.0.1:3000/api/getHistoricalQuestions"
+        req = urllib.request.Request(self.__url, data=json.dumps(self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("Start to test getVote function")
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success the getHistoricalQuestions function, code is 200")
 
 
 # runs the unit tests in the module
