@@ -1,10 +1,9 @@
 import time
 import re
 import enum
-from flask import Flask, json, request, jsonify, url_for, flash, redirect, render_template
+from flask import Flask, json, request, jsonify, url_for, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from forms import RegistrationForm, LoginForm
 import datetime
 
 app = Flask(__name__)
@@ -221,22 +220,6 @@ def login():
     except Exception as error:
         print(error)
         return jsonify({"error": "Invalid form"})
-
-
-@app.route("/api/register", methods=['GET', 'POST'])
-def register():
-    """ add new user to the database """
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(url_for('home'))
-    return render_template('register.html', title='Register', form=form)
-
-
-@app.route("/api/login", methods=['GET', 'POST'])
-def login():
-    """ verify existed user, if success return True, otherwise return False"""
-    pass
 
 
 @app.route('/api/recordPostedQuestion', methods=["POST"])
