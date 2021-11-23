@@ -1,10 +1,9 @@
 import time
 import re
 import enum
-from flask import Flask, json, request, jsonify, url_for, flash, redirect, render_template
+from flask import Flask, json, request, jsonify, url_for, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from forms import RegistrationForm, LoginForm
 import datetime
 
 app = Flask(__name__)
