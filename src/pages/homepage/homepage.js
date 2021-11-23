@@ -11,6 +11,32 @@ export default class homepage extends Component {
   constructor(props) {
     super(props);
     this.state = {styleTopic:"", sportsTopic:"", musicTopic:"", movieTopic:"", foodTopic:"", travelTopic:""};
+    axios.get("api/listHotTopics")
+    .then((res) => {
+      var i;
+      for(i in res.data){
+        var topic = res.data[i];
+        switch(topic.tag){
+          case "Style":
+            this.setState({styleTopic: topic.question});
+            break;
+          case "Sports":
+            this.setState({sportsTopic: topic.question});
+            break;
+          case "Music":
+            this.setState({musicTopic: topic.question});
+            break;
+          case "Movie":
+            this.setState({movieTopic: topic.question});
+            break;
+          case "Food":
+            this.setState({foodTopic: topic.question});
+            break;
+          case "Travel":
+            this.setState({travelTopic: topic.question});
+        }      
+      }
+    });
   }
   
   render() {
@@ -28,7 +54,7 @@ export default class homepage extends Component {
                   headStyle={{color:"#FFFFFF"}}
                   style={{backgroundColor:"#00B894"}}
                   bordered={true}>
-                  What should I wear for my date?
+                  {this.state.styleTopic}
                 </Card>
               </Col>
               <Col className="homepage-col" span={6}>
@@ -36,7 +62,7 @@ export default class homepage extends Component {
                   headStyle={{color:"#FFFFFF"}}
                   style={{backgroundColor:"#FDCB6E"}} 
                   bordered={true}>
-                  What shoud I do for today’s workout?
+                  {this.state.sportsTopic}
                 </Card>
               </Col>
               <Col className="homepage-col" span={6}>
@@ -44,7 +70,7 @@ export default class homepage extends Component {
                   headStyle={{color:"#FFFFFF"}}
                   style={{backgroundColor:"#75B4FF"}} 
                   bordered={true}>
-                  Which song should I use as bgm for my vlog?
+                  {this.state.musicTopic}
                 </Card>
               </Col>
             </Row>
@@ -54,7 +80,7 @@ export default class homepage extends Component {
                   headStyle={{color:"#FFFFFF"}}
                   style={{backgroundColor:"#FFC0CB"}} 
                   bordered={true}>
-                  VenomII or 007?
+                  {this.state.movieTopic}
                 </Card>
               </Col>
               <Col className="homepage-col" span={6}>
@@ -62,7 +88,7 @@ export default class homepage extends Component {
                   headStyle={{color:"#FFFFFF"}}
                   style={{backgroundColor:"#A7DB42"}}
                   bordered={true}>
-                  What should I have for lunch today?
+                  {this.state.foodTopic}
                 </Card>
               </Col>
               <Col className="homepage-col" span={6}>
@@ -70,7 +96,7 @@ export default class homepage extends Component {
                   headStyle={{color:"#FFFFFF"}}
                   style={{backgroundColor:"#FF7675"}}
                   bordered={true}>
-                  LA or NYC?
+                  {this.state.travelTopic}
                 </Card>
               </Col>
             </Row>

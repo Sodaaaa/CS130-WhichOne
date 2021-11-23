@@ -25,10 +25,9 @@ export default class question extends Component {
     var isAnonymous = false;
     if (values.anonymous) {
       isAnonymous = true;
-    } 
+    }     
     axios.post("/api/recordPostedQuestion", {
-      // ownerID: localStorage.getItem('UID'),
-      ownerID: 1,
+      ownerID: localStorage.getItem('UID'),
       time: currentTimeUnix,
       tag: values.tag,
       question: values.topic,
