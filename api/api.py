@@ -223,22 +223,6 @@ def login():
         return jsonify({"error": "Invalid form"})
 
 
-@app.route("/api/register", methods=['GET', 'POST'])
-def register():
-    """ add new user to the database """
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(url_for('home'))
-    return render_template('register.html', title='Register', form=form)
-
-
-@app.route("/api/login", methods=['GET', 'POST'])
-def login():
-    """ verify existed user, if success return True, otherwise return False"""
-    pass
-
-
 @app.route('/api/recordPostedQuestion', methods=["POST"])
 def recordPostedQuestion():
     """ Record the posted question into our database.
