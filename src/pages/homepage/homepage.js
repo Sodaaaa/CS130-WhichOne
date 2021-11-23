@@ -1,12 +1,50 @@
 import React, { Component } from 'react';
-import { Layout, Card, Row, Col, Button} from 'antd/lib';
+import { Layout, Card, Row, Col, Button, Link} from 'antd/lib';
 import { SmallDashOutlined } from '@ant-design/icons';
 import './homepage.css'
 import MenuBar from '../../components/MenuBar/MenuBar';
+import HotTopicCard from '../../components/HotTopicCard/HotTopicCard';
+import axios from 'axios';
 
 const { Content, Footer } = Layout;
 
 export default class homepage extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {styleTopic:"", sportsTopic:"", musicTopic:"", movieTopic:"", foodTopic:"", travelTopic:""};
+    axios.get("api/listHotTopics")
+    .then((res) => {
+      var i;
+      for(i in res.data){
+        var topic = res.data[i];
+        switch(topic.tag){
+          case "Style":
+            this.setState({styleTopic: topic.question});
+            break;
+          case "Sports":
+            this.setState({sportsTopic: topic.question});
+            break;
+          case "Music":
+            this.setState({musicTopic: topic.question});
+            break;
+          case "Movie":
+            this.setState({movieTopic: topic.question});
+            break;
+          case "Food":
+            this.setState({foodTopic: topic.question});
+            break;
+          case "Travel":
+            this.setState({travelTopic: topic.question});
+        }      
+      }
+    });
+  }
+
+  handleClick(tag) {
+    window.location.href = "./vote?tag="+tag;
+    console.log("click"+tag)
+  }
+  
   render() {
     return (
       <Layout className="layout">
@@ -18,54 +56,36 @@ export default class homepage extends Component {
           <div className="homepage-cards">
             <Row className="homepage-row" gutter={40}>
               <Col className="homepage-col" span={6}>
-                <Card className="homepage-card" title="Style"
-                  headStyle={{color:"#FFFFFF"}}
-                  style={{backgroundColor:"#00B894"}}
-                  bordered={true}>
-                  What should I wear for my date?
-                </Card>
+                <HotTopicCard title="Style"
+                  topic={this.state.styleTopic}
+                  bgcolor="#00B894"/>
               </Col>
               <Col className="homepage-col" span={6}>
-                <Card className="homepage-card" title="Sports" 
-                  headStyle={{color:"#FFFFFF"}}
-                  style={{backgroundColor:"#FDCB6E"}} 
-                  bordered={true}>
-                  What shoud I do for today’s workout?
-                </Card>
+                <HotTopicCard title="Sports"
+                  topic={this.state.sportsTopic}
+                  bgcolor="#FDCB6E"/>
               </Col>
               <Col className="homepage-col" span={6}>
-                <Card className="homepage-card" title="Music"
-                  headStyle={{color:"#FFFFFF"}}
-                  style={{backgroundColor:"#75B4FF"}} 
-                  bordered={true}>
-                  Which song should I use as bgm for my vlog?
-                </Card>
+                <HotTopicCard title="Music"
+                  topic={this.state.musicTopic}
+                  bgcolor="#75B4FF"/>
               </Col>
             </Row>
             <Row className="homepage-row" gutter={40}>
               <Col className="homepage-col" span={6}>
-                <Card className="homepage-card" title="Movie" 
-                  headStyle={{color:"#FFFFFF"}}
-                  style={{backgroundColor:"#FFC0CB"}} 
-                  bordered={true}>
-                  VenomII or 007?
-                </Card>
+                <HotTopicCard title="Movie"
+                  topic={this.state.movieTopic}
+                  bgcolor="#FFC0CB"/>
               </Col>
               <Col className="homepage-col" span={6}>
-                <Card className="homepage-card" title="Food" 
-                  headStyle={{color:"#FFFFFF"}}
-                  style={{backgroundColor:"#A7DB42"}}
-                  bordered={true}>
-                  What should I have for lunch today?
-                </Card>
+                <HotTopicCard title="Food"
+                  topic={this.state.foodTopic}
+                  bgcolor="#A7DB42"/>
               </Col>
-              <Col className="homepage-col" className="homepage-col" span={6}>
-                <Card className="homepage-card" title="Travel"  
-                  headStyle={{color:"#FFFFFF"}}
-                  style={{backgroundColor:"#FF7675"}}
-                  bordered={true}>
-                  LA or NYC?
-                </Card>
+              <Col className="homepage-col" span={6}>
+                <HotTopicCard title="Travel"
+                  topic={this.state.travelTopic}
+                  bgcolor="#FF7675"/>
               </Col>
             </Row>
           </div>  
