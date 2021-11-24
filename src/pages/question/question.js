@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Layout, Form, Input, Button, Space, Select, DatePicker, Upload, Switch} from 'antd/lib';
+import { Layout, Form, Input, Button, Space, Select, DatePicker, Upload, Switch, Modal, Spin} from 'antd/lib';
 import { UploadOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import "./question.css"
 import MenuBar from '../../components/MenuBar/MenuBar'
@@ -17,6 +17,8 @@ const normFile = (e) => {
 };
 
 export default class question extends Component {
+  state = {visible: false, modalText: "", modalTopic: ""};
+  
   onSubmit = (values) =>  {
     // console.log(values);
     const expiredTimeUnix = Math.round(values.expiredDate._d.getTime()/1000);
@@ -42,7 +44,8 @@ export default class question extends Component {
         this.formRef.current.resetFields();
       } else {
         console.log("post successfully");
-        this.props.history.push('/vote');
+        // this.props.history.push('/vote');
+        window.location.href = './vote'
       }
     });
   }
@@ -52,19 +55,67 @@ export default class question extends Component {
     alert("Please check and correct your input.");
   };
 
+  formRef = React.createRef();
   autoSelect = () => {
-    console.log("auto select");
+    // console.log(values);
+    this.showModal();
+    var topic = this.formRef.current.getFieldValue('topic');
+    var options = this.formRef.current.getFieldValue('options');
+    console.log(options)
+    if(topic == undefined){
+      this.setState({modalText: "Please provide a topic!"})
+    }
+    else if(options == undefined){
+      this.setState({modalText: "Please provide at least ONE option!"})
+    }
+    else{
+      var hasUndefined = false;
+      for(let i in options){
+        if(options[i] == undefined){
+          this.setState({modalText: "Please fill out all the options!"})
+          hasUndefined = true;
+          break;
+        }
+      }
+      if(!hasUndefined){
+        console.log(options.length)
+        var rand = Math.floor(Math.random()*options.length);
+        var rOption = options[rand];
+        this.setState({modalTopic: topic})
+        this.setState({modalText: "We auto select an option for you: "+rOption.optionText})        // this.setState({randomOption: rOption.optionText})
+        console.log(rOption.optionText)    
+      }              
+    }        
   }
+
+  handleConfirm = () => {
+    this.hideModal();
+    console.log("confirm");
+    this.formRef.current.resetFields();
+  }
+
+  showModal = () => {
+    this.setState({
+      visible: true,
+    });
+  };
+
+  hideModal = () => {
+    console.log("hide");
+    this.setState({
+      visible: false,
+    });
+  };
 
   render() {
     if (localStorage.getItem('loggedIn')=="false") {
       return (
         <Layout className="layout">
           <MenuBar selected="question"></MenuBar>
-          <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
+          <Content className="question-content">
             <div className="no-loggin-alert">
               <p>You haven't logged in. Please log in first to post a question!</p>
-              <Button type="primary" htmlType="submit"
+              <Button type="primary"
                   className="login-btn" href="./login">
                   Log in
                 </Button>
@@ -73,11 +124,11 @@ export default class question extends Component {
         </Layout>
       )
     }
-    else {
+    else {      
       return (
         <Layout className="layout">
           <MenuBar selected="question"></MenuBar>
-          <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
+          <Content className="question-content">
             <div className="question-form">
               <Form
                 labelCol={{
@@ -87,8 +138,9 @@ export default class question extends Component {
                   span: 14,
                 }}
                 layout="horizontal"
+                ref={this.formRef}
                 onFinish={this.onSubmit}
-                onFinishFailed={this.onFinishFailed}
+                onFinishFailed={this.onFinishFailed}                
               >
                 <Form.Item 
                   label="Topic" 
@@ -154,10 +206,24 @@ export default class question extends Component {
                   <Switch />
                 </Form.Item>  
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                  <Button type="primary" onClick={this.autoSelect}
+                  <Button type="primary" htmlType="button" onClick={this.autoSelect}
                     className="question-post-btn">
                     Auto Select
                   </Button>
+                  <Modal
+                    className="auto-select-modal"
+                    title="Auto Select"
+                    visible={this.state.visible}
+                    onOk={this.handleConfirm}
+                    onCancel={this.hideModal}
+                    okText="Confirm"
+                    cancelText="Cancel"
+                    focusTriggerAfterClose={false}
+                  >
+                    <p>{this.state.modalTopic}</p>
+                    <p>{this.state.modalText}</p>
+                    {/* <div style={{textAlign: 'center'}}><Spin/></div> */}
+                  </Modal>
                   <Button type="primary" htmlType="submit"
                     className="question-post-btn">
                     Post
