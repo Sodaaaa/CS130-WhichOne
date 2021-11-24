@@ -327,6 +327,7 @@ def getAllQuestions():
     [{
         "questionID"    : 123456,
         "ownerID"       : 123456,
+        "username"      : "name",
         "time"          : 1636665474,
         "tag"           : "tagname",
         "question"      : "question content",
@@ -366,6 +367,8 @@ def getAllQuestions():
         option_dicts = [{'option_name': o.name, 'option_image': 'none', 'optionID': o.OptionID, 'option_vote': o.votes}
                         for o in options]
         q['options'] = option_dicts
+        q['username'] = User.query.filter(
+            User.UID == q['ownerID']).first().username
     question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
 
@@ -379,6 +382,7 @@ def listTopics():
     [{
         "questionID"    : 123456,
         "ownerID"       : 123456,
+        "username"      : "name",
         "time"          : 1636665474,
         "tag"           : "tagname",
         "question"      : "question content",
@@ -400,6 +404,7 @@ def listTopics():
         ]
     }]
     """
+    print(request.args.get('tag'))
     questions = Question.query.filter(
         Question.tag == request.args.get('tag')).all()
     question_dicts = [{'questionID': q.questionID,
@@ -419,6 +424,8 @@ def listTopics():
         option_dicts = [{'option_name': o.name, 'option_image': 'none', 'optionID': o.OptionID, 'option_vote': o.votes}
                         for o in options]
         q['options'] = option_dicts
+        q['username'] = User.query.filter(
+            User.UID == q['ownerID']).first().username
     question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
 
