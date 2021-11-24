@@ -376,7 +376,9 @@ def getAllQuestions():
 @app.route('/api/listTopics', methods=["GET"])
 def listTopics():
     """ 
-    The request should provide a 'tag' parameter
+    The request should provide a 'tags' parameter whose value is a string
+    Different tags should be separated by coma
+    Example url: "http://localhost:5000/api/listTopics?tags=abc,def"
     Return all topics of a specific tag. 
     The returned data should be in format below:
     [{
@@ -404,19 +406,21 @@ def listTopics():
         ]
     }]
     """
-    print(request.args.get('tag'))
-    questions = Question.query.filter(
-        Question.tag == request.args.get('tag')).all()
-    question_dicts = [{'questionID': q.questionID,
-                       'ownerID': q.ownerID,
-                       'time': int(q.time.timestamp()),
-                       'tag': q.tag,
-                       'question': q.question,
-                       'anonymous': q.anonymous,
-                       'likes': q.likes,
-                       'dislikes': q.dislikes,
-                       'feedbackID': q.feedbackID,
-                       'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
+    question_dicts = []
+    for tag in request.args.get('tags').split(','):
+        questions = Question.query.filter(
+            Question.tag == tag).all()
+        question_dicts += [{'questionID': q.questionID,
+                            'ownerID': q.ownerID,
+                            'time': int(q.time.timestamp()),
+                            'tag': q.tag,
+                            'question': q.question,
+                            'anonymous': q.anonymous,
+                            'likes': q.likes,
+                            'dislikes': q.dislikes,
+                            'feedbackID': q.feedbackID,
+                            'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
+
     for q in question_dicts:
         options = Option.query.filter(
             Option.questionID == q['questionID']).all()
