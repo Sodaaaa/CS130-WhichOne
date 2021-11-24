@@ -24,19 +24,29 @@ export default class profile extends Component {
       loggedIn:true,
       questionlistData : [],
       votelistData: [],
-      username: ""
+      username: null,
+      email: null
     };
   }
   
   handleSubmit = () =>  {
     //event.preventDefault();
-    //console.log(this.state.username);
     this.setState({loggedIn:true});
     localStorage.setItem('loggedIn', false);
     this.props.history.push('/login');
   }
 
   componentDidMount() {
+    axios.post("/api/getUserinfo", 
+    {
+      UID: Number(localStorage.getItem('UID'))
+    }).then((res) => {
+      console.log(res);
+      // imageFile: res.data.image_file,
+      this.setState({username : res.data[0].username});
+      this.setState({email : res.data[0].email});
+    });
+
     const list = [];
     axios.post("/api/getHistoricalQuestions", 
     {
@@ -66,14 +76,8 @@ export default class profile extends Component {
         }
         //else question.avatar = res.data[i].avator === undefined? <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : res.data[i].avator};
         list.push(question);
-        // options.push({content: res.data[i].options})
-        console.log("UID is", localStorage.getItem('UID'))
-        console.log("historical questions are: ",list[i]);
       } 
       this.setState({questionlistData : list});
-      // this.setState({optionList : options});
-      console.log("listData: " + this.state.questionlistData);
-      //console.log("optionList: " + this.state.optionList);
     });
 
     const votelist = [];
@@ -81,21 +85,22 @@ export default class profile extends Component {
     {
       UID: Number(localStorage.getItem('UID'))
     }).then((res) => {
-      console.log("vote result is", res);
+      // console.log("vote result is", res);
       for (let i = 0; i < res.data.length; i++) {
         console.log(res.data[i].avator);
         let question = {
           title: res.data[i].question,
           description: res.data[i].tag,
-          // content: <OptionList voteoptions={res.data[i].option_name}/>,
-          likes: 0,
-          dislikes: 0,
+          content: <OptionList options={res.data[i].option_list}/>,
+          likes: res.data[i].likes,
+          dislikes: res.data[i].dislikes,
           liked: false, 
           disliked: false,
           ID: res.data[i].questionID,
           uid: res.data[i].ownerID,
           isAnonymous : res.data[i].anonymous,
           username: res.data[i].username,
+          voteResult: res.data[i].vote_result,
           avatar: res.data[i].avator === undefined? 
               <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : 
               <Avatar src={res.data[i].avator} />
@@ -106,14 +111,8 @@ export default class profile extends Component {
         }
         //else question.avatar = res.data[i].avator === undefined? <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : res.data[i].avator};
         votelist.push(question);
-        // options.push({content: res.data[i].options})
-        console.log("UID is", localStorage.getItem('UID'))
-        console.log("historical questions are: ",votelist[i]);
       } 
       this.setState({votelistData : votelist});
-      // this.setState({optionList : options});
-      console.log("listData: " + this.state.votelistData);
-      //console.log("optionList: " + this.state.optionList);
     });
 
   }
@@ -128,7 +127,7 @@ export default class profile extends Component {
         <Content style={{ padding: '50px 50px' }} className='profile-content'>
           <div className="user-profile">
             <Avatar size={150} src={<Image src="https://joeschmoe.io/api/v1/random"/>} />
-            <div className="user-name">Testuser</div>
+            <div className="user-name">{this.state.username}</div>
             <div className="logout">
               <Button 
                 type="primary" 
@@ -139,8 +138,8 @@ export default class profile extends Component {
               </Button>
             </div>
             <Descriptions bordered>
-              <Descriptions.Item label="UserName">Testuser</Descriptions.Item>
-              <Descriptions.Item label="Email">{localStorage.getItem('email')}</Descriptions.Item>
+              <Descriptions.Item label="UserName">{this.state.username}</Descriptions.Item>
+              <Descriptions.Item label="Email">{this.state.email}</Descriptions.Item>
             </Descriptions>
           </div>
           <div className="posted-questions">
