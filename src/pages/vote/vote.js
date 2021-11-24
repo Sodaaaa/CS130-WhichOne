@@ -4,7 +4,7 @@ import CustomTag from '../../components/tag/CustomTag';
 import OptionList from '../../components/optionList/OptionList';
 import MenuBar from '../../components/MenuBar/MenuBar'
 import { List, Avatar, Space } from 'antd';
-import { MessageOutlined, LikeOutlined, StarOutlined } from '@ant-design/icons';
+import { UserOutlined } from '@ant-design/icons';
 import "./vote.css";
 import { cloneNode } from '@babel/types';
 import QuestionList from '../../components/questionList/questionList';
@@ -47,17 +47,28 @@ export default class vote extends Component {
     axios.get("/api/getAllQuestions").then((res) => {
       console.log(res);
       for (let i = 0; i < res.data.length; i++) {
-        list.push({
+        console.log(res.data[i].avator);
+        let question = {
           title: res.data[i].question,
-          avatar: 'https://joeschmoe.io/api/v1/random',
           description: res.data[i].tag,
           content: <OptionList options={res.data[i].options}/>,
           likes: res.data[i].likes,
           dislikes: res.data[i].dislikes,
           liked: false, 
           disliked: false,
-          ID: res.data[i].questionID
-        })
+          ID: res.data[i].questionID,
+          uid: res.data[i].ownerID,
+          isAnonymous : res.data[i].anonymous,
+          avatar: res.data[i].avator === undefined? 
+              <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : 
+              <Avatar src={res.data[i].avator} />
+        };
+        if (res.data[i].anonymous) {
+          question.avatar = <Avatar>A</Avatar>;
+          question.uid = "Anonymous";
+        }
+        //else question.avatar = res.data[i].avator === undefined? <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : res.data[i].avator};
+        list.push(question);
         // options.push({content: res.data[i].options})
         console.log(list[i]);
       } 

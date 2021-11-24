@@ -4,14 +4,14 @@ import "./CustomTag.css"
 
 const { CheckableTag } = Tag;
 
-const tagsData = ['Food', 'Sports', 'Movie', 'Travel', 'Music', 'Book', 'Style'];
+const tagsData = ['Food', 'Sports', 'Movie', 'Travel', 'Music', 'Style'];
 
 const tagsColor = ['#A7DB42', '#FDCB6E', '#FFC0CB', '#A29BFE', '#75B4FF', '#FF7675', '#00B894'];
 
 class CustomTag extends Component {
 
   state = {
-    selectedTags: ['Book'],
+    selectedTags: [],
   };
 
   // createCheckableTags(selectedTags) {
