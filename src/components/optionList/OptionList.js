@@ -46,7 +46,7 @@ class OptionList extends Component {
           {
             listData.map((option, i) => (
               <Radio disabled =  {!this.state.loggedIn} className="option" value={i} key={i}>
-                <p>{option.optionText}</p>
+                <p>{option.optionText === undefined? option.option_name:option.optionText}</p>
                 {/* <img 
                   width={272}
                   alt="logo"
