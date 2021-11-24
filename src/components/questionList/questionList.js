@@ -1,7 +1,7 @@
 import React, { Component, useState, createElement } from 'react';
 import OptionList from '../../components/optionList/OptionList';
 import { MessageOutlined, DislikeOutlined, LikeOutlined, DislikeFilled, LikeFilled, StarOutlined } from '@ant-design/icons';
-import { List, Avatar, Space, Tooltip} from 'antd';
+import { List, Avatar, Space, Alert, notification } from 'antd';
 import axios from 'axios';
 
 const IconText = ({ icon, text }) => (
@@ -22,10 +22,22 @@ class QuestionList extends Component {
     };
   }
 
+  openNotification = () => {
+    notification.open({
+      message: 'Notification',
+      description:
+        'Please log in.',
+      onClick: () => {
+        console.log('Notification Clicked!');
+      },
+    });
+  };
+
   like = (item) => {
     // console.log(item.ID);
     if (!this.state.loggedIn) {
-      alert("Please Log In");
+      // alert("Please Log In");
+      this.openNotification();
     }
     if (this.state.loggedIn && item.liked == false && item.disliked == false) {
       item.liked = true;
@@ -44,7 +56,8 @@ class QuestionList extends Component {
   dislike = (item) => {
     // console.log("ID is ", item.ID);
     if (!this.state.loggedIn) {
-      alert("Please Log In");
+      // alert("Please Log In");
+      this.openNotification();
     }
     if (this.state.loggedIn && item.liked == false && item.disliked == false) {
       item.disliked = true;

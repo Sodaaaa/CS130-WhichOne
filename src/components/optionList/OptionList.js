@@ -1,16 +1,34 @@
 import React, { Component } from 'react';
-import { Radio, Input, Space } from 'antd';
+import { Radio, Input, Space, notification } from 'antd';
 
 class OptionList extends Component {
   constructor(props) {
     super(props);
     this.state = {
       value: -1,
-      listData: this.props.options
+      listData: this.props.options,
+      loggedIn: localStorage.getItem('loggedIn')=="true"
     };
   }
 
+  openNotification = () => {
+    notification.open({
+      message: 'Notification',
+      description:
+        'Please log in.',
+      onClick: () => {
+        console.log('Notification Clicked!');
+      },
+    });
+  };
+
   onChange = e => {
+    if (!this.state.loggedIn) {
+      // alert("Please Log In");
+      this.openNotification();
+      return
+    }
+
     console.log('radio checked', e.target.value);
     this.setState({
       value: e.target.value,
@@ -18,6 +36,7 @@ class OptionList extends Component {
   };
 
   render() {
+    // console.log(localStorage.getItem('loggedIn')=="true");
     const { value, listData } = this.state;
     //console.log("optionList" + listData);
     //listData.map((option) => (console.log("option: " + option.optionText)));
@@ -26,7 +45,7 @@ class OptionList extends Component {
         <Space direction="vertical">
           {
             listData.map((option, i) => (
-              <Radio className="option" value={i} key={i}>
+              <Radio disabled =  {!this.state.loggedIn} className="option" value={i} key={i}>
                 <p>{option.optionText}</p>
                 {/* <img 
                   width={272}

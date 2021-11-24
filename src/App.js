@@ -10,7 +10,6 @@ import register from "./pages/register/register";
 import profile from "./pages/profile/profile";
 
 function App() {
-  localStorage.setItem('loggedIn', false);
   return (
     <BrowserRouter>
         <Route exact path='/' component={homepage} />

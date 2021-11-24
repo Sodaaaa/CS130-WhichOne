@@ -617,12 +617,15 @@ def provideOptions(question):
 @app.route('/api/listHotTopics', methods=["GET"])
 def listHotTopics():
     """ Return the hottest topic (with most likes + dislikes) of each tag. 
+    The request should provide a 'UID' parameter.
     This API use the GET method.
     The returned json object is be in the form below:
     [
         {
             "questionID"    : 123456,
             "ownerID"       : 123456,
+            "ownername"      : "xxx",
+            "ownerImage"     : "xxx",
             "time"          : <timestamp>,
             "tag"           : "Food",
             "question"      : "What ... ?",
@@ -631,6 +634,8 @@ def listHotTopics():
             "dislikes"      : 2,
             "feedbackID"    : 1,
             "timeLimit"     : <timestamp>,
+            "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
+            "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
             "options"       :
             [
                 {
@@ -646,6 +651,7 @@ def listHotTopics():
     ]
     """
     try:
+        UID = request.args.get('UID')
         tags = ["Style", "Sports", "Music", "Movie", "Food", "Travel"]
         ret_list = []
         for tag_ in tags:
@@ -656,6 +662,7 @@ def listHotTopics():
             if not q:
                 continue
             id = q.questionID
+            owner = User.query.get(q.ownerID)
             options = Option.query.filter_by(questionID=id).all()
             option_list = []
             for op in options:
@@ -669,6 +676,8 @@ def listHotTopics():
             q_dict = {
                 "questionID": id,
                 "ownerID": q.ownerID,
+                "ownerName": owner.username,
+                "ownerImage": owner.image_file,
                 "time": int(q.time.timestamp()),
                 "tag": q.tag,
                 "question": q.question,
@@ -679,6 +688,17 @@ def listHotTopics():
                 "timeLimit": int(q.timeLimit.timestamp()),
                 "options": option_list
             }
+            print(UID, id)
+            attitude_ = UserAttitude.query.filter_by(userID=UID, questionID=id).first()
+            if not attitude_:
+                q_dict["chosenAttitude"] = -1
+            else:
+                q_dict["chosenAttitude"] = attitude_.attitude
+            vote_ = UserVote.query.filter_by(userID=UID, questionID=id).first()
+            if not vote_:
+                q_dict["voted"] = -1
+            else:
+                q_dict["voted"] = vote_.vote_result
             ret_list.append(q_dict)
         print(ret_list)
         return jsonify(ret_list)
