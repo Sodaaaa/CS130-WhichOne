@@ -1,8 +1,12 @@
 import React, { Component, useState, createElement } from 'react';
 import OptionList from '../../components/optionList/OptionList';
-import { MessageOutlined, DislikeOutlined, LikeOutlined, DislikeFilled, LikeFilled, StarOutlined } from '@ant-design/icons';
+import { MessageOutlined, DislikeOutlined, LikeOutlined, DislikeFilled, LikeFilled, StarOutlined, RightCircleTwoTone } from '@ant-design/icons';
 import { List, Avatar, Space, Alert, notification } from 'antd';
 import axios from 'axios';
+import { Collapse } from 'antd';
+import "./questionList.css"
+
+const { Panel } = Collapse;
 
 const IconText = ({ icon, text }) => (
   <Space>
@@ -87,7 +91,13 @@ class QuestionList extends Component {
         size="large"
         pagination={{ onChange: page => { console.log(page); }, pageSize: 8, }}
         dataSource={this.state.listData}
-        renderItem={item => (
+        renderItem={(item, idx) => (
+          <Collapse 
+            bordered={false} 
+            defaultActiveKey={['0']} 
+            expandIcon={({ isActive }) => <RightCircleTwoTone twoToneColor="#E2D4F3" rotate={isActive ? 90 : 0} style={{fontSize:20}}/>}
+          >
+            <Panel key={idx} header={item.title}>
           <List.Item
             style={{borderWidth: 3, borderStyle:'solid', borderColor: '#E2D4F3', marginTop: 10, borderRadius: 5, backgroundColor: 'rgba(211, 211, 211, 0.2)'}}
             key={item.title}
@@ -128,6 +138,8 @@ class QuestionList extends Component {
           />
             {item.content}
           </List.Item>
+          </Panel>
+          </Collapse>
         )}
       />
     )
