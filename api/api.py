@@ -334,12 +334,12 @@ def getAllQuestions():
         "timeLimit"     : 1636665474,
         "options": [
             {
-                "optionText"    : "option content",
-                "optionImage"   : "ImageFiliePath"
+                "option_name"    : "option content",
+                "option_image"   : "ImageFiliePath"
             },
             {
-                "optionText"    : "option content",
-                "optionImage"   : "ImageFiliePath"
+                "option_name"    : "option content",
+                "option_image"   : "ImageFiliePath"
             }
         ]
     }]
@@ -359,7 +359,7 @@ def getAllQuestions():
         options = Option.query.filter(
             Option.questionID == q['questionID']).all()
         # TODO: return image
-        option_dicts = [{'optionText': o.name, 'optionImage': ''}
+        option_dicts = [{'option_name': o.name, 'option_image': 'none', 'optionID': o.OptionID, 'option_vote': o.votes}
                         for o in options]
         q['options'] = option_dicts
     question_dicts.sort(key=lambda k: k['time'], reverse=True)
