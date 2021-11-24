@@ -5,7 +5,7 @@ import {HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined } from '@an
 
 const { Header } = Layout;
 
-class MenuBar extends Component {
+export default class MenuBar extends Component {
   constructor(props) {
     super(props);
     this.state = {loggedIn: false};
@@ -44,5 +44,3 @@ class MenuBar extends Component {
     )
   }
 }
-
-export default MenuBar;
