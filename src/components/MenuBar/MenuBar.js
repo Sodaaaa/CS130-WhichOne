@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Link, Redirect, withRouter} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 import {Layout, Menu} from 'antd/lib';
 import {HomeOutlined, PlusCircleOutlined, BarsOutlined, UserOutlined } from '@ant-design/icons';
 
@@ -8,13 +8,9 @@ const { Header } = Layout;
 export default class MenuBar extends Component {
   constructor(props) {
     super(props);
-    this.state = {loggedIn: false};
-    // this.props.location.state.loggedIn = false;
   }
 
   render() {
-    // const loggedIn = this.state.loggedIn;
-    // this.forceUpdate();
     let UserMenu;
     if (localStorage.getItem('loggedIn')=="true") {
       UserMenu = <Menu.Item key="profile" icon={<UserOutlined />}>

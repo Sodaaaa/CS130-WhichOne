@@ -124,7 +124,7 @@ export default class login extends Component {
                       //onChange={this.onPasswordChange}
                     />
                   </Form.Item>
-                  <Form.Item>
+                  {/* <Form.Item>
                     <Form.Item name="remember" valuePropName="checked" noStyle>
                       <Checkbox>Remember me</Checkbox>
                     </Form.Item>
@@ -132,7 +132,7 @@ export default class login extends Component {
                     <a className="login-form-forgot" href="">
                       Forgot password
                     </a>
-                  </Form.Item>
+                  </Form.Item> */}
 
                   <Form.Item>
                     <Button 
