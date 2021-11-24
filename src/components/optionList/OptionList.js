@@ -36,6 +36,7 @@ class OptionList extends Component {
   };
 
   render() {
+    // console.log(localStorage.getItem('loggedIn')=="true");
     const { value, listData } = this.state;
     //console.log("optionList" + listData);
     //listData.map((option) => (console.log("option: " + option.optionText)));
@@ -44,7 +45,7 @@ class OptionList extends Component {
         <Space direction="vertical">
           {
             listData.map((option, i) => (
-              <Radio disabled =  {this.state.loggedIn} className="option" value={i} key={i}>
+              <Radio disabled =  {!this.state.loggedIn} className="option" value={i} key={i}>
                 <p>{option.optionText}</p>
                 {/* <img 
                   width={272}
