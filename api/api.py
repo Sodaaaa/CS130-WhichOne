@@ -273,12 +273,12 @@ def recordPostedQuestion():
         "timeLimit"     : 1636665474,
         "options": [
             {
-                "optionText"    : "option content",
-                "optionImage"   : "ImageFiliePath"
+                "option_name"    : "option content",
+                "option_image"   : "ImageFiliePath"
             },
             {
-                "optionText"    : "option content",
-                "optionImage"   : "ImageFiliePath"
+                "option_name"    : "option content",
+                "option_image"   : "ImageFiliePath"
             }
         ]
     }
@@ -301,10 +301,10 @@ def recordPostedQuestion():
 
         for op in request.json['options']:
             option = None
-            if(op['optionImage'] == ''):
-                option = Option(op['optionText'])
+            if(op['option_image'] == ''):
+                option = Option(op['option_name'])
             else:
-                option = Option(op['optionText'], op['optionImage'])
+                option = Option(op['option_name'], op['option_image'])
             question.option.append(option)
         try:
 
