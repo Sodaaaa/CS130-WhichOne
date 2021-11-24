@@ -29,13 +29,17 @@ class QuestionList extends Component {
 
     this.state = {
     listData: this.props.questionList,
+    loggedIn: localStorage.getItem('loggedIn')=="true",
     //optionList: this.props.optionList
     };
   }
 
   like = (item) => {
-    console.log(item.ID);
-    if (item.liked == false && item.disliked == false) {
+    // console.log(item.ID);
+    if (!this.state.loggedIn) {
+      alert("Please Log In");
+    }
+    if (this.state.loggedIn && item.liked == false && item.disliked == false) {
       item.liked = true;
       item.likes = item.likes + 1;
       this.setState({listData: this.state.listData});
@@ -50,8 +54,11 @@ class QuestionList extends Component {
   };
   
   dislike = (item) => {
-    console.log("ID is ", item.ID);
-    if (item.liked == false && item.disliked == false) {
+    // console.log("ID is ", item.ID);
+    if (!this.state.loggedIn) {
+      alert("Please Log In");
+    }
+    if (this.state.loggedIn && item.liked == false && item.disliked == false) {
       item.disliked = true;
       item.dislikes = item.dislikes + 1;
       this.setState({listData: this.state.listData});
