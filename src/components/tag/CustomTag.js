@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { Tag } from 'antd';
 import "./CustomTag.css"
+import axios from 'axios';
+import OptionList from '../../components/optionList/OptionList';
+import { Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 
 const { CheckableTag } = Tag;
 
@@ -10,9 +14,16 @@ const tagsColor = ['#A7DB42', '#FDCB6E', '#FFC0CB', '#A29BFE', '#75B4FF', '#FF76
 
 class CustomTag extends Component {
 
-  state = {
-    selectedTags: [],
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectedTags: [],
+      listData: this.props.questionList,
+      loggedIn: localStorage.getItem('loggedIn')=="true",
+    //optionList: this.props.optionList
+    };
+  }
 
   // createCheckableTags(selectedTags) {
   //   const checkableTags = [];
@@ -31,11 +42,67 @@ class CustomTag extends Component {
   //   return checkableTags;
   // }
 
+  onTriggerCallBack(nextSelectedTags) {
+    //this.props.parentCallback(this.state.listData);
+    this.props.parentCallback(nextSelectedTags);
+  }
+
+  // populateList(res, list) {
+  //   for (let i = 0; i < res.data.length; i++) {
+  //     let question = {
+  //       title: res.data[i].question,
+  //       description: res.data[i].tag,
+  //       content: <OptionList options={res.data[i].options}/>,
+  //       likes: res.data[i].likes,
+  //       dislikes: res.data[i].dislikes,
+  //       liked: false, 
+  //       disliked: false,
+  //       ID: res.data[i].questionID,
+  //       uid: res.data[i].ownerID,
+  //       isAnonymous : res.data[i].anonymous,
+  //       avatar: res.data[i].avator === undefined? 
+  //           <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : 
+  //           <Avatar src={res.data[i].avator} />
+  //     };
+  //     if (res.data[i].anonymous) {
+  //       question.avatar = <Avatar>A</Avatar>;
+  //       question.uid = "Anonymous";
+  //     }
+  //     //else question.avatar = res.data[i].avator === undefined? <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : res.data[i].avator};
+  //     list.push(question);
+  //     // options.push({content: res.data[i].options})
+  //     console.log(list[i]);
+  //   } 
+
+  //   console.log("new list:" + this.state.listData);
+  // }
+
   handleChange(tag, checked) {
     const { selectedTags } = this.state;
     const nextSelectedTags = checked ? [...selectedTags, tag] : selectedTags.filter(t => t !== tag);
     console.log('You are interested in: ', nextSelectedTags);
     this.setState({ selectedTags: nextSelectedTags });
+
+    const list = [];
+    console.log("selectedTags: ", nextSelectedTags);
+    this.onTriggerCallBack(nextSelectedTags);
+    // if (nextSelectedTags.length != 0) {
+    //   axios.get("/api/listTopics", {
+    //     params: {tag: nextSelectedTags[0]}
+    //   }).then((res) => {
+    //     console.log(res);
+    //     this.populateList(res, list);
+    //     this.setState({listData: list});
+    //     this.onTriggerCallBack();
+    //   });
+    // } else {
+    //   axios.get("/api/getAllQuestions").then((res) => {
+    //     console.log(res);
+    //     this.populateList(res, list);
+    //     this.setState({listData : list});
+    //     this.onTriggerCallBack();
+    //   });
+    // }
   }
 
   render() {

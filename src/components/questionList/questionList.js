@@ -4,18 +4,6 @@ import { MessageOutlined, DislikeOutlined, LikeOutlined, DislikeFilled, LikeFill
 import { List, Avatar, Space, Tooltip} from 'antd';
 import axios from 'axios';
 
-// const listData = [];
-// for (let i = 0; i < 23; i++) {
-//   listData.push({
-//     title: `Question ${i+1}`,
-//     avatar: 'https://joeschmoe.io/api/v1/random',
-//     description:
-//       'tag',
-//     content:
-//       <OptionList />
-//   });
-// }
-
 const IconText = ({ icon, text }) => (
   <Space>
     {React.createElement(icon)}
@@ -28,8 +16,8 @@ class QuestionList extends Component {
     super(props);
 
     this.state = {
-    listData: this.props.questionList,
-    loggedIn: localStorage.getItem('loggedIn')=="true",
+      listData: this.props.questionList,
+      loggedIn: localStorage.getItem('loggedIn')=="true",
     //optionList: this.props.optionList
     };
   }
@@ -72,16 +60,14 @@ class QuestionList extends Component {
     }
   };
 
-  render() {
+  componentDidUpdate(prevProps) {
+    if (prevProps.questionList != this.props.questionList) {
+      this.setState({listData : this.props.questionList});
+    }
+  }
 
-    //console.log(this.state.listData);
-    //const { listData, optionList } = this.state;
-    //console.log("optionList: " + optionList)
-    // listData.map((question, i) => (
-    //   //console.log(this.props.optionList[i].content)
-    //   question.content = <OptionList options={this.props.optionList[i].content} />
-    // ));
-    //optionList.map((option) => (console.log(option)))
+  render() {
+    console.log("inside questionList: ", this.state.listData)
     return (
       <List
         itemLayout="vertical"
@@ -96,8 +82,6 @@ class QuestionList extends Component {
               // <IconText icon={StarOutlined} text="156" key="list-vertical-star-o" />,
               // <IconText onClick={like} icon={LikeOutlined} text="156" key="list-vertical-like-o" />,
               // <IconText icon={MessageOutlined} text="2" key="list-vertical-message" />,
-             //LikeAttitude,
-             // DislikeAttitude
                 <span onClick={() => this.like(item)}>
                   <Space>
                     {React.createElement(item.liked === true ? LikeFilled : LikeOutlined)}
