@@ -59,6 +59,16 @@ class MyTestClass(unittest.TestCase):
         print("Start to test getVote function")
         self.assertEqual(response.getcode(), 200)
         print("Finish test : success the getHistoricalQuestions function, code is 200")
+    
+    def test_right_getUserinfo(self):
+        self.__request_data = {'UID': 4}
+        self.__url = "http://127.0.0.1:3000/api/getUserinfo"
+        req = urllib.request.Request(self.__url, data=json.dumps(self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("Start to test getVote function")
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success the getUserinfo function, code is 200")
 
 
 # runs the unit tests in the module
