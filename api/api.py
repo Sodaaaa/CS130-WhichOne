@@ -233,6 +233,25 @@ def login():
         print(error)
         return jsonify({"error": "Invalid form"})
 
+@app.route("/api/getUserinfo", methods=["POST"])
+def getUserinfo():
+    """ request an UID, return userinfo in below format
+    [   {   'email': 'shirley9611@gmail.com',
+        'image_file': None,
+        'userID': 4,
+        'username': 'shirley'}]"""
+    try:
+        uid = request.json["UID"]
+        users = User.query.all()
+        user = list(filter(lambda x: x.UID == uid, users))[0]
+        result = [{"userID": user.UID, "username": user.username, "email": user.email, "image_file": user.image_file}]
+        print("------ successful get userinfo---------")    
+        pp.pprint(result)  
+        return jsonify(result)
+    except Exception as error:
+        print(error)
+        return jsonify({"error": error})
+
 
 @app.route('/api/recordPostedQuestion', methods=["POST"])
 def recordPostedQuestion():
