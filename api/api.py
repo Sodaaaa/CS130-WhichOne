@@ -51,15 +51,18 @@ def getUser(email):
     user = list(filter(lambda x: x.email == email, users))[0]
     return {"UID": user.UID, "username": user.username, "email": user.email, "password": user.password}
 
+
 def getUID(email):
     users = User.query.all()
     user = list(filter(lambda x: x.email == email, users))[0]
     return user.UID
 
+
 def getUsername(UID):
     users = User.query.all()
     user = list(filter(lambda x: x.UID == UID, users))[0]
     return user.username
+
 
 class Question(db.Model):
     __tablename__ = "question"
@@ -233,6 +236,7 @@ def login():
         print(error)
         return jsonify({"error": "Invalid form"})
 
+
 @app.route("/api/getUserinfo", methods=["POST"])
 def getUserinfo():
     """ request an UID, return userinfo in below format
@@ -244,9 +248,10 @@ def getUserinfo():
         uid = request.json["UID"]
         users = User.query.all()
         user = list(filter(lambda x: x.UID == uid, users))[0]
-        result = [{"userID": user.UID, "username": user.username, "email": user.email, "image_file": user.image_file}]
-        print("------ successful get userinfo---------")    
-        pp.pprint(result)  
+        result = [{"userID": user.UID, "username": user.username,
+                   "email": user.email, "image_file": user.image_file}]
+        print("------ successful get userinfo---------")
+        pp.pprint(result)
         return jsonify(result)
     except Exception as error:
         print(error)
@@ -357,6 +362,7 @@ def getAllQuestions():
         option_dicts = [{'optionText': o.name, 'optionImage': ''}
                         for o in options]
         q['options'] = option_dicts
+    question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
 
 
@@ -405,8 +411,8 @@ def listTopics():
         option_dicts = [{'optionText': o.name, 'optionImage': ''}
                         for o in options]
         q['options'] = option_dicts
+    question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
-    pass
 
 
 @app.route('/api/recordVote', methods=["POST"])
@@ -483,6 +489,7 @@ def recordFeedback():
     """ Record the feedback of a user's question. """
     pass
 
+
 @app.route('/api/getHistoricalQuestions', methods=["POST"])
 def getHistoricalQuestions():
     """ Return all questions and corresponding option information posted by a user and the user's username, 
@@ -517,25 +524,26 @@ def getHistoricalQuestions():
         options = Option.query.all()
         result = []
         for q in postedQ:
-            all_options = list(filter(lambda x: x.questionID == q.questionID, options))
-            option_list = [{'optionID': o.OptionID, 
-                            'option_name': o.name, 
-                            'option_image': o.image, 
+            all_options = list(
+                filter(lambda x: x.questionID == q.questionID, options))
+            option_list = [{'optionID': o.OptionID,
+                            'option_name': o.name,
+                            'option_image': o.image,
                             'option_vote': o.votes} for o in all_options]
-            info = {'userID': uid, 
-                    'questionID': q.questionID, 
-                    'ownerID': q.ownerID, 
-                    'time': q.time, 
-                    'tag': q.tag, 
-                    'question': q.question, 
+            info = {'userID': uid,
+                    'questionID': q.questionID,
+                    'ownerID': q.ownerID,
+                    'time': q.time,
+                    'tag': q.tag,
+                    'question': q.question,
                     'anonymous': q.anonymous,
-                    'likes': q.likes, 
+                    'likes': q.likes,
                     'dislikes': q.dislikes,
                     'feedbackID': q.feedbackID,
-                    'timeLimit': int(q.timeLimit.timestamp()),                    
-                    'option_list': option_list, 
+                    'timeLimit': int(q.timeLimit.timestamp()),
+                    'option_list': option_list,
                     'username': getUsername(uid)}
-            
+
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
         print('------------------successful ---------------------')
@@ -582,27 +590,30 @@ def getVotes():
         userVotes = list(filter(lambda x: x.userID == uid, userVotes))
         result = []
         for vote in userVotes:
-            q =  list(filter(lambda x: x.questionID == vote.questionID, questions))[0]
-            all_options = list(filter(lambda x: x.questionID == q.questionID, options))
-            option_list = [{'optionID': o.OptionID, 
-                            'option_name': o.name, 
-                            'option_image': o.image, 
+            q = list(filter(lambda x: x.questionID ==
+                     vote.questionID, questions))[0]
+            all_options = list(
+                filter(lambda x: x.questionID == q.questionID, options))
+            option_list = [{'optionID': o.OptionID,
+                            'option_name': o.name,
+                            'option_image': o.image,
                             'option_vote': o.votes} for o in all_options]
 
-            vote_option = list(filter(lambda x: x.OptionID == vote.vote_result, options))[0]
-            info = {'userID': uid, 
-                    'questionID': q.questionID, 
-                    'ownerID': q.ownerID, 
-                    'time': q.time, 
-                    'tag': q.tag, 
-                    'question': q.question, 
+            vote_option = list(filter(lambda x: x.OptionID ==
+                               vote.vote_result, options))[0]
+            info = {'userID': uid,
+                    'questionID': q.questionID,
+                    'ownerID': q.ownerID,
+                    'time': q.time,
+                    'tag': q.tag,
+                    'question': q.question,
                     'anonymous': q.anonymous,
-                    'likes': q.likes, 
+                    'likes': q.likes,
                     'dislikes': q.dislikes,
                     'feedbackID': q.feedbackID,
-                    'timeLimit': int(q.timeLimit.timestamp()),                    
-                    'option_list': option_list, 
-                    'username': getUsername(uid), 
+                    'timeLimit': int(q.timeLimit.timestamp()),
+                    'option_list': option_list,
+                    'username': getUsername(uid),
                     'vote_result': vote_option.OptionID}
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
@@ -614,6 +625,7 @@ def getVotes():
         return jsonify({"error": e})
     questions = Question.query.filter(
         Question.tag == request.args.get('tag')).all()
+
 
 @app.route('/api/getAttitudes', methods=["POST"])
 def getAttitudes():
@@ -662,25 +674,27 @@ def getAttitudes():
             res = 'Like'
             if att.attitude != 0:
                 res = 'Dislike'
-            q =  list(filter(lambda x: x.questionID == att.questionID, questions))[0]
-            all_options = list(filter(lambda x: x.questionID == q.questionID, options))
-            option_list = [{'optionID': o.OptionID, 
-                            'option_name': o.name, 
-                            'option_image': o.image, 
+            q = list(filter(lambda x: x.questionID ==
+                     att.questionID, questions))[0]
+            all_options = list(
+                filter(lambda x: x.questionID == q.questionID, options))
+            option_list = [{'optionID': o.OptionID,
+                            'option_name': o.name,
+                            'option_image': o.image,
                             'option_vote': o.votes} for o in all_options]
-            info = {'userID': uid, 
-                    'questionID': q.questionID, 
-                    'ownerID': q.ownerID, 
-                    'time': q.time, 
-                    'tag': q.tag, 
-                    'question': q.question, 
+            info = {'userID': uid,
+                    'questionID': q.questionID,
+                    'ownerID': q.ownerID,
+                    'time': q.time,
+                    'tag': q.tag,
+                    'question': q.question,
                     'anonymous': q.anonymous,
-                    'likes': q.likes, 
+                    'likes': q.likes,
                     'dislikes': q.dislikes,
                     'feedbackID': q.feedbackID,
-                    'timeLimit': int(q.timeLimit.timestamp()),                    
-                    'option_list': option_list, 
-                    'username': getUsername(uid), 
+                    'timeLimit': int(q.timeLimit.timestamp()),
+                    'option_list': option_list,
+                    'username': getUsername(uid),
                     'attitude': res}
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
@@ -756,7 +770,7 @@ def listHotTopics():
                 op_dict["image"] = op.image
                 op_dict["votes"] = op.votes
                 option_list.append(op_dict)
-                
+
             q_dict = {
                 "questionID": id,
                 "ownerID": q.ownerID,
@@ -773,7 +787,8 @@ def listHotTopics():
                 "options": option_list
             }
             print(UID, id)
-            attitude_ = UserAttitude.query.filter_by(userID=UID, questionID=id).first()
+            attitude_ = UserAttitude.query.filter_by(
+                userID=UID, questionID=id).first()
             if not attitude_:
                 q_dict["chosenAttitude"] = -1
             else:
@@ -786,7 +801,7 @@ def listHotTopics():
             ret_list.append(q_dict)
         print(ret_list)
         return jsonify(ret_list)
-    
+
     except Exception as e:
         print(e)
         return jsonify({"error": e})
