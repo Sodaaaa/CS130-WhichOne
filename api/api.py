@@ -752,10 +752,10 @@ def listHotTopics():
             "options"       :
             [
                 {
-                    "optionID"  : 1,
-                    "name"      : "xxx",
-                    "image"     : "xxx",
-                    "votes"     : 5
+                    "optionID"       : 123456,
+                    "option_name"    : "option content",
+                    "option_image"   : "ImageFiliePath",
+                    "option_vote"    : 123
                 },
                 ...
             ]
@@ -781,9 +781,9 @@ def listHotTopics():
             for op in options:
                 op_dict = {}
                 op_dict["optionID"] = op.OptionID
-                op_dict["name"] = op.name
-                op_dict["image"] = op.image
-                op_dict["votes"] = op.votes
+                op_dict["option_name"] = op.name
+                op_dict["option_image"] = op.image
+                op_dict["option_vote"] = op.votes
                 option_list.append(op_dict)
 
             q_dict = {
