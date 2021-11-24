@@ -8,9 +8,9 @@ import { UserOutlined } from '@ant-design/icons';
 
 const { CheckableTag } = Tag;
 
-const tagsData = ['Food', 'Sports', 'Movie', 'Travel', 'Music', 'Style'];
+const tagsData = ['Food', 'Sports', 'Movie', 'Music', 'Travel', 'Style'];
 
-const tagsColor = ['#A7DB42', '#FDCB6E', '#FFC0CB', '#A29BFE', '#75B4FF', '#FF7675', '#00B894'];
+const tagsColor = ['#A7DB42', '#FDCB6E', '#FFC0CB', '#75B4FF', '#FF7675', '#00B894'];
 
 class CustomTag extends Component {
 
@@ -117,7 +117,7 @@ class CustomTag extends Component {
         {tagsData.map((tag, i) => (
           <CheckableTag
             key={tag}
-            style={{ backgroundColor: tagsColor[i], color: 'white', marginTop: 12}}
+            style={{ backgroundColor: tagsColor[i], color: 'white', marginTop: 12, fontWeight: 'bold', fontSize: 13, textAlign: 'center'}}
             checked={selectedTags.indexOf(tag) > -1}
             onChange={checked => this.handleChange(tag, checked)}
           >
