@@ -51,7 +51,7 @@ export default class vote extends Component {
     const list = [];
     if (tags.length != 0) {
       axios.get("/api/listTopics", {
-        params: {tag: tags[0]}
+        params: {tags: tags.join()}
       }).then((res) => {
         console.log(res);
         this.populateList(res, list);
