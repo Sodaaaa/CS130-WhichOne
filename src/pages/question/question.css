@@ -26,3 +26,24 @@
     margin-left: 195px;
     width: 150px;
 }
+
+.no-loggin-alert{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-top: 60px;
+    padding-bottom: 5px;
+    border-radius: 20px;
+    background-color: #E2D4F3;
+    color: #FFFFFF;
+    font-size: x-large;
+    font-weight: 600;
+    text-align: center;
+    height: 300px;
+}
+
+.login-btn{
+    color:#FFFFFF;
+    background-color: #6C5CE7;
+    margin-top: 60px;
+    border-radius: 20px;
+}

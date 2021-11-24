@@ -8,7 +8,7 @@ export default class HotTopicCard extends Component {
 
   render() {    
     return (      
-      <a href={"./vote?tag="+this.props.title.toLowerCase()}>
+      <a href={"./vote?tag="+this.props.title}>
         <Card className="homepage-card" title={this.props.title}
           headStyle={{color:"#FFFFFF"}}
           style={{backgroundColor:this.props.bgcolor}}
