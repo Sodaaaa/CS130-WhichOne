@@ -52,98 +52,122 @@ export default class question extends Component {
     alert("Please check and correct your input.");
   };
 
+  autoSelect = () => {
+    console.log("auto select");
+  }
+
   render() {
-    return (
-      <Layout className="layout">
-        <MenuBar selected="question"></MenuBar>
-        <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
-          <div className="question-form">
-            <Form
-              labelCol={{
-                span: 4,
-              }}
-              wrapperCol={{
-                span: 14,
-              }}
-              layout="horizontal"
-              onFinish={this.onSubmit}
-              onFinishFailed={this.onFinishFailed}
-            >
-              <Form.Item 
-                label="Topic" 
-                name="topic"
-                rules={[{ required: true, message: 'Missing topic' }]}>
-                <Input />
-              </Form.Item>
-              <Form.Item label="Tag" name="tag"
-                rules={[{ required: true, message: 'Missing tag' }]}>
-                <Select>
-                  <Select.Option value="food">Food</Select.Option>
-                  <Select.Option value="sports">Sports</Select.Option>
-                  <Select.Option value="music">Music</Select.Option>
-                  <Select.Option value="movie">Movie</Select.Option>
-                  <Select.Option value="style">Style</Select.Option>
-                  <Select.Option value="travel">Travel</Select.Option>
-                </Select>
-              </Form.Item>
-              <Form.List className="question-options" name="options">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, fieldKey, ...restField }) => (
-                      <Space key={key} style={{ display: 'flex', marginLeft: 130 }} align="baseline">
-                        <Form.Item
-                          {...restField}
-                          label="Option"
-                          name={[name, 'optionText']}                          
-                          fieldKey={[fieldKey, 'optionText']}
-                          rules={[{ required: true, message: 'Missing options' }]}
-                          // style={{marginLeft: 20 }} 
-                        >
-                          <Input style={{marginLeft: 20 }} placeholder="Option" />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'optionImage']}
-                          label="Image"
-                          fieldKey={[fieldKey, 'optionImage']}
-                          valuePropName="fileList"
-                          getValueFromEvent={normFile}
-                          // extra="choose an image to show your options"
-                        >
-                          <Upload name="logo" action="/upload.do" listType="picture">
-                            <Button icon={<UploadOutlined />} style={{marginLeft: 20 }}>Click to upload</Button>
-                          </Upload>
-                        </Form.Item>
-                        <MinusCircleOutlined onClick={() => remove(name)} />
-                      </Space>
-                    ))}
-                    <Form.Item>
-                      <Button className="question-add-btn" type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                        Add Option
-                      </Button>
-                    </Form.Item>
-                  </>
-                )}
-              </Form.List>
-              <Form.Item label="Expired Date" name="expiredDate" 
-                rules={[{ required: true, message: 'Missing expired date'}]}>
-                <DatePicker />
-              </Form.Item>
-              <Form.Item label="Anonymous" name="anonymous" valuePropName="checked">
-                <Switch />
-              </Form.Item>  
-              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                <Button type="primary" htmlType="submit"
-                  className="question-post-btn">
-                  Post
+    if (localStorage.getItem('loggedIn')=="false") {
+      return (
+        <Layout className="layout">
+          <MenuBar selected="question"></MenuBar>
+          <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
+            <div className="no-loggin-alert">
+              <p>You haven't logged in. Please log in first to post a question!</p>
+              <Button type="primary" htmlType="submit"
+                  className="login-btn" href="./login">
+                  Log in
                 </Button>
-              </Form.Item>                        
-            </Form>
-            {/* <Button className="question-post-btn" href="./vote">Post</Button> */}
-          </div>
-        </Content>
-      </Layout>    
-    )
+            </div>
+          </Content>
+        </Layout>
+      )
+    }
+    else {
+      return (
+        <Layout className="layout">
+          <MenuBar selected="question"></MenuBar>
+          <Content style={{ backgroundColor:"#FFFFFF", padding: '50px 50px' }}>
+            <div className="question-form">
+              <Form
+                labelCol={{
+                  span: 4,
+                }}
+                wrapperCol={{
+                  span: 14,
+                }}
+                layout="horizontal"
+                onFinish={this.onSubmit}
+                onFinishFailed={this.onFinishFailed}
+              >
+                <Form.Item 
+                  label="Topic" 
+                  name="topic"
+                  rules={[{ required: true, message: 'Missing topic' }]}>
+                  <Input />
+                </Form.Item>
+                <Form.Item label="Tag" name="tag"
+                  rules={[{ required: true, message: 'Missing tag' }]}>
+                  <Select>
+                    <Select.Option value="Food">Food</Select.Option>
+                    <Select.Option value="Sports">Sports</Select.Option>
+                    <Select.Option value="Music">Music</Select.Option>
+                    <Select.Option value="Movie">Movie</Select.Option>
+                    <Select.Option value="Style">Style</Select.Option>
+                    <Select.Option value="Travel">Travel</Select.Option>
+                  </Select>
+                </Form.Item>
+                <Form.List className="question-options" name="options">
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(({ key, name, fieldKey, ...restField }) => (
+                        <Space key={key} style={{ display: 'flex', marginLeft: 130 }} align="baseline">
+                          <Form.Item
+                            {...restField}
+                            label="Option"
+                            name={[name, 'optionText']}                          
+                            fieldKey={[fieldKey, 'optionText']}
+                            rules={[{ required: true, message: 'Missing options' }]}
+                            // style={{marginLeft: 20 }} 
+                          >
+                            <Input style={{marginLeft: 20 }} placeholder="Option" />
+                          </Form.Item>
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'optionImage']}
+                            label="Image"
+                            fieldKey={[fieldKey, 'optionImage']}
+                            valuePropName="fileList"
+                            getValueFromEvent={normFile}
+                            // extra="choose an image to show your options"
+                          >
+                            <Upload name="logo" action="/upload.do" listType="picture">
+                              <Button icon={<UploadOutlined />} style={{marginLeft: 20 }}>Click to upload</Button>
+                            </Upload>
+                          </Form.Item>
+                          <MinusCircleOutlined onClick={() => remove(name)} />
+                        </Space>
+                      ))}
+                      <Form.Item>
+                        <Button className="question-add-btn" type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                          Add Option
+                        </Button>
+                      </Form.Item>
+                    </>
+                  )}
+                </Form.List>
+                <Form.Item label="Expired Date" name="expiredDate" 
+                  rules={[{ required: true, message: 'Missing expired date'}]}>
+                  <DatePicker />
+                </Form.Item>
+                <Form.Item label="Anonymous" name="anonymous" valuePropName="checked">
+                  <Switch />
+                </Form.Item>  
+                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                  <Button type="primary" onClick={this.autoSelect}
+                    className="question-post-btn">
+                    Auto Select
+                  </Button>
+                  <Button type="primary" htmlType="submit"
+                    className="question-post-btn">
+                    Post
+                  </Button>
+                </Form.Item>
+              </Form>
+            </div>
+          </Content>
+        </Layout>    
+      )
+    }
   }
 }
-
