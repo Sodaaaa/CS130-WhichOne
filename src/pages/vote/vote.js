@@ -8,6 +8,7 @@ import { MessageOutlined, LikeOutlined, StarOutlined } from '@ant-design/icons';
 import "./vote.css";
 import { cloneNode } from '@babel/types';
 import QuestionList from '../../components/questionList/questionList';
+import axios from 'axios';
 
 const { Content } = Layout;
 
@@ -23,6 +24,7 @@ const { Content } = Layout;
 //   });
 // }
 
+
 const IconText = ({ icon, text }) => (
   <Space>
     {React.createElement(icon)}
@@ -31,7 +33,43 @@ const IconText = ({ icon, text }) => (
 );
 
 export default class vote extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      listData : [],
+      optionList : [],
+    }
+  }
+
+  componentDidMount() {
+    const list = [];
+    const options = [];
+    axios.get("/api/getAllQuestions").then((res) => {
+      console.log(res);
+      for (let i = 0; i < res.data.length; i++) {
+        list.push({
+          title: res.data[i].question,
+          avatar: 'https://joeschmoe.io/api/v1/random',
+          description: res.data[i].tag,
+          content: <OptionList options={res.data[i].options}/>,
+          likes: res.data[i].likes,
+          dislikes: res.data[i].dislikes,
+          liked: false, 
+          disliked: false,
+          ID: res.data[i].questionID
+        })
+        // options.push({content: res.data[i].options})
+        console.log(list[i]);
+      } 
+      this.setState({listData : list});
+      // this.setState({optionList : options});
+      console.log("listData: " + this.state.listData);
+      //console.log("optionList: " + this.state.optionList);
+    });
+  }
+
   render() {
+    if (this.state.listData.length == 0) return null;
     return (
       <Layout className="layout">
         <MenuBar selected="vote"></MenuBar>
@@ -41,7 +79,8 @@ export default class vote extends Component {
                   <CustomTag />
                 </div>
                 <div className="vote-questions">
-                  <QuestionList />
+                {/* <QuestionList /> */}
+                  <QuestionList questionList={this.state.listData} optionList={this.state.optionList}/>
                   {/* <List
                     itemLayout="vertical"
                     size="large"
