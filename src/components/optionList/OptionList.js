@@ -5,7 +5,7 @@ class OptionList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: 0,
+      value: -1,
       listData: this.props.options
     };
   }

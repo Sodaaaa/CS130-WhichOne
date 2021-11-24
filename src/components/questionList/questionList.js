@@ -113,7 +113,12 @@ class QuestionList extends Component {
                         // }
           >
           <List.Item.Meta
-            avatar={<Avatar src={item.avatar} />}
+            avatar=
+            {<div style={{textAlign: 'center', color: '#E2D4F3'}}>
+              <Avatar src={item.avatar} />
+              <br/>
+              {item.uid}
+            </div>}
             title={item.title}
             description={item.description}
           />
