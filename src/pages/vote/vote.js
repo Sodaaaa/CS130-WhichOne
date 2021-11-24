@@ -37,7 +37,7 @@ export default class vote extends Component {
     super(props);
     this.state = {
       listData : [],
-      optionList : [],
+      listPopulated : false
     }
   }
 
@@ -62,7 +62,7 @@ export default class vote extends Component {
       axios.get("/api/getAllQuestions").then((res) => {
         console.log(res);
         this.populateList(res, list);
-        this.setState({listData : list});
+        this.setState({listData : list, listPopulated: true});
         //this.onTriggerCallBack();
       });
     }
@@ -94,8 +94,6 @@ export default class vote extends Component {
       // options.push({content: res.data[i].options})
       console.log(list[i]);
     } 
-
-    console.log("new list:" + this.state.listData);
   }
 
   componentDidMount() {
@@ -104,15 +102,12 @@ export default class vote extends Component {
     axios.get("/api/getAllQuestions").then((res) => {
       console.log(res);
       this.populateList(res, list);
-      this.setState({listData : list});
-      // this.setState({optionList : options});
+      this.setState({listData : list, listPopulated: true});
       console.log("listData: " + this.state.listData);
-      //console.log("optionList: " + this.state.optionList);
     });
   }
 
   render() {
-    //if (this.state.listData.length == 0) return null;
     return (
       <Layout className="layout">
         <MenuBar selected="vote"></MenuBar>
@@ -122,7 +117,7 @@ export default class vote extends Component {
                   <CustomTag questionList={this.state.listData} parentCallback={this.handleCallback}  />
                 </div>
                 <div className="vote-questions">
-                  <QuestionList questionList={this.state.listData}/>
+                  {this.state.listPopulated === false? null : <QuestionList questionList={this.state.listData}/>}
                 </div>
               </div>
         </Content>  
