@@ -199,8 +199,8 @@ export default class question extends Component {
                           <Form.Item
                             {...restField}
                             label="Option"
-                            name={[name, 'optionText']}                          
-                            fieldKey={[fieldKey, 'optionText']}
+                            name={[name, 'option_name']}                          
+                            fieldKey={[fieldKey, 'option_name']}
                             rules={[{ required: true, message: 'Missing options' }]}
                             // style={{marginLeft: 20 }} 
                           >
@@ -208,9 +208,9 @@ export default class question extends Component {
                           </Form.Item>
                           <Form.Item
                             {...restField}
-                            name={[name, 'optionImage']}
+                            name={[name, 'option_image']}
                             label="Image"
-                            fieldKey={[fieldKey, 'optionImage']}
+                            fieldKey={[fieldKey, 'option_image']}
                             valuePropName="fileList"
                             getValueFromEvent={normFile}
                             // extra="choose an image to show your options"
