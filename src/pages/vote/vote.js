@@ -81,6 +81,7 @@ export default class vote extends Component {
         disliked: false,
         ID: res.data[i].questionID,
         uid: res.data[i].ownerID,
+        username: res.data[i].username,
         isAnonymous : res.data[i].anonymous,
         avatar: res.data[i].avator === undefined? 
             <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : 
@@ -88,7 +89,7 @@ export default class vote extends Component {
       };
       if (res.data[i].anonymous) {
         question.avatar = <Avatar>A</Avatar>;
-        question.uid = "Anonymous";
+        question.username = "Anonymous";
       }
       //else question.avatar = res.data[i].avator === undefined? <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : res.data[i].avator};
       list.push(question);

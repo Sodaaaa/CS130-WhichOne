@@ -131,7 +131,7 @@ class QuestionList extends Component {
             {<div style={{textAlign: 'center', color: '#E2D4F3'}}>
               <Avatar src={item.avatar} />
               <br/>
-              {item.uid}
+              {"@"+item.username}
             </div>}
             title={item.title}
             description={item.description}
