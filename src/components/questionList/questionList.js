@@ -86,7 +86,13 @@ class QuestionList extends Component {
   render() {
     console.log("inside questionList: ", this.state.listData)
     return (
+      this.state.listData.length === 0? 
       <List
+        style={{backgroundColor:'white'}}
+        dataSource={this.state.listData}
+      />
+      : <List
+        // style={{backgroundColor:'white'}}
         itemLayout="vertical"
         size="large"
         pagination={{ onChange: page => { console.log(page); }, pageSize: 8, }}
@@ -98,7 +104,7 @@ class QuestionList extends Component {
             expandIcon={({ isActive }) => <RightCircleTwoTone twoToneColor="#E2D4F3" rotate={isActive ? 90 : 0} style={{fontSize:20}}/>}
           >
             <Panel key={idx} header={item.title}>
-          <List.Item
+          <List.Item 
             style={{borderWidth: 3, borderStyle:'solid', borderColor: '#E2D4F3', marginTop: 10, borderRadius: 5, backgroundColor: 'rgba(211, 211, 211, 0.2)'}}
             key={item.title}
             actions={[
@@ -142,7 +148,7 @@ class QuestionList extends Component {
           </Collapse>
         )}
       />
-    )
+      )
   }
 }
 
