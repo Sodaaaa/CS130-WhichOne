@@ -10,6 +10,9 @@
 .ant-layout{
   height: 100%;
 } */
+.ant-layout-content{
+  min-height: 100vh;
+}
 
 .ant-layout-header{
   background-color: #ffffff !important;
