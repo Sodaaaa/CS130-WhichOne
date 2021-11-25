@@ -55,6 +55,13 @@
     border-radius: 20px;
 }
 
+.luckyWheel{
+    /* position: absolute; */
+    padding-left: 17%;
+    padding-right: 0;
+    /* margin: auto; */
+}
+
 .ant-modal-header{
     background-color: #E2D4F3;
     border-radius: 20px 20px 0 0;

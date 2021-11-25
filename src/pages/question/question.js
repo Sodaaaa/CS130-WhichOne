@@ -25,29 +25,31 @@ export default class question extends Component {
     this.state = {
       visible: false, modalText: "", modalTopic: "",
       blocks: [
-        { padding: '13px', background: '#d64737' }
+        { padding: '13px', background: '#6C5CE7'}
       ],
-      prizes: [
-        { title: '1元红包', background: '#f9e3bb', fonts: [{ text: '1元红包', top: '18%' }] },
-        { title: '100元红包', background: '#f8d384', fonts: [{ text: '100元红包', top: '18%' }] },
-        { title: '0.5元红包', background: '#f9e3bb', fonts: [{ text: '0.5元红包', top: '18%' }] },
-        { title: '2元红包', background: '#f8d384', fonts: [{ text: '2元红包', top: '18%' }] },
-        { title: '10元红包', background: '#f9e3bb', fonts: [{ text: '10元红包', top: '18%' }] },
-        { title: '50元红包', background: '#f8d384', fonts: [{ text: '50元红包', top: '18%' }] },
-      ],
+      // prizes: [
+      //   { title: '1元红包', background: '#E2D4F3', fonts: [{ text: '1元红包', top: '18%' }]},
+      //   { title: '100元红包', background: '#E2D4F3', fonts: [{ text: '100元红包', top: '18%' }] },
+      //   { title: '0.5元红包', background: '#E2D4F3', fonts: [{ text: '0.5元红包', top: '18%' }] },
+      //   { title: '2元红包', background: '#E2D4F3', fonts: [{ text: '2元红包', top: '18%' }] },
+      //   { title: '10元红包', background: '#E2D4F3', fonts: [{ text: '10元红包', top: '18%' }] },
+      //   { title: '50元红包', background: '#E2D4F3', fonts: [{ text: '50元红包', top: '18%' }] },
+      // ],
       buttons: [
-        { radius: '50px', background: '#d64737' },
+        { radius: '50px', background: '#6C5CE7' },
         { radius: '45px', background: '#fff' },
-        { radius: '41px', background: '#f6c66f', pointer: true },
+        { radius: '41px', background: '#6C5CE7', pointer: true},
         {
-          radius: '35px', background: '#ffdea0',
-          fonts: [{ text: '开始\n抽奖', fontSize: '18px', top: -18 }]
+          radius: '35px', background: '#6C5CE7',
+          fonts: [{ text: 'Start', fontSize: '18px', top: -10, fontColor: '#FFFFFF',}]
         }
       ],
       defaultStyle: {
-        fontColor: '#d64737',
-        fontSize: '14px'
+        fontColor: '#6C5CE7',
+        fontSize: '14px',
       },
+      optionList: [],
+      hasUndefined: true
     }
   }
   
@@ -90,15 +92,16 @@ export default class question extends Component {
   formRef = React.createRef();
   autoSelect = () => {
     // console.log(values);
+    this.setState({hasUndefined: true})
     this.showModal();
     var topic = this.formRef.current.getFieldValue('topic');
     var options = this.formRef.current.getFieldValue('options');
-    console.log(options)
+    console.log(this.state.modalText);
     if(topic == undefined){
       this.setState({modalText: "Please provide a topic!"})
     }
-    else if(options == undefined){
-      this.setState({modalText: "Please provide at least ONE option!"})
+    else if(options == undefined || options.length < 2){
+      this.setState({modalText: "Please provide at least TWO options!"})
     }
     else{
       var hasUndefined = false;
@@ -110,12 +113,24 @@ export default class question extends Component {
         }
       }
       if(!hasUndefined){
+        this.setState({hasUndefined: false})
         console.log(options.length)
-        var rand = Math.floor(Math.random()*options.length);
-        var rOption = options[rand];
+        // var rand = Math.floor(Math.random()*options.length);
+        // var rOption = options[rand];
         this.setState({modalTopic: topic})
-        this.setState({modalText: "We auto select an option for you: "+rOption.optionText})        // this.setState({randomOption: rOption.optionText})
-        console.log(rOption.optionText)    
+        this.setState({modalText: ""})
+        // this.setState({modalText: "We auto select an option for you: "+rOption.optionText})        // this.setState({randomOption: rOption.optionText})
+        // console.log(rOption.optionText)
+        for (let i in options){
+          console.log(options)
+          if (i%3 == 0){
+            this.state.optionList.push({title: options[i].option_name, background: '#E2D4F3', fonts: [{ text: options[i].option_name, top: '18%' }]})
+          } else if (i%3 == 1) {
+            this.state.optionList.push({title: options[i].option_name, background: '#fff', fonts: [{ text: options[i].option_name, top: '18%' }]})
+          } else if (i%3 == 2) {
+            this.state.optionList.push({title: options[i].option_name, background: '#FFC0CB', fonts: [{ text: options[i].option_name, top: '18%' }]})
+          }
+        }
       }              
     }        
   }
@@ -137,6 +152,7 @@ export default class question extends Component {
     this.setState({
       visible: false,
     });
+    this.state.optionList = [];
   };
 
   render() {
@@ -255,30 +271,33 @@ export default class question extends Component {
                     <p>{this.state.modalTopic}</p>
                     <p>{this.state.modalText}</p>
                     {/* <div style={{textAlign: 'center'}}><Spin/></div> */}
-                    <LuckyWheel
-                      ref={this.myLucky}
-                      width="300px"
-                      height="300px"
-                      blocks={this.state.blocks}
-                      prizes={this.state.prizes}
-                      buttons={this.state.buttons}
-                      defaultStyle={this.state.defaultStyle}
-                      onStart={() => { // 点击抽奖按钮会触发star回调
-                        // 调用抽奖组件的play方法开始游戏
-                        this.myLucky.current.play()
-                        // 模拟调用接口异步抽奖
-                        setTimeout(() => {
-                          // 假设拿到后端返回的中奖索引
-                          const index = Math.random() * 6 >> 0
-                          // 调用stop停止旋转并传递中奖索引
-                          this.myLucky.current.stop(index)
-                        }, 2500)
-                      }}
-                      onEnd={prize => { // 抽奖结束会触发end回调
-                        console.log(prize)
-                        alert('恭喜获得大奖:' + prize.title)
-                      }}
-                    ></LuckyWheel>
+                    {!this.state.hasUndefined && <div className = "luckyWheel">
+                      <LuckyWheel
+                        ref={this.myLucky}
+                        width="300px"
+                        height="300px"
+                        blocks={this.state.blocks}
+                        prizes={this.state.optionList}
+                        buttons={this.state.buttons}
+                        defaultStyle={this.state.defaultStyle}
+                        onStart={() => { // 点击抽奖按钮会触发star回调
+                          // 调用抽奖组件的play方法开始游戏
+                          this.myLucky.current.play()
+                          // 模拟调用接口异步抽奖
+                          setTimeout(() => {
+                            // 假设拿到后端返回的中奖索引
+                            const index = Math.random() * 6 >> 0
+                            // 调用stop停止旋转并传递中奖索引
+                            this.myLucky.current.stop(index)
+                          }, 2500)
+                        }}
+                        onEnd={prize => { // 抽奖结束会触发end回调
+                          console.log(prize)
+                          alert('We auto select an option for you:' + prize.title)
+                          this.state.optionList = []
+                        }}
+                      ></LuckyWheel>
+                    </div>}
                   </Modal>
                   <Button type="primary" htmlType="submit"
                     className="question-post-btn">
