@@ -301,7 +301,7 @@ def recordPostedQuestion():
 
         for op in request.json['options']:
             option = None
-            if(op['option_image'] == ''):
+            if 'option_image' not in op:
                 option = Option(op['option_name'])
             else:
                 option = Option(op['option_name'], op['option_image'])
