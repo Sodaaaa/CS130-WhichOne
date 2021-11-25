@@ -9,6 +9,7 @@ import "./vote.css";
 import { cloneNode } from '@babel/types';
 import QuestionList from '../../components/questionList/questionList';
 import axios from 'axios';
+import Background from '../../img/background.jfif';
 
 const { Content } = Layout;
 
@@ -111,7 +112,7 @@ export default class vote extends Component {
     return (
       <Layout className="layout">
         <MenuBar selected="vote"></MenuBar>
-        <Content style={{ padding: '0px 50px' }} className='vote-content'>
+        <Content style={{ padding: '0px 50px', background: `url(${Background}) no-repeat` }} className='vote-content'>
               <div className="vote-site-layout-content">
                 <div className="vote-tags"> 
                   <CustomTag questionList={this.state.listData} parentCallback={this.handleCallback}  />
