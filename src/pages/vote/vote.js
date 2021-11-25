@@ -74,7 +74,7 @@ export default class vote extends Component {
       let question = {
         title: res.data[i].question,
         description: res.data[i].tag,
-        content: <OptionList options={res.data[i].options}/>,
+        content: <OptionList options={res.data[i].options} expired = {false}/>,
         likes: res.data[i].likes,
         dislikes: res.data[i].dislikes,
         liked: false, 

@@ -42,7 +42,7 @@ export default class profile extends Component {
       let question = {
         title: res.data[i].question,
         description: res.data[i].tag,
-        content: <OptionList options={res.data[i].option_list}/>,
+        content: <OptionList options={res.data[i].option_list} expired = {false}/>,
         likes: res.data[i].likes,
         dislikes: res.data[i].dislikes,
         liked: false, 

@@ -7,6 +7,7 @@ class OptionList extends Component {
     this.state = {
       value: -1,
       listData: this.props.options,
+      expired: this.props.expired,
       loggedIn: localStorage.getItem('loggedIn')=="true"
     };
   }
@@ -40,12 +41,13 @@ class OptionList extends Component {
     const { value, listData } = this.state;
     //console.log("optionList" + listData);
     //listData.map((option) => (console.log("option: " + option.optionText)));
+    console.log("expired is ", this.state.expired);
     return (
       <Radio.Group className="optionList-radiogroup" onChange={this.onChange} value={value}>
         <Space direction="vertical">
           {
             listData.map((option, i) => (
-              <Radio disabled =  {!this.state.loggedIn} className="option" value={i} key={i}>
+              <Radio disabled =  {!this.state.loggedIn || this.state.expired} className="option" value={i} key={i}>
                 <p>{option.option_name}</p>
                 {/* <img 
                   width={272}
