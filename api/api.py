@@ -322,6 +322,7 @@ def recordPostedQuestion():
 @app.route('/api/getAllQuestions', methods=["GET"])
 def getAllQuestions():
     """ 
+    The request should provide a 'UID' parameter which is a int
     Return all questions. 
     The returned data should be in format below:
     [{
@@ -333,6 +334,8 @@ def getAllQuestions():
         "question"      : "question content",
         "annoymous"     : TRUE,
         "timeLimit"     : 1636665474,
+        "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
+        "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
         "options": [
             {
                 "optionID"       : 1234556,
@@ -369,6 +372,21 @@ def getAllQuestions():
         q['options'] = option_dicts
         q['username'] = User.query.filter(
             User.UID == q['ownerID']).first().username
+
+        UID = int(request.args.get('UID'))
+        user_vote_record = UserVote.query.filter(
+            'UID' == UID and 'questionID' == q['questionID']).first()
+        if user_vote_record == None:
+            q['voted'] = -1
+        else:
+            q['voted'] = user_vote_record.vote_result
+        user_attitude_record = UserAttitude.query.filter(
+            'UID' == UID and 'questionID' == q['questionID']).first()
+        if user_attitude_record == None:
+            q['chosenAttitude'] = -1
+        else:
+            q['chosenAttitude'] = user_attitude_record.attitude
+
     question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
 
@@ -377,6 +395,7 @@ def getAllQuestions():
 def listTopics():
     """ 
     The request should provide a 'tags' parameter whose value is a string
+    The request should provide a 'UID' parameter which is a int
     Different tags should be separated by coma
     Example url: "http://localhost:5000/api/listTopics?tags=abc,def"
     Return all topics of a specific tag. 
@@ -390,6 +409,8 @@ def listTopics():
         "question"      : "question content",
         "annoymous"     : TRUE,
         "timeLimit"     : 1636665474,
+        "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
+        "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
         "options": [
             {
                 "optionID"       : 1234556,
@@ -430,6 +451,20 @@ def listTopics():
         q['options'] = option_dicts
         q['username'] = User.query.filter(
             User.UID == q['ownerID']).first().username
+
+        UID = int(request.args.get('UID'))
+        user_vote_record = UserVote.query.filter(
+            'UID' == UID and 'questionID' == q['questionID']).first()
+        if user_vote_record == None:
+            q['voted'] = -1
+        else:
+            q['voted'] = user_vote_record.vote_result
+        user_attitude_record = UserAttitude.query.filter(
+            'UID' == UID and 'questionID' == q['questionID']).first()
+        if user_attitude_record == None:
+            q['chosenAttitude'] = -1
+        else:
+            q['chosenAttitude'] = user_attitude_record.attitude
     question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
 
