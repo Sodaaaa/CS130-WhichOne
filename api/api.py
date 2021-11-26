@@ -548,7 +548,7 @@ def recordFeedback():
 @app.route('/api/getHistoricalQuestions', methods=["POST"])
 def getHistoricalQuestions():
     """ Return all questions and corresponding option information posted by a user and the user's username, 
-    not include its feeback and anoymous option. 
+    not include its feeback and anoymous option. Assume not choose attitude and not vote
     This API use the POST method.
     The returned json object is be in the form below:
     [{   'anonymous': False,
@@ -597,7 +597,9 @@ def getHistoricalQuestions():
                     'feedbackID': q.feedbackID,
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
-                    'username': getUsername(uid)}
+                    'username': getUsername(uid),
+                    'chosenAttitude': -1,
+                    'voted': -1}
 
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
@@ -613,7 +615,7 @@ def getHistoricalQuestions():
 def getVotes():
     """ request an UID, return all vote actions of a this user and its user name. For each vote action, 
     return the questionID, ownerID, time, tag , question(description) and the voted option name
-    This API use the POST method.
+    This API use the POST method. Assume not choose attitude
     The returned json object is be in the form below:
     [{'anonymous': False,
     'dislikes': 0,
@@ -669,7 +671,9 @@ def getVotes():
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
                     'username': getUsername(uid),
-                    'vote_result': vote_option.OptionID}
+                    'vote_result': vote_option.OptionID,
+                    'chosenAttitude': -1,
+                    'voted': vote_option.OptionID}
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
         print('------------------successful ---------------------')
@@ -687,7 +691,7 @@ def getAttitudes():
     """ Return all attitudes of a user. """
     """ request an UID, return all attitude actions of a this user and its usernamec. For each attitude action, 
     return the questionID, ownerID, time, tag , question(description) and the attidue as Like or Dislike
-    This API use the POST method.
+    This API use the POST method. Assume not vote
     The returned json object is be in the form below:
     [{   'anonymous': False,
         'attitude': 'Like',
@@ -726,9 +730,9 @@ def getAttitudes():
         userAttitudes = list(filter(lambda x: x.userID == uid, userAttitudes))
         result = []
         for att in userAttitudes:
-            res = 'Like'
-            if att.attitude != 0:
-                res = 'Dislike'
+            # res = 'Like'
+            # if att.attitude != 0:
+            #     res = 'Dislike'
             q = list(filter(lambda x: x.questionID ==
                      att.questionID, questions))[0]
             all_options = list(
@@ -750,7 +754,8 @@ def getAttitudes():
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
                     'username': getUsername(uid),
-                    'attitude': res}
+                    'chosenAttitude': att.attitude,
+                    'voted': -1}
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
         print('------------------successful get attitude---------------------')
