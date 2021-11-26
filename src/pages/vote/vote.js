@@ -38,15 +38,9 @@ export default class vote extends Component {
     super(props);
     this.state = {
       listData : [],
-      listPopulated : false
+      listPopulated : false,
     }
   }
-
-  // handleCallback = (newQuestionList) =>{
-  //   this.setState({listData : newQuestionList})
-  //   //console.log("question list: " + this.state.listData);
-  //   //this.forceUpdate();
-  // }
 
   handleCallback = (tags) => {
     const list = [];
@@ -56,8 +50,8 @@ export default class vote extends Component {
       }).then((res) => {
         console.log(res);
         this.populateList(res, list);
-        this.setState({listData: list});
-        //this.onTriggerCallBack();
+        this.setState({listData: list, listPopulated: true});
+        localStorage.setItem('tag', 'null')
       });
     } else {
       axios.get("/api/getAllQuestions", {
@@ -108,7 +102,7 @@ export default class vote extends Component {
       console.log(res);
       this.populateList(res, list);
       this.setState({listData : list, listPopulated: true});
-      console.log("listData: " + this.state.listData);
+      console.log("listData: " + this.state.listData);      
     });
   }
 
