@@ -53,25 +53,64 @@ class QuestionList extends Component {
     });
   };
 
+  recordAttitude = (id,attitude) => {
+    this.setState({ listData: this.state.listData });
+      axios
+        .post("/api/recordAttitude", {
+          userID: Number(localStorage.getItem("UID")),
+          questionID: id,
+          attitude: attitude,
+        })
+        .then((res) => {
+          console.log(res);
+        });
+  };
+
+  cancelAttitude = (id, attitude) => {
+    this.setState({ listData: this.state.listData });
+      axios
+        .post("/api/cancelAttitude", {
+          userID: Number(localStorage.getItem("UID")),
+          questionID: id,
+          attitude: attitude,
+        })
+        .then((res) => {
+          console.log(res);
+        });
+  };
+
+
   like = (item) => {
     // console.log(item.ID);
     if (!this.state.loggedIn) {
       // alert("Please Log In");
       this.openNotification();
     }
-    if (this.state.loggedIn && item.liked == false && item.disliked == false) {
-      item.liked = true;
-      item.likes = item.likes + 1;
-      this.setState({ listData: this.state.listData });
-      axios
-        .post("/api/recordAttitude", {
-          userID: localStorage.getItem("UID"),
-          questionID: item.ID,
-          attitude: 0,
-        })
-        .then((res) => {
-          console.log(res);
-        });
+    if (this.state.loggedIn) {
+      if (item.attitude == -1) {
+        item.attitude = 0;
+        item.likes += 1;
+        this.recordAttitude(item.ID, 0);
+      } else if (item.attitude == 0) {
+        item.attitude = -1;
+        item.likes -= 1;
+        this.cancelAttitude(item.ID, 0);
+      } else {
+        item.attitude = 0;
+        item.likes += 1;
+        item.dislikes -= 1;
+        this.recordAttitude(item.ID, 0);
+        this.cancelAttitude(item.ID, 1);
+      }
+      // if (item.liked == false && item.disliked == false) {
+      //   item.liked = true;
+      //   item.likes = item.likes + 1;
+      //   this.recordAttitude(0);
+      // } else if (item.liked == true && item.disliked == false) {
+      //   item.liked = true;
+      //   item.likes = item.likes + 1;
+      //   this.recordAttitude(0);
+      // }
     }
   };
 
@@ -81,19 +120,30 @@ class QuestionList extends Component {
       // alert("Please Log In");
       this.openNotification();
     }
-    if (this.state.loggedIn && item.liked == false && item.disliked == false) {
-      item.disliked = true;
-      item.dislikes = item.dislikes + 1;
-      this.setState({ listData: this.state.listData });
-      axios
-        .post("/api/recordAttitude", {
-          userID: Number(localStorage.getItem("UID")),
-          questionID: item.ID,
-          attitude: 1,
-        })
-        .then((res) => {
-          console.log(res);
-        });
+    if (this.state.loggedIn) {
+      if (item.attitude == -1) {
+        item.attitude = 0;
+        item.dislikes += 1;
+        this.recordAttitude(item.ID, 1);
+      } else if (item.attitude == 1) {
+        item.attitude = -1;
+        item.dislikes -= 1;
+        this.cancelAttitude(item.ID, 1);
+      } else {
+        item.attitude = 1;
+        item.likes -= 1;
+        item.dislikes += 1;
+        this.recordAttitude(item.ID, 1);
+        this.cancelAttitude(item.ID, 0);
+      }
+    // if (this.state.loggedIn && item.liked == false && item.disliked == false) {
+    //   item.disliked = true;
+    //   item.dislikes = item.dislikes + 1;
+    //   this.recordAttitude(item.ID, 1);
+    // } else if (this.state.loggedIn && item.liked == false && item.disliked == true) {
+    //   item.disliked = false;
+    //   item.dislikes = item.dislikes - 1;
+    //   this.cancelAttitude(item.ID, 1);
     }
   };
 
@@ -152,7 +202,7 @@ class QuestionList extends Component {
                   <span onClick={() => this.like(item)}>
                     <Space>
                       {React.createElement(
-                        item.liked === true ? LikeFilled : LikeOutlined
+                        item.attitude === 0 ? LikeFilled : LikeOutlined
                       )}
                       {item.likes}
                     </Space>
@@ -160,7 +210,7 @@ class QuestionList extends Component {
                   <span onClick={() => this.dislike(item)}>
                     <Space>
                       {React.createElement(
-                        item.disliked === true ? DislikeFilled : DislikeOutlined
+                        item.attitude === 1 ? DislikeFilled : DislikeOutlined
                       )}
                       {item.dislikes}
                     </Space>
