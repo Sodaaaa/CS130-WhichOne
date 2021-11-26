@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Radio, Input, Space, notification } from 'antd';
+import React, { Component } from "react";
+import { Radio, Input, Space, notification, Progress, Statistic } from "antd";
 
 class OptionList extends Component {
   constructor(props) {
@@ -8,29 +8,28 @@ class OptionList extends Component {
       value: -1,
       listData: this.props.options,
       expired: this.props.expired,
-      loggedIn: localStorage.getItem('loggedIn')=="true"
+      loggedIn: localStorage.getItem("loggedIn") == "true",
     };
   }
 
   openNotification = () => {
     notification.open({
-      message: 'Notification',
-      description:
-        'Please log in.',
+      message: "Notification",
+      description: "Please log in.",
       onClick: () => {
-        console.log('Notification Clicked!');
+        console.log("Notification Clicked!");
       },
     });
   };
 
-  onChange = e => {
+  onChange = (e) => {
     if (!this.state.loggedIn) {
       // alert("Please Log In");
       this.openNotification();
-      return
+      return;
     }
 
-    console.log('radio checked', e.target.value);
+    console.log("radio checked", e.target.value);
     this.setState({
       value: e.target.value,
     });
@@ -43,11 +42,21 @@ class OptionList extends Component {
     //listData.map((option) => (console.log("option: " + option.optionText)));
     console.log("expired is ", this.state.expired);
     return (
-      <Radio.Group className="optionList-radiogroup" onChange={this.onChange} value={value}>
+      <Radio.Group
+        className="optionList-radiogroup"
+        onChange={this.onChange}
+        value={value}
+      >
+        {/* <Space direction="horizontal" wrap="true" size='large'> */}
         <Space direction="vertical">
-          {
-            listData.map((option, i) => (
-              <Radio disabled =  {!this.state.loggedIn || this.state.expired} className="option" value={i} key={i}>
+          {listData.map((option, i) => (
+            <div key={i}>
+              <Radio
+                disabled={!this.state.loggedIn || this.state.expired}
+                className="option"
+                value={i}
+                key={i}
+              >
                 <p>{option.option_name}</p>
                 {/* <img 
                   width={272}
@@ -55,8 +64,14 @@ class OptionList extends Component {
                   src="https://www.k9ofmine.com/wp-content/uploads/2021/03/white-colored-maltese-850x520.jpg"
                 /> */}
               </Radio>
-            ))
-          }
+              <Progress percent={50} strokeColor="#E2D4F3" />
+              <Statistic
+                value={93}
+                suffix={"/" + 150}
+                valueStyle={{ fontSize: 12 }}
+              />
+            </div>
+          ))}
           {/* <Radio className="option" value={1}>
             <p>Option A</p>
             <img 

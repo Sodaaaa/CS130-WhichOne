@@ -1,36 +1,36 @@
 .profile-content {
   /* background-color: white; */
-  background: url('../../img/background.jfif') no-repeat;
+  background: url("../../img/background.jfif") no-repeat;
 }
 
-.user-profile{
+.user-profile {
   text-align: center;
   margin: 5px 50px;
   padding: 20px 100px;
-  background-color:#FFFFFF;
+  background-color: #ffffff;
   font-size: medium;
   font-weight: 600;
   border-radius: 10px;
 }
 
-.user-name{
+.user-name {
   margin: 10px;
 }
 
-.logout{
+.logout {
   margin: 10px;
 }
 
 .logout-button {
   width: 10%;
-  background-color: #6C5CE7;
+  background-color: #6c5ce7;
 }
 
 .posted-questions {
   /* text-align: center; */
   margin: 5px 50px;
   padding: 20px 100px;
-  background-color:#FFFFFF;
+  background-color: #ffffff;
   font-size: 20px;
   font-weight: 600;
   border-radius: 10px;
@@ -41,7 +41,7 @@
   /* text-align: center; */
   margin: 5px 50px;
   padding: 20px 100px;
-  background-color:#FFFFFF;
+  background-color: #ffffff;
   font-size: 20px;
   font-weight: 600;
   border-radius: 10px;

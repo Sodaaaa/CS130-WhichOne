@@ -1,129 +1,128 @@
-.ant-form-item-label{
-    overflow: visible;
+.ant-form-item-label {
+  overflow: visible;
 }
 
-.question-content{
-    background-color:#FFFFFF;
-    padding: 50px 50px;
-    background: url('../../img/background.jfif') no-repeat;
+.question-content {
+  background-color: #ffffff;
+  padding: 50px 50px;
+  background: url("../../img/background.jfif") no-repeat;
 }
 
-.question-title{
-    margin-top: 20px;
-    padding: 5px 20px;
-    background-color:#6C5CE7;
-    color: #FFFFFF;
-    border-radius: 20px 20px 0 0;
-    height: 40px;
-    font-size: 20px;
-    font-weight: bold;
+.question-title {
+  margin-top: 20px;
+  padding: 5px 20px;
+  background-color: #6c5ce7;
+  color: #ffffff;
+  border-radius: 20px 20px 0 0;
+  height: 40px;
+  font-size: 20px;
+  font-weight: bold;
 }
 
-.question-form{
-    
-    margin-bottom: 20px;
-    padding-top: 30px;
-    padding-bottom: 5px;
-    border-radius: 0 0 20px 20px;
-    background-color: #FFFFFF;
-    color: #FFFFFF;
+.question-form {
+  margin-bottom: 20px;
+  padding-top: 30px;
+  padding-bottom: 5px;
+  border-radius: 0 0 20px 20px;
+  background-color: #ffffff;
+  color: #ffffff;
 }
 
-.question-post-btn{
-    float: right;
-    color:#FFFFFF;
-    background-color: #6C5CE7;
-    /* margin-right: 40px;
+.question-post-btn {
+  float: right;
+  color: #ffffff;
+  background-color: #6c5ce7;
+  /* margin-right: 40px;
     margin-top: 20px;
     margin-bottom: 20px; */
-    margin: 20px 40px 0 20px;
-    border-radius: 20px;
+  margin: 20px 40px 0 20px;
+  border-radius: 20px;
 }
 
-.question-add-btn{
-    margin-left: 195px;
-    width: 150px;
+.question-add-btn {
+  margin-left: 195px;
+  width: 150px;
 }
 
-.no-loggin-alert{
-    margin-top: 20px;
-    margin-bottom: 20px;
-    padding-top: 60px;
-    padding-bottom: 5px;
-    border-radius: 20px;
-    background-color: #E2D4F3;
-    color: #FFFFFF;
-    font-size: x-large;
-    font-weight: 600;
-    text-align: center;
-    height: 300px;
+.no-loggin-alert {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding-top: 60px;
+  padding-bottom: 5px;
+  border-radius: 20px;
+  background-color: #e2d4f3;
+  color: #ffffff;
+  font-size: x-large;
+  font-weight: 600;
+  text-align: center;
+  height: 300px;
 }
 
-.login-btn{
-    color:#FFFFFF;
-    background-color: #6C5CE7;
-    margin-top: 60px;
-    border-radius: 20px;
+.login-btn {
+  color: #ffffff;
+  background-color: #6c5ce7;
+  margin-top: 60px;
+  border-radius: 20px;
 }
 
-.luckyWheel{
-    /* position: absolute; */
-    padding-left: 17%;
-    padding-right: 0;
-    /* margin: auto; */
+.luckyWheel {
+  /* position: absolute; */
+  padding-left: 17%;
+  padding-right: 0;
+  /* margin: auto; */
 }
 
-.ant-modal-header{
-    background-color: #E2D4F3;
-    border-radius: 20px 20px 0 0;
+.ant-modal-header {
+  background-color: #e2d4f3;
+  border-radius: 20px 20px 0 0;
 }
 
-.ant-modal-title{
-    color: #FFFFFF;
+.ant-modal-title {
+  color: #ffffff;
 }
 
-.ant-modal-content{
-    color: #6C5CE7;
-    border-radius: 20px;
+.ant-modal-content {
+  color: #6c5ce7;
+  border-radius: 20px;
 }
 
-.ant-btn{
-    color:#FFFFFF;
-    background-color: #6C5CE7;
-    border-color: #6C5CE7;
-    border-radius: 20px;
+.ant-btn {
+  color: #ffffff;
+  background-color: #6c5ce7;
+  border-color: #6c5ce7;
+  border-radius: 20px;
 }
-.ant-btn:hover{
-    background-color: #E2D4F3;
-    color: #FFFFFF;    
-    border-color: #6C5CE7;
+.ant-btn:hover {
+  background-color: #e2d4f3;
+  color: #ffffff;
+  border-color: #6c5ce7;
 }
 
-.ant-input{
-    background-color: #E2D4F3;
-    border-color: #FFFFFF;
-    border-radius: 20px;
+.ant-input {
+  background-color: #e2d4f3;
+  border-color: #ffffff;
+  border-radius: 20px;
 }
-.ant-input:hover{
-    border-color: #FFFFFF;
+.ant-input:hover {
+  border-color: #ffffff;
 }
 
 .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    background-color: #E2D4F3;
-    border-radius: 20px;
+  background-color: #e2d4f3;
+  border-radius: 20px;
 }
 
-.ant-picker{
-    background-color: #E2D4F3;
-    color: #FFFFFF;
-    border-radius: 20px;
+.ant-picker {
+  background-color: #e2d4f3;
+  color: #ffffff;
+  border-radius: 20px;
 }
 
 .ant-switch-checked {
-    background-color: #6C5CE7;
+  background-color: #6c5ce7;
 }
 
-.ant-input-affix-wrapper{
-    border: 0px;
-    padding: 0px 11px;
+.ant-input-affix-wrapper {
+  border: 0px;
+  padding: 0px 11px;
 }
