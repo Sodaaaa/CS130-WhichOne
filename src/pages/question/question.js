@@ -177,6 +177,9 @@ export default class question extends Component {
         <Layout className="layout">
           <MenuBar selected="question"></MenuBar>
           <Content className="question-content">
+            <div className="question-title">
+              <p>What's on your mind?</p>
+            </div>
             <div className="question-form">
               <Form
                 labelCol={{
