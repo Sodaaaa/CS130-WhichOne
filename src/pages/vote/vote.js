@@ -56,7 +56,7 @@ export default class vote extends Component {
         });
     } else {
       axios
-        .get("/api/getAllQuestions", {
+        .get("https://cs130-which-one.herokuapp.com/api/getAllQuestions", {
           params: { UID: localStorage.getItem("UID") },
         })
         .then((res) => {
@@ -107,7 +107,7 @@ export default class vote extends Component {
   componentDidMount() {
     const list = [];
     axios
-      .get("/api/getAllQuestions", {
+      .get("https://cs130-which-one.herokuapp.com/api/getAllQuestions", {
         params: { UID: localStorage.getItem("UID") },
       })
       .then((res) => {
