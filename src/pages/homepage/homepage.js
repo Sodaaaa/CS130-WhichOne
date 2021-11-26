@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Layout, Card, Row, Col, Button, Link} from 'antd/lib';
+import { Layout, Row, Col, Button} from 'antd/lib';
 import { SmallDashOutlined } from '@ant-design/icons';
 import './homepage.css'
 import MenuBar from '../../components/MenuBar/MenuBar';
@@ -38,11 +38,6 @@ export default class homepage extends Component {
         }      
       }
     });
-  }
-
-  handleClick(tag) {
-    window.location.href = "./vote?tag="+tag;
-    console.log("click"+tag)
   }
   
   render() {
