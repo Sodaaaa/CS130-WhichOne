@@ -382,6 +382,7 @@ def getAllQuestions():
             q['voted'] = user_vote_record.vote_result
         user_attitude_record = UserAttitude.query.filter(
             'UID' == UID and 'questionID' == q['questionID']).first()
+            # UserAttitude.userID == UID and UserAttitude.questionID == q['questionID']).first()
         if user_attitude_record == None:
             q['chosenAttitude'] = -1
         else:

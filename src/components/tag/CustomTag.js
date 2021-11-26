@@ -113,7 +113,7 @@ class CustomTag extends Component {
           <Tag color='#6C5CE7' size='50px' style={{borderRadius: 3, fontSize: 20, height: 30, paddingTop:3.5}}>What's your interest?</Tag>
         </span>
         {/* {this.createCheckableTags(selectedTags)} */}
-        <div className="customTag-tagLiss">
+        <div className="customTag-tagList">
         {tagsData.map((tag, i) => (
           <CheckableTag
             key={tag}

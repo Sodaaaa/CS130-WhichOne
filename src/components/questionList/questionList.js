@@ -77,7 +77,7 @@ class QuestionList extends Component {
       item.dislikes = item.dislikes + 1;
       this.setState({listData: this.state.listData});
       axios.post("/api/recordAttitude", {
-        userID: localStorage.getItem('UID'),
+        userID: Number(localStorage.getItem('UID')),
         questionID: item.ID,
         attitude: 1
       }).then((res) => {
@@ -152,8 +152,6 @@ class QuestionList extends Component {
             description={<Tag
             color={colors[item.description]}
             style={{ color: 'white', fontWeight: 'bold', fontSize: 12, textAlign: 'center'}}
-            // checked={selectedTags.indexOf(tag) > -1}
-            // onChange={checked => this.handleChange(tag, checked)}
           >
             {item.description}
           </Tag>}
