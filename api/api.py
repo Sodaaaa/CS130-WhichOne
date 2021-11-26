@@ -375,14 +375,14 @@ def getAllQuestions():
 
         UID = int(request.args.get('UID'))
         user_vote_record = UserVote.query.filter(
-            'UID' == UID and 'questionID' == q['questionID']).first()
+            'userID' == UID and 'questionID' == q['questionID']).first()
         if user_vote_record == None:
             q['voted'] = -1
         else:
             q['voted'] = user_vote_record.vote_result
         user_attitude_record = UserAttitude.query.filter(
-            'UID' == UID and 'questionID' == q['questionID']).first()
-            # UserAttitude.userID == UID and UserAttitude.questionID == q['questionID']).first()
+            'userID' == UID and 'questionID' == q['questionID']).first()
+        # UserAttitude.userID == UID and UserAttitude.questionID == q['questionID']).first()
         if user_attitude_record == None:
             q['chosenAttitude'] = -1
         else:
@@ -455,13 +455,13 @@ def listTopics():
 
         UID = int(request.args.get('UID'))
         user_vote_record = UserVote.query.filter(
-            'UID' == UID and 'questionID' == q['questionID']).first()
+            'userID' == UID and 'questionID' == q['questionID']).first()
         if user_vote_record == None:
             q['voted'] = -1
         else:
             q['voted'] = user_vote_record.vote_result
         user_attitude_record = UserAttitude.query.filter(
-            'UID' == UID and 'questionID' == q['questionID']).first()
+            'userID' == UID and 'questionID' == q['questionID']).first()
         if user_attitude_record == None:
             q['chosenAttitude'] = -1
         else:
@@ -538,6 +538,7 @@ def recordAttitude():
         print(e)
         return jsonify({"error": e})
 
+
 @app.route('/api/cancelAttitude', methods=["POST"])
 def cancelAttitude():
     """ Cancel the "like" or "dislike" action of a user. 
@@ -578,6 +579,7 @@ def cancelAttitude():
     except Exception as e:
         print(e)
         return jsonify({"error": e})
+
 
 @app.route('/api/recordFeedback')
 def recordFeedback():
