@@ -52,7 +52,7 @@ export default class vote extends Component {
     const list = [];
     if (tags.length != 0) {
       axios.get("/api/listTopics", {
-        params: {tags: tags.join()}
+        params: {tags: tags.join(), UID: localStorage.getItem('UID')}
       }).then((res) => {
         console.log(res);
         this.populateList(res, list);
@@ -60,7 +60,9 @@ export default class vote extends Component {
         //this.onTriggerCallBack();
       });
     } else {
-      axios.get("/api/getAllQuestions").then((res) => {
+      axios.get("/api/getAllQuestions", {
+        params : {UID : localStorage.getItem('UID')}
+      }).then((res) => {
         console.log(res);
         this.populateList(res, list);
         this.setState({listData : list, listPopulated: true});
@@ -100,8 +102,9 @@ export default class vote extends Component {
 
   componentDidMount() {
     const list = [];
-    const options = [];
-    axios.get("/api/getAllQuestions").then((res) => {
+    axios.get("/api/getAllQuestions", {
+      params: {'UID' : localStorage.getItem('UID')}
+    }).then((res) => {
       console.log(res);
       this.populateList(res, list);
       this.setState({listData : list, listPopulated: true});

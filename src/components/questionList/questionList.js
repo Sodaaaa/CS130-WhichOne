@@ -1,7 +1,7 @@
 import React, { Component, useState, createElement } from 'react';
 import OptionList from '../../components/optionList/OptionList';
 import { MessageOutlined, DislikeOutlined, LikeOutlined, DislikeFilled, LikeFilled, StarOutlined, RightCircleTwoTone } from '@ant-design/icons';
-import { List, Avatar, Space, Alert, notification } from 'antd';
+import { List, Avatar, Space, Alert, notification, Tag } from 'antd';
 import axios from 'axios';
 import { Collapse } from 'antd';
 import "./questionList.css"
@@ -14,6 +14,15 @@ const IconText = ({ icon, text }) => (
     {text}
   </Space>
 );
+
+const colors = {
+  'Food': '#A7DB42',
+  'Sports': '#FDCB6E',
+  'Movie': '#FFC0CB',
+  'Music': '#75B4FF',
+  'Travel': '#FF7675',
+  'Style': '#00B894'
+}
 
 class QuestionList extends Component {
   constructor(props) {
@@ -140,7 +149,14 @@ class QuestionList extends Component {
               {"@"+item.username}
             </div>}
             title={item.title}
-            description={item.description}
+            description={<Tag
+            color={colors[item.description]}
+            style={{ color: 'white', fontWeight: 'bold', fontSize: 12, textAlign: 'center'}}
+            // checked={selectedTags.indexOf(tag) > -1}
+            // onChange={checked => this.handleChange(tag, checked)}
+          >
+            {item.description}
+          </Tag>}
           />
             {item.content}
           </List.Item>
