@@ -38,15 +38,9 @@ export default class vote extends Component {
     super(props);
     this.state = {
       listData : [],
-      listPopulated : false
+      listPopulated : false,
     }
   }
-
-  // handleCallback = (newQuestionList) =>{
-  //   this.setState({listData : newQuestionList})
-  //   //console.log("question list: " + this.state.listData);
-  //   //this.forceUpdate();
-  // }
 
   handleCallback = (tags) => {
     const list = [];
@@ -56,8 +50,8 @@ export default class vote extends Component {
       }).then((res) => {
         console.log(res);
         this.populateList(res, list);
-        this.setState({listData: list});
-        //this.onTriggerCallBack();
+        this.setState({listData: list, listPopulated: true});
+        localStorage.setItem('tag', 'null')
       });
     } else {
       axios.get("/api/getAllQuestions", {
@@ -79,8 +73,8 @@ export default class vote extends Component {
         content: <OptionList options={res.data[i].options} expired = {false}/>,
         likes: res.data[i].likes,
         dislikes: res.data[i].dislikes,
-        liked: false, 
-        disliked: false,
+        liked: res.data[i].chosenAttitude === 0? true : false, 
+        disliked: res.data[i].chosenAttitude === 1? true : false,
         ID: res.data[i].questionID,
         uid: res.data[i].ownerID,
         username: res.data[i].username,
@@ -108,7 +102,7 @@ export default class vote extends Component {
       console.log(res);
       this.populateList(res, list);
       this.setState({listData : list, listPopulated: true});
-      console.log("listData: " + this.state.listData);
+      console.log("listData: " + this.state.listData);      
     });
   }
 
