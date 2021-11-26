@@ -24,6 +24,7 @@ export default class profile extends Component {
       loggedIn: true,
       questionlistData: [],
       votelistData: [],
+      attitudeData: [],
       username: null,
       email: null,
     };
@@ -106,6 +107,17 @@ export default class profile extends Component {
         this.populateList(res, votelist);
         this.setState({ votelistData: votelist });
       });
+
+    const attitudelist = [];
+    axios
+      .post("/api/getAttitudes", {
+        UID: Number(localStorage.getItem("UID")),
+      })
+      .then((res) => {
+        // console.log("vote result is", res);
+        this.populateList(res, attitudelist);
+        this.setState({ attitudeData: attitudelist });
+      });
   }
 
   render() {
@@ -150,6 +162,11 @@ export default class profile extends Component {
             Your Votes
             <br />
             <QuestionList questionList={this.state.votelistData} />
+          </div>
+          <div className="past-attitude">
+            Questions you liked/disliked
+            <br />
+            <QuestionList questionList={this.state.attitudeData} />
           </div>
         </Content>
       </Layout>

@@ -66,7 +66,7 @@ class OptionList extends Component {
               </Radio>
               <Progress percent={50} strokeColor="#E2D4F3" />
               <Statistic
-                value={93}
+                value={option.option_vote}
                 suffix={"/" + 150}
                 valueStyle={{ fontSize: 12 }}
               />
