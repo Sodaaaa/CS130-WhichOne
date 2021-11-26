@@ -537,6 +537,46 @@ def recordAttitude():
         print(e)
         return jsonify({"error": e})
 
+@app.route('/api/cancelAttitude', methods=["POST"])
+def cancelAttitude():
+    """ Cancel the "like" or "dislike" action of a user. 
+    This API use the POST method.
+    The posted json object should be in the form below:
+    ("attitude" is an interger, 0 represents like, 1 represents dislike.)
+    {
+        "userID"        : 123456,
+        "questionID"    : 123456,
+        "attitude"      : 0
+    }
+    """
+    try:
+        userID = request.json['userID']
+        questionID = request.json['questionID']
+        attitude = request.json['attitude']
+        if userID and questionID:
+            if attitude != 0 and attitude != 1:
+                print("invalid attitude")
+                return jsonify({"error": "invalid attitude"})
+            question = Question.query.get(questionID)
+            user_attitude = UserAttitude.query.filter_by(
+                userID=userID, questionID=questionID, attitude=attitude).first()
+            if not user_attitude:
+                print("attitude doesn't exist")
+                return jsonify({"error": "attitude doesn't exist"})
+            db.session.delete(user_attitude)
+            if attitude == 0:
+                question.likes -= 1
+            else:
+                question.dislikes -= 1
+            db.session.commit()
+            print("Success!")
+            return jsonify({"success": True})
+        else:
+            print("Missing userID or questionID")
+            return jsonify({"error": "Missing userID or questionID"})
+    except Exception as e:
+        print(e)
+        return jsonify({"error": e})
 
 @app.route('/api/recordFeedback')
 def recordFeedback():
