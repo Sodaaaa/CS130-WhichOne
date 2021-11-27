@@ -1,7 +1,7 @@
 import json
 import urllib.request
 import unittest
-from fakeData import generate_fake_data
+from fakeData import drop_all_data, generate_fake_data
 
 test_data = [{'username': 'testuser', 'email': 'testuser@gmail.com', 'password': '123456', 'confirm_password': '123456'},
              {'username': 'testuser2', 'email': 'testuser2@gmail.com', 'password': '1234562', 'confirm_password': '1234562'}]
@@ -102,6 +102,13 @@ class MyTestClass(unittest.TestCase):
         print("Start to test getVote function")
         self.assertEqual(response.getcode(), 200)
         print("Finish test : success the getUserinfo function, code is 200")
+
+    def setUp(self):
+        generate_fake_data()
+
+    def tearDown(self) -> None:
+        drop_all_data()
+        return super().tearDown()
 
 
 # runs the unit tests in the module
