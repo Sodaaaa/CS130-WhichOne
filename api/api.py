@@ -336,6 +336,8 @@ def getAllQuestions():
         "timeLimit"     : 1636665474,
         "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
         "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
+        "total_votes"   : 5,
+        "expired"       : TRUE,
         "options": [
             {
                 "optionID"       : 1234556,
@@ -369,6 +371,10 @@ def getAllQuestions():
         # TODO: return image
         option_dicts = [{'option_name': o.name, 'option_image': 'none', 'optionID': o.OptionID, 'option_vote': o.votes}
                         for o in options]
+        total_votes = 0
+        for o in option_dicts:
+            total_votes += o['option_vote']
+        q['total_votes'] = total_votes
         q['options'] = option_dicts
         q['username'] = User.query.filter(
             User.UID == q['ownerID']).first().username
@@ -386,7 +392,10 @@ def getAllQuestions():
             q['chosenAttitude'] = -1
         else:
             q['chosenAttitude'] = user_attitude_record.attitude
-
+        if datetime.datetime.fromtimestamp(q['timeLimit']) < datetime.datetime.now():
+            q['expired'] = True
+        else:
+            q['expired'] = False
     question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
 
@@ -411,6 +420,8 @@ def listTopics():
         "timeLimit"     : 1636665474,
         "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
         "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
+        "total_votes"   : 5,
+        "expired"       : TRUE,
         "options": [
             {
                 "optionID"       : 1234556,
@@ -448,6 +459,10 @@ def listTopics():
         # TODO: return image
         option_dicts = [{'option_name': o.name, 'option_image': 'none', 'optionID': o.OptionID, 'option_vote': o.votes}
                         for o in options]
+        total_votes = 0
+        for o in option_dicts:
+            total_votes += o['option_vote']
+        q['total_votes'] = total_votes
         q['options'] = option_dicts
         q['username'] = User.query.filter(
             User.UID == q['ownerID']).first().username
@@ -465,6 +480,10 @@ def listTopics():
             q['chosenAttitude'] = -1
         else:
             q['chosenAttitude'] = user_attitude_record.attitude
+        if datetime.datetime.fromtimestamp(q['timeLimit']) < datetime.datetime.now():
+            q['expired'] = True
+        else:
+            q['expired'] = False
     question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
 
@@ -847,6 +866,8 @@ def listHotTopics():
             "timeLimit"     : <timestamp>,
             "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
             "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
+            "total_votes"   : 100,
+            "expired"       : False,
             "options"       :
             [
                 {
@@ -874,7 +895,11 @@ def listHotTopics():
                 continue
             id = q.questionID
             owner = User.query.get(q.ownerID)
+            expired = False
+            if q.timeLimit.timestamp() < datetime.datetime.now().timestamp():
+                expired = True
             options = Option.query.filter_by(questionID=id).all()
+            total_votes = 0
             option_list = []
             for op in options:
                 op_dict = {}
@@ -882,6 +907,7 @@ def listHotTopics():
                 op_dict["option_name"] = op.name
                 op_dict["option_image"] = op.image
                 op_dict["option_vote"] = op.votes
+                total_votes += op.votes
                 option_list.append(op_dict)
 
             q_dict = {
@@ -897,7 +923,9 @@ def listHotTopics():
                 "dislikes": q.dislikes,
                 "feedbackID": q.feedbackID,
                 "timeLimit": int(q.timeLimit.timestamp()),
-                "options": option_list
+                "options": option_list,
+                "total_votes": total_votes,
+                "expired": expired
             }
             print(UID, id)
             attitude_ = UserAttitude.query.filter_by(
@@ -918,17 +946,6 @@ def listHotTopics():
     except Exception as e:
         print(e)
         return jsonify({"error": e})
-
-
-@app.route('/time')
-def get_current_time():
-    return {'time': time.time()}
-
-
-@app.route('/')
-def index():
-    db.create_all()
-    return "hello world"
 
 
 if __name__ == '__main__':
