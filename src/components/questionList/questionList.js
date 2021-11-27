@@ -121,7 +121,7 @@ class QuestionList extends Component {
     }
     if (this.state.loggedIn) {
       if (item.attitude == -1) {
-        item.attitude = 0;
+        item.attitude = 1;
         item.dislikes += 1;
         this.recordAttitude(item.ID, 1);
       } else if (item.attitude == 1) {
