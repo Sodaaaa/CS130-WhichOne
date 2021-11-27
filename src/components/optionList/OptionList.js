@@ -8,15 +8,17 @@ import {
   Progress,
   Statistic,
 } from "antd";
+import axios from "axios";
 
 class OptionList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: -1,
+      value: this.props.voted,
       listData: this.props.options,
       expired: this.props.expired,
       voted: this.props.voted,
+      questionID: this.props.questionID,
       loggedIn: localStorage.getItem("loggedIn") == "true",
     };
   }
@@ -39,15 +41,33 @@ class OptionList extends Component {
     }
 
     console.log("radio checked", e.target.value);
+    //console.log(e.target.value)
     this.setState({
       value: e.target.value,
     });
   };
 
+  // onTriggerCallBack() {
+  //   console.log("triggered")
+  //   this.props.parentCallback();
+  // }
+
+
   vote = () => {
     this.setState({
       voted: this.state.value,
+      // listData: this.state.listData
     });
+    console.log(this.state.value)
+    axios.post('/api/recordVote', {
+      userID: Number(localStorage.getItem('UID')),
+      questionID: Number(this.state.questionID),
+      optionID: Number(this.state.value)
+    }).then((res) => {
+      console.log(res)
+      // this.setState({listData: this.state.listData})
+      // this.onTriggerCallBack();
+    })
   };
 
   render() {
@@ -68,13 +88,14 @@ class OptionList extends Component {
             {listData.map((option, i) => (
               <div key={i}>
                 <Radio
+                  style={{minWidth:100}}
                   disabled={
                     !this.state.loggedIn ||
                     this.state.expired ||
                     this.state.voted != -1
                   }
                   className="option"
-                  value={i}
+                  value={option.optionID}
                   key={i}
                 >
                   <p>{option.option_name} </p>
@@ -89,6 +110,7 @@ class OptionList extends Component {
                   <div>
                     <Progress percent={50} strokeColor="#E2D4F3" />
                     <Statistic
+                      // value={this.state.listData[i].option_vote}
                       value={option.option_vote}
                       suffix={"/" + 150}
                       valueStyle={{ fontSize: 12 }}
@@ -134,6 +156,7 @@ class OptionList extends Component {
           onClick={() => this.vote()}
           className="vote-submit-btn"
           style={{ marginTop: 10 }}
+          disabled={this.state.voted != -1}
         >
           Vote
         </Button>

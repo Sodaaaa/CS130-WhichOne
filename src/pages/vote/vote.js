@@ -41,42 +41,18 @@ export default class vote extends Component {
     };
   }
 
-  handleCallback = (tags) => {
-    console.log("tags: " + tags);
-    const list = [];
-    if (tags.length != 0) {
-      axios
-        .get("/api/listTopics", {
-          params: { tags: tags.join(), UID: Number(localStorage.getItem("UID")) },
-        })
-        .then((res) => {
-          // console.log(res);
-          this.populateList(res, list);
-          this.setState({ listData: list, listPopulated: true });
-          // localStorage.setItem("tag", "null");
-          localStorage.removeItem("tag");
-          console.log(localStorage.getItem("tag"));
-        });
-    } else {
-      axios
-        .get("/api/getAllQuestions", {
-          params: { UID: Number(localStorage.getItem("UID")) },
-        })
-        .then((res) => {
-          // console.log(res);
-          this.populateList(res, list);
-          this.setState({ listData: list, listPopulated: true });
-          //this.onTriggerCallBack();
-        });
-    }
-  };
-
   populateList(res, list) {
     for (let i = 0; i < res.data.length; i++) {
       let question = {
         title: res.data[i].question,
         description: res.data[i].tag,
-        content: <OptionList options={res.data[i].options} expired={false} voted={res.data[i].voted}/>,
+        content: <OptionList 
+                    options={res.data[i].options} 
+                    expired={false} 
+                    voted={res.data[i].voted} 
+                    questionID={res.data[i].questionID} 
+                    // parentCallback={this.handleOptionCallBack}
+                  />,
         likes: res.data[i].likes,
         dislikes: res.data[i].dislikes,
         // liked: res.data[i].chosenAttitude === 0 ? true : false,
@@ -109,18 +85,48 @@ export default class vote extends Component {
     }
   }
 
-  componentDidMount() {
+  getAllQuestions() {
     const list = [];
     axios
       .get("/api/getAllQuestions", {
-        params: { UID: localStorage.getItem("UID") },
+        params: { UID: Number(localStorage.getItem("UID")) },
       })
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         this.populateList(res, list);
         this.setState({ listData: list, listPopulated: true });
-        console.log("listData: " + this.state.listData);
+        //this.onTriggerCallBack();
       });
+  }
+
+  handleCallback = (tags) => {
+    console.log("tags: " + tags);
+    if (tags.length != 0) {
+      const list = [];
+      axios
+        .get("/api/listTopics", {
+          params: { tags: tags.join(), UID: Number(localStorage.getItem("UID")) },
+        })
+        .then((res) => {
+          // console.log(res);
+          this.populateList(res, list);
+          this.setState({ listData: list, listPopulated: true });
+          // localStorage.setItem("tag", "null");
+          localStorage.removeItem("tag");
+          console.log(localStorage.getItem("tag"));
+        });
+    } else {
+      this.getAllQuestions();
+    }
+  };
+
+  // handleOptionCallBack = () => {
+  //   console.log("option call back")
+  //   this.getAllQuestions();
+  // };
+
+  componentDidMount() {
+    this.getAllQuestions();
   }
 
   render() {
