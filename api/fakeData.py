@@ -18,7 +18,10 @@ question_data = [
     {'ownerId': 2, 'time': datetime.datetime(2021, 11, 20), 'tag': 'Movie', 'question': 'What movie should I choose?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 30)},
     {'ownerId': 3, 'time': datetime.datetime(2021, 11, 11), 'tag': 'Movie', 'question': 'What movie should I choose for date?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 12)},
     {'ownerId': 3, 'time': datetime.datetime(2021, 11, 22), 'tag': 'Travel', 'question': 'Where should I go for winter break?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 25)},
-    {'ownerId': 4, 'time': datetime.datetime(2021, 11, 16), 'tag': 'Style', 'question': 'Which lipstick color is better?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 19)}
+    {'ownerId': 4, 'time': datetime.datetime(2021, 11, 16), 'tag': 'Style', 'question': 'Which lipstick color is better?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 19)},
+    {'ownerId': 1, 'time': datetime.datetime(2021, 11, 23), 'tag': 'Sports', 'question': 'Which club should I choose this quarter?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 24)},
+    {'ownerId': 2, 'time': datetime.datetime(2021, 11, 24), 'tag': 'Music', 'question': 'Should I go to Taylor Swift\' concert?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 26)},
+    {'ownerId': 5, 'time': datetime.datetime(2021, 11, 25), 'tag': 'Sports', 'question': 'Which sport should I learn in high school?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 27)}
 ]
 
 option_data = [
@@ -37,7 +40,18 @@ option_data = [
     {'name': 'Armani 400', 'questionID': 5},
     {'name': 'Armani 405', 'questionID': 5},
     {'name': 'Armani 206', 'questionID': 5},
-    {'name': 'Armani 201', 'questionID': 5}
+    {'name': 'Armani 201', 'questionID': 5},
+    {'name': 'Archery Range', 'questionID': 6},
+    {'name': 'Skiing Monsters', 'questionID': 6},
+    {'name': 'Badminton Club', 'questionID': 6},
+    {'name': 'Weight Lifter Club', 'questionID': 6},
+    {'name': 'GOGOGO!', 'questionID': 7},
+    {'name': 'Either is fine', 'questionID': 7},
+    {'name': 'Don\' Go', 'questionID': 7},
+    {'name': 'Basket Ball', 'questionID': 8},
+    {'name': 'Soccer Ball', 'questionID': 8},
+    {'name': 'Tennis', 'questionID': 8},
+    {'name': 'Squash', 'questionID': 8}
 ]
 
 user_vote_data = [
