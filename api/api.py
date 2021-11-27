@@ -866,8 +866,8 @@ def listHotTopics():
             "timeLimit"     : <timestamp>,
             "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
             "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
-            "total_votes"   : 100
-            "expired"       : False
+            "total_votes"   : 100,
+            "expired"       : False,
             "options"       :
             [
                 {
@@ -896,7 +896,7 @@ def listHotTopics():
             id = q.questionID
             owner = User.query.get(q.ownerID)
             expired = False
-            if int(q.timeLimit.timestamp()) < int(datetime.datetime.now()):
+            if q.timeLimit.timestamp() < datetime.datetime.now().timestamp():
                 expired = True
             options = Option.query.filter_by(questionID=id).all()
             total_votes = 0
