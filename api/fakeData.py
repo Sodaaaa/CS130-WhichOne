@@ -118,11 +118,18 @@ def generate_fake_data():
         vote = UserVote(data['userID'], data['questionID'],
                         data['vote_result'])
         db.session.add(vote)
+        option = Option.query.get(data['vote_result'])
+        option.votes += 1
 
     for data in user_attitude_data:
         attitude = UserAttitude(
             data['userID'], data['questionID'], data['attitude'])
         db.session.add(attitude)
+        question = Question.query.get(data['questionID'])
+        if data['attitude'] == 0:
+            question.likes += 1
+        else:
+            question.dislikes += 1
 
     db.session.commit()
 
