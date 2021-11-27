@@ -337,6 +337,7 @@ def getAllQuestions():
         "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
         "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
         "total_votes"   : 5,
+        "expired"       : TRUE,
         "options": [
             {
                 "optionID"       : 1234556,
@@ -391,7 +392,10 @@ def getAllQuestions():
             q['chosenAttitude'] = -1
         else:
             q['chosenAttitude'] = user_attitude_record.attitude
-
+        if datetime.datetime.fromtimestamp(q['timeLimit']) < datetime.datetime.now():
+            q['expired'] = True
+        else:
+            q['expired'] = False
     question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
 
@@ -417,6 +421,7 @@ def listTopics():
         "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
         "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
         "total_votes"   : 5,
+        "expired"       : TRUE,
         "options": [
             {
                 "optionID"       : 1234556,
@@ -475,6 +480,10 @@ def listTopics():
             q['chosenAttitude'] = -1
         else:
             q['chosenAttitude'] = user_attitude_record.attitude
+        if datetime.datetime.fromtimestamp(q['timeLimit']) < datetime.datetime.now():
+            q['expired'] = True
+        else:
+            q['expired'] = False
     question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
 
