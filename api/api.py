@@ -857,6 +857,8 @@ def listHotTopics():
             "timeLimit"     : <timestamp>,
             "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
             "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
+            "total_votes"   : 100
+            "expired"       : False
             "options"       :
             [
                 {
@@ -884,7 +886,11 @@ def listHotTopics():
                 continue
             id = q.questionID
             owner = User.query.get(q.ownerID)
+            expired = False
+            if int(q.timeLimit.timestamp()) < int(datetime.datetime.now()):
+                expired = True
             options = Option.query.filter_by(questionID=id).all()
+            total_votes = 0
             option_list = []
             for op in options:
                 op_dict = {}
@@ -892,6 +898,7 @@ def listHotTopics():
                 op_dict["option_name"] = op.name
                 op_dict["option_image"] = op.image
                 op_dict["option_vote"] = op.votes
+                total_votes += op.votes
                 option_list.append(op_dict)
 
             q_dict = {
@@ -907,7 +914,9 @@ def listHotTopics():
                 "dislikes": q.dislikes,
                 "feedbackID": q.feedbackID,
                 "timeLimit": int(q.timeLimit.timestamp()),
-                "options": option_list
+                "options": option_list,
+                "total_votes": total_votes,
+                "expired": expired
             }
             print(UID, id)
             attitude_ = UserAttitude.query.filter_by(
