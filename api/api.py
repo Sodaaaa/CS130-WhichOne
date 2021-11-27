@@ -375,14 +375,13 @@ def getAllQuestions():
 
         UID = int(request.args.get('UID'))
         user_vote_record = UserVote.query.filter(
-            UserVote.userID == UID and UserVote.questionID == q['questionID']).first()
+            UserVote.userID == UID).filter(UserVote.questionID == q['questionID']).first()
         if user_vote_record == None:
             q['voted'] = -1
         else:
             q['voted'] = user_vote_record.vote_result
         user_attitude_record = UserAttitude.query.filter(
-            UserAttitude.userID == UID and UserAttitude.questionID == q['questionID']).first()
-        # UserAttitude.userID == UID and UserAttitude.questionID == q['questionID']).first()
+            UserAttitude.userID == UID).filter(UserAttitude.questionID == q['questionID']).first()
         if user_attitude_record == None:
             q['chosenAttitude'] = -1
         else:
@@ -455,13 +454,13 @@ def listTopics():
 
         UID = int(request.args.get('UID'))
         user_vote_record = UserVote.query.filter(
-            UserVote.userID == UID and UserVote.questionID == q['questionID']).first()
+            UserVote.userID == UID).filter(UserVote.questionID == q['questionID']).first()
         if user_vote_record == None:
             q['voted'] = -1
         else:
             q['voted'] = user_vote_record.vote_result
         user_attitude_record = UserAttitude.query.filter(
-            UserAttitude.userID == UID and UserAttitude.questionID == q['questionID']).first()
+            UserAttitude.userID == UID).filter(UserAttitude.questionID == q['questionID']).first()
         if user_attitude_record == None:
             q['chosenAttitude'] = -1
         else:
