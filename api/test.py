@@ -2,38 +2,67 @@ import json
 import urllib.request
 import unittest
 
-test_data = [{'username': 'testuser', 'email': 'testuser@gmail.com','password': '123456', 'confirm_password': '123456'},
-            {'username': 'testuser2', 'email': 'testuser2@gmail.com', 'password': '1234562', 'confirm_password': '1234562'}]
+test_data = [{'username': 'testuser', 'email': 'testuser@gmail.com', 'password': '123456', 'confirm_password': '123456'},
+             {'username': 'testuser2', 'email': 'testuser2@gmail.com', 'password': '1234562', 'confirm_password': '1234562'}]
+
 
 class MyTestClass(unittest.TestCase):
-    
+
     # test method for register function
     def test_right_register(self):
-        self.__request_data = {'username': 'testuser2', 'email': 'testuser2@gmail.com', 
-                                'password': '1234562', 'confirm_password': '1234562'}
+        self.__request_data = {'username': 'testuser2', 'email': 'testuser2@gmail.com',
+                               'password': '1234562', 'confirm_password': '1234562'}
         self.__url = "http://127.0.0.1:3000/api/register"
-        req = urllib.request.Request(self.__url, data=json.dumps(self.__request_data).encode('utf8'))
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
         req.add_header('Content-Type', 'application/json')
         response = urllib.request.urlopen(req)
         print("Start to test register function")
         self.assertEqual(response.getcode(), 200)
         print("Finish test : success the sucessful registrition, code is 200")
-    
+
     # test method for login function
     def test_wrong_register(self):
-        self.__request_data = {'email': 'testuser2@gmail.com', 'password': '1234562'}
+        self.__request_data = {
+            'email': 'testuser2@gmail.com', 'password': '1234562'}
         self.__url = "http://127.0.0.1:3000/api/login"
-        req = urllib.request.Request(self.__url, data=json.dumps(self.__request_data).encode('utf8'))
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
         req.add_header('Content-Type', 'application/json')
         response = urllib.request.urlopen(req)
         print("Start to test register function")
         self.assertEqual(response.getcode(), 200)
         print("Finish test : success the login function, code is 200")
-    
+
+    # test method for getAllQuestions
+    def test_get_all_questions(self):
+        self.__request_data = {'UID': 1}
+        self.__url = "http://127.0.0.1:5000/api/getAllQuestions"
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("Start to test getAllQuestions")
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : getAllQuestions success, code is 200")
+
+    # test method for listTopics
+    def test_list_topics(self):
+        self.__request_data = {'UID': 1, 'tags': 'Movie,Food'}
+        self.__url = "http://127.0.0.1:5000/api/listTopics"
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("Start to test listTopics")
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : listTopics success, code is 200")
+
     def test_right_get_Vote(self):
         self.__request_data = {'UID': 5}
         self.__url = "http://127.0.0.1:3000/api/getVotes"
-        req = urllib.request.Request(self.__url, data=json.dumps(self.__request_data).encode('utf8'))
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
         req.add_header('Content-Type', 'application/json')
         response = urllib.request.urlopen(req)
         print("Start to test getVote function")
@@ -43,7 +72,8 @@ class MyTestClass(unittest.TestCase):
     def test_right_get_Attitude(self):
         self.__request_data = {'UID': 6}
         self.__url = "http://127.0.0.1:3000/api/getAttitudes"
-        req = urllib.request.Request(self.__url, data=json.dumps(self.__request_data).encode('utf8'))
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
         req.add_header('Content-Type', 'application/json')
         response = urllib.request.urlopen(req)
         print("Start to test getVote function")
@@ -53,17 +83,19 @@ class MyTestClass(unittest.TestCase):
     def test_right_get_HistoricalQuestions(self):
         self.__request_data = {'UID': 3}
         self.__url = "http://127.0.0.1:3000/api/getHistoricalQuestions"
-        req = urllib.request.Request(self.__url, data=json.dumps(self.__request_data).encode('utf8'))
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
         req.add_header('Content-Type', 'application/json')
         response = urllib.request.urlopen(req)
         print("Start to test getVote function")
         self.assertEqual(response.getcode(), 200)
         print("Finish test : success the getHistoricalQuestions function, code is 200")
-    
+
     def test_right_getUserinfo(self):
         self.__request_data = {'UID': 4}
         self.__url = "http://127.0.0.1:3000/api/getUserinfo"
-        req = urllib.request.Request(self.__url, data=json.dumps(self.__request_data).encode('utf8'))
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
         req.add_header('Content-Type', 'application/json')
         response = urllib.request.urlopen(req)
         print("Start to test getVote function")
