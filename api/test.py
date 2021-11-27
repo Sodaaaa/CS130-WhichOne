@@ -1,6 +1,7 @@
 import json
 import urllib.request
 import unittest
+from fakeData import generate_fake_data
 
 test_data = [{'username': 'testuser', 'email': 'testuser@gmail.com', 'password': '123456', 'confirm_password': '123456'},
              {'username': 'testuser2', 'email': 'testuser2@gmail.com', 'password': '1234562', 'confirm_password': '1234562'}]
