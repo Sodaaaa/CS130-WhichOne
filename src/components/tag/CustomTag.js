@@ -20,7 +20,10 @@ class CustomTag extends Component {
     super(props);
 
     this.state = {
-      selectedTags: [localStorage.getItem("tag")],
+      selectedTags:
+        localStorage.getItem("tag") != null
+          ? [localStorage.getItem("tag")]
+          : [],
       listData: this.props.questionList,
       loggedIn: localStorage.getItem("loggedIn") == "true",
     };
@@ -62,7 +65,7 @@ class CustomTag extends Component {
 
   render() {
     const { selectedTags } = this.state;
-    if (localStorage.getItem("tag") != "null") {
+    if (localStorage.getItem("tag") != null) {
       this.onTriggerCallBack([localStorage.getItem("tag")]);
     }
     return (

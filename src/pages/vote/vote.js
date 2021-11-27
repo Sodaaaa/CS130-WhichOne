@@ -42,6 +42,7 @@ export default class vote extends Component {
   }
 
   handleCallback = (tags) => {
+    console.log("tags: " + tags);
     const list = [];
     if (tags.length != 0) {
       axios
@@ -52,7 +53,9 @@ export default class vote extends Component {
           // console.log(res);
           this.populateList(res, list);
           this.setState({ listData: list, listPopulated: true });
-          localStorage.setItem("tag", "null");
+          // localStorage.setItem("tag", "null");
+          localStorage.removeItem("tag");
+          console.log(localStorage.getItem("tag"));
         });
     } else {
       axios

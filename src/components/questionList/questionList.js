@@ -53,32 +53,31 @@ class QuestionList extends Component {
     });
   };
 
-  recordAttitude = (id,attitude) => {
+  recordAttitude = (id, attitude) => {
     this.setState({ listData: this.state.listData });
-      axios
-        .post("/api/recordAttitude", {
-          userID: Number(localStorage.getItem("UID")),
-          questionID: id,
-          attitude: attitude,
-        })
-        .then((res) => {
-          console.log(res);
-        });
+    axios
+      .post("/api/recordAttitude", {
+        userID: Number(localStorage.getItem("UID")),
+        questionID: id,
+        attitude: attitude,
+      })
+      .then((res) => {
+        console.log(res);
+      });
   };
 
   cancelAttitude = (id, attitude) => {
     this.setState({ listData: this.state.listData });
-      axios
-        .post("/api/cancelAttitude", {
-          userID: Number(localStorage.getItem("UID")),
-          questionID: id,
-          attitude: attitude,
-        })
-        .then((res) => {
-          console.log(res);
-        });
+    axios
+      .post("/api/cancelAttitude", {
+        userID: Number(localStorage.getItem("UID")),
+        questionID: id,
+        attitude: attitude,
+      })
+      .then((res) => {
+        console.log(res);
+      });
   };
-
 
   like = (item) => {
     // console.log(item.ID);
@@ -136,14 +135,14 @@ class QuestionList extends Component {
         this.recordAttitude(item.ID, 1);
         this.cancelAttitude(item.ID, 0);
       }
-    // if (this.state.loggedIn && item.liked == false && item.disliked == false) {
-    //   item.disliked = true;
-    //   item.dislikes = item.dislikes + 1;
-    //   this.recordAttitude(item.ID, 1);
-    // } else if (this.state.loggedIn && item.liked == false && item.disliked == true) {
-    //   item.disliked = false;
-    //   item.dislikes = item.dislikes - 1;
-    //   this.cancelAttitude(item.ID, 1);
+      // if (this.state.loggedIn && item.liked == false && item.disliked == false) {
+      //   item.disliked = true;
+      //   item.dislikes = item.dislikes + 1;
+      //   this.recordAttitude(item.ID, 1);
+      // } else if (this.state.loggedIn && item.liked == false && item.disliked == true) {
+      //   item.disliked = false;
+      //   item.dislikes = item.dislikes - 1;
+      //   this.cancelAttitude(item.ID, 1);
     }
   };
 
