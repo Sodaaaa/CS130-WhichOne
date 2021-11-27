@@ -76,7 +76,7 @@ export default class vote extends Component {
       let question = {
         title: res.data[i].question,
         description: res.data[i].tag,
-        content: <OptionList options={res.data[i].options} expired={false} />,
+        content: <OptionList options={res.data[i].options} expired={false} voted={res.data[i].voted}/>,
         likes: res.data[i].likes,
         dislikes: res.data[i].dislikes,
         // liked: res.data[i].chosenAttitude === 0 ? true : false,
@@ -116,7 +116,7 @@ export default class vote extends Component {
         params: { UID: localStorage.getItem("UID") },
       })
       .then((res) => {
-        //console.log(res);
+        console.log(res);
         this.populateList(res, list);
         this.setState({ listData: list, listPopulated: true });
         console.log("listData: " + this.state.listData);

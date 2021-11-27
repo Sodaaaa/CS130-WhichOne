@@ -1,5 +1,13 @@
 import React, { Component } from "react";
-import { Radio, Input, Space, notification, Progress, Statistic } from "antd";
+import {
+  Button,
+  Radio,
+  Input,
+  Space,
+  notification,
+  Progress,
+  Statistic,
+} from "antd";
 
 class OptionList extends Component {
   constructor(props) {
@@ -8,6 +16,7 @@ class OptionList extends Component {
       value: -1,
       listData: this.props.options,
       expired: this.props.expired,
+      voted: this.props.voted,
       loggedIn: localStorage.getItem("loggedIn") == "true",
     };
   }
@@ -35,6 +44,12 @@ class OptionList extends Component {
     });
   };
 
+  vote = () => {
+    this.setState({
+      voted: this.state.value,
+    });
+  };
+
   render() {
     // console.log(localStorage.getItem('loggedIn')=="true");
     const { value, listData } = this.state;
@@ -42,37 +57,47 @@ class OptionList extends Component {
     //listData.map((option) => (console.log("option: " + option.optionText)));
     console.log("expired is ", this.state.expired);
     return (
-      <Radio.Group
-        className="optionList-radiogroup"
-        onChange={this.onChange}
-        value={value}
-      >
-        {/* <Space direction="horizontal" wrap="true" size='large'> */}
-        <Space direction="vertical">
-          {listData.map((option, i) => (
-            <div key={i}>
-              <Radio
-                disabled={!this.state.loggedIn || this.state.expired}
-                className="option"
-                value={i}
-                key={i}
-              >
-                <p>{option.option_name}</p>
-                {/* <img 
+      <div>
+        <Radio.Group
+          className="optionList-radiogroup"
+          onChange={this.onChange}
+          value={value}
+        >
+          {/* <Space direction="horizontal" wrap="true" size='large'> */}
+          <Space direction="vertical">
+            {listData.map((option, i) => (
+              <div key={i}>
+                <Radio
+                  disabled={
+                    !this.state.loggedIn ||
+                    this.state.expired ||
+                    this.state.voted != -1
+                  }
+                  className="option"
+                  value={i}
+                  key={i}
+                >
+                  <p>{option.option_name} </p>
+                  {/* <p>{this.state.voted}</p> */}
+                  {/* <img 
                   width={272}
                   alt="logo"
                   src="https://www.k9ofmine.com/wp-content/uploads/2021/03/white-colored-maltese-850x520.jpg"
                 /> */}
-              </Radio>
-              <Progress percent={50} strokeColor="#E2D4F3" />
-              <Statistic
-                value={option.option_vote}
-                suffix={"/" + 150}
-                valueStyle={{ fontSize: 12 }}
-              />
-            </div>
-          ))}
-          {/* <Radio className="option" value={1}>
+                </Radio>
+                {this.state.voted === -1 ? null : (
+                  <div>
+                    <Progress percent={50} strokeColor="#E2D4F3" />
+                    <Statistic
+                      value={option.option_vote}
+                      suffix={"/" + 150}
+                      valueStyle={{ fontSize: 12 }}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+            {/* <Radio className="option" value={1}>
             <p>Option A</p>
             <img 
               width={272}
@@ -100,8 +125,19 @@ class OptionList extends Component {
             More...
             {value === 4 ? <Input style={{ width: 100, marginLeft: 10 }} /> : null}
           </Radio> */}
-        </Space>
-      </Radio.Group>
+          </Space>
+        </Radio.Group>
+        <br />
+        <Button
+          type="primary"
+          htmlType="button"
+          onClick={() => this.vote()}
+          className="vote-submit-btn"
+          style={{ marginTop: 10 }}
+        >
+          Vote
+        </Button>
+      </div>
     );
   }
 }
