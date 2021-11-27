@@ -517,14 +517,26 @@ def recordAttitude():
         questionID = request.json['questionID']
         attitude = request.json['attitude']
         if userID and questionID:
-            question = Question.query.get(questionID)
-            if attitude == 0:
-                question.likes += 1
-            elif attitude == 1:
-                question.dislikes += 1
-            else:
+            if attitude != 0 and attitude != 1:
                 print("invalid attitude")
                 return jsonify({"error": "invalid attitude"})
+            question = Question.query.get(questionID)
+            user_attitude = UserAttitude.query.filter_by(
+                userID=userID, questionID=questionID).first()
+            if user_attitude:
+                if user_attitude.attitude == attitude:
+                    print("repeated attitude")
+                    return jsonify({"error": "repeated attitude"})
+                else:
+                    if user_attitude.attitude == 0:
+                        question.likes -= 1
+                    else:
+                        question.dislikes -= 1
+                    db.session.delete(user_attitude)
+            if attitude == 0:
+                question.likes += 1
+            else:
+                question.dislikes += 1
             user_attitude = UserAttitude(userID, questionID, attitude)
             db.session.add(user_attitude)
             db.session.commit()
