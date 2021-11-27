@@ -21,7 +21,9 @@ question_data = [
     {'ownerId': 4, 'time': datetime.datetime(2021, 11, 16), 'tag': 'Style', 'question': 'Which lipstick color is better?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 19)},
     {'ownerId': 1, 'time': datetime.datetime(2021, 11, 23), 'tag': 'Sports', 'question': 'Which club should I choose this quarter?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 24)},
     {'ownerId': 2, 'time': datetime.datetime(2021, 11, 24), 'tag': 'Music', 'question': 'Should I go to Taylor Swift\' concert?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 26)},
-    {'ownerId': 5, 'time': datetime.datetime(2021, 11, 25), 'tag': 'Sports', 'question': 'Which sport should I learn in high school?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 27)}
+    {'ownerId': 5, 'time': datetime.datetime(2021, 11, 25), 'tag': 'Sports', 'question': 'Which sport should I learn in high school?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 27)},
+    {'ownerId': 1, 'time': datetime.datetime(2021, 11, 23), 'tag': 'Travel', 'question': 'Should I travel in Europe in Current Covid-19 condition?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 24)},
+    {'ownerId': 2, 'time': datetime.datetime(2021, 11, 24), 'tag': 'Travel', 'question': 'Which national park should I visit in Winter?', 'anonymous': False, 'timeLimit': datetime.datetime(2021, 11, 26)}
 ]
 
 option_data = [
@@ -51,7 +53,13 @@ option_data = [
     {'name': 'Basket Ball', 'questionID': 8},
     {'name': 'Soccer Ball', 'questionID': 8},
     {'name': 'Tennis', 'questionID': 8},
-    {'name': 'Squash', 'questionID': 8}
+    {'name': 'Squash', 'questionID': 8},
+    {'name': 'No! This will kill you!', 'questionID': 9},
+    {'name': 'I think it\'s OK, just take care and wear mask.', 'questionID': 9},
+    {'name': 'Joshua Tree National Park', 'questionID': 10},
+    {'name': 'Yosemite National Park', 'questionID': 10},
+    {'name': 'Olympic National Park', 'questionID': 10},
+    {'name': 'Grand Canyon National Park', 'questionID': 10}
 ]
 
 user_vote_data = [
