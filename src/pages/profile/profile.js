@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { Descriptions, Avatar, Image, Button } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import { Descriptions, Avatar, Image, Button, Upload, message } from "antd";
+import { UploadOutlined, UserOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { Layout } from "antd/lib";
 import "./profile.css";
@@ -17,6 +17,24 @@ const dataSource = [
   { key: "3", name: "bar", age: 32 },
 ];
 
+// function getBase64(img, callback) {
+//   const reader = new FileReader();
+//   reader.addEventListener('load', () => callback(reader.result));
+//   reader.readAsDataURL(img);
+// }
+
+// function beforeUpload(file) {
+//   const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+//   if (!isJpgOrPng) {
+//     message.error('You can only upload JPG/PNG file!');
+//   }
+//   const isLt2M = file.size / 1024 / 1024 < 2;
+//   if (!isLt2M) {
+//     message.error('Image must smaller than 2MB!');
+//   }
+//   return isJpgOrPng && isLt2M;
+// }
+
 export default class profile extends Component {
   constructor(props) {
     super(props);
@@ -27,8 +45,27 @@ export default class profile extends Component {
       attitudeData: [],
       username: null,
       email: null,
+      loading: false,
     };
   }
+
+  // handleUpload = info => {
+  //   console.log(this.state.imageUrl);
+  //   if (info.file.status === 'uploading') {
+  //     this.setState({ loading: true });
+  //     return;
+  //   }
+  //   if (info.file.status === 'done') {
+  //     // Get this url from response in real world.
+  //     getBase64(info.file.originFileObj, imageUrl =>
+  //       this.setState({
+  //         imageUrl,
+  //         loading: false,
+  //       }),
+  //     );
+  //     console.log(this.state.imageUrl);
+  //   }
+  // };
 
   handleSubmit = () => {
     //event.preventDefault();
@@ -131,7 +168,8 @@ export default class profile extends Component {
           <div className="user-profile">
             <Avatar
               size={150}
-              src={<Image src="https://joeschmoe.io/api/v1/random" />}
+              // src={<Image src="https://joeschmoe.io/api/v1/random" />}
+              src = {this.state.imageUrl ? <img src={this.state.imageUrl} alt="avatar" style={{ width: '100%' }} /> : "https://joeschmoe.io/api/v1/random"}
             />
             <div className="user-name">{this.state.username}</div>
             <div className="logout">
@@ -143,6 +181,23 @@ export default class profile extends Component {
               >
                 Log Out
               </Button>
+              <Upload
+                className="avatar-uploader"
+                name="avatar"
+                // action="/upload.do"
+                listType="picture"
+                showUploadList={false}
+                // action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                // beforeUpload={beforeUpload}
+                // onChange={this.handleUpload}
+              >
+                <Button
+                  icon={<UploadOutlined />}
+                  style={{ marginLeft: 20 }}
+                >
+                  Upload Avatar
+                </Button>
+              </Upload>
             </div>
             <Descriptions bordered>
               <Descriptions.Item label="UserName">
