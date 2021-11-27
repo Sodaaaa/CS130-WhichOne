@@ -58,7 +58,7 @@ class QuestionList extends Component {
     axios
       .post("/api/recordAttitude", {
         userID: Number(localStorage.getItem("UID")),
-        questionID: id,
+        questionID: Number(id),
         attitude: attitude,
       })
       .then((res) => {
@@ -71,7 +71,7 @@ class QuestionList extends Component {
     axios
       .post("/api/cancelAttitude", {
         userID: Number(localStorage.getItem("UID")),
-        questionID: id,
+        questionID: Number(id),
         attitude: attitude,
       })
       .then((res) => {
@@ -99,7 +99,6 @@ class QuestionList extends Component {
         item.likes += 1;
         item.dislikes -= 1;
         this.recordAttitude(item.ID, 0);
-        this.cancelAttitude(item.ID, 1);
       }
       // if (item.liked == false && item.disliked == false) {
       //   item.liked = true;
@@ -133,7 +132,6 @@ class QuestionList extends Component {
         item.likes -= 1;
         item.dislikes += 1;
         this.recordAttitude(item.ID, 1);
-        this.cancelAttitude(item.ID, 0);
       }
       // if (this.state.loggedIn && item.liked == false && item.disliked == false) {
       //   item.disliked = true;

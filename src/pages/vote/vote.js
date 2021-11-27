@@ -47,7 +47,7 @@ export default class vote extends Component {
     if (tags.length != 0) {
       axios
         .get("/api/listTopics", {
-          params: { tags: tags.join(), UID: localStorage.getItem("UID") },
+          params: { tags: tags.join(), UID: Number(localStorage.getItem("UID")) },
         })
         .then((res) => {
           // console.log(res);
@@ -60,7 +60,7 @@ export default class vote extends Component {
     } else {
       axios
         .get("/api/getAllQuestions", {
-          params: { UID: localStorage.getItem("UID") },
+          params: { UID: Number(localStorage.getItem("UID")) },
         })
         .then((res) => {
           // console.log(res);
@@ -97,6 +97,7 @@ export default class vote extends Component {
             <Avatar src={res.data[i].avator} />
           ),
       };
+      console.log(question);
       if (res.data[i].anonymous) {
         question.avatar = <Avatar>A</Avatar>;
         question.username = "Anonymous";
