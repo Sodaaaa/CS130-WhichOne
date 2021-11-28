@@ -803,7 +803,7 @@ def getVotes():
                     'feedbackID': q.feedbackID,
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
-                    'username': getUsername(uid),
+                    'username': getUsername(q.ownerID),
                     'vote_result': vote_option.OptionID,
                     'chosenAttitude': att,
                     'voted': vote_option.OptionID,
@@ -901,7 +901,7 @@ def getAttitudes():
                     'feedbackID': q.feedbackID,
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
-                    'username': getUsername(uid),
+                    'username': getUsername(q.ownerID),
                     'chosenAttitude': att.attitude,
                     'voted': voted,
                     'total_votes': total_votes}
