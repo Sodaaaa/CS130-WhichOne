@@ -923,7 +923,7 @@ def listHotTopics():
         for tag_ in tags:
             q = Question.query\
                 .filter_by(tag=tag_)\
-                .filter(Question.timeLimit < datetime.datetime.now())\
+                .filter(Question.timeLimit > datetime.datetime.now())\
                 .order_by((Question.likes+Question.dislikes).desc())\
                 .first()
             if not q:
