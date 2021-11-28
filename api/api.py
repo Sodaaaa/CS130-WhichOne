@@ -19,6 +19,10 @@ def expired(dt):
     return dt < datetime.datetime.now()
 
 
+def time_to_expire(expire_dt):
+    return expire_dt.timestamp() - datetime.datetime.now().timestamp()
+
+
 class User(db.Model):
     __tablename__ = "user"
     UID = db.Column(db.Integer, primary_key=True)
@@ -345,17 +349,18 @@ def getAllQuestions():
         "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
         "total_votes"   : 5,
         "expired"       : TRUE,
+        "time_to_expire": 123456,
         "option_list": [
             {
                 "optionID"       : 1234556,
                 "option_name"    : "option content",
-                "option_image"   : "ImageFiliePath",
+                "option_image"   : "base64 string or none",
                 "option_vote"    : 123
             },
             {
                 "optionID"       : 1234557,
                 "option_name"    : "option content",
-                "option_image"   : "ImageFiliePath",
+                "option_image"   : "base64 string or none",
                 "option_vote"    : 123
             }
         ]
@@ -429,17 +434,18 @@ def listTopics():
         "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
         "total_votes"   : 5,
         "expired"       : TRUE,
+        "time_to_expire": 123456,
         "option_list": [
             {
                 "optionID"       : 1234556,
                 "option_name"    : "option content",
-                "option_image"   : "ImageFiliePath",
+                "option_image"   : "base64 str or none",
                 "option_vote"    : 123
             },
             {
                 "optionID"       : 1234557,
                 "option_name"    : "option content",
-                "option_image"   : "ImageFiliePath",
+                "option_image"   : "base64 str or none",
                 "option_vote"    : 123
             }
         ]
@@ -491,6 +497,7 @@ def listTopics():
             q['expired'] = True
         else:
             q['expired'] = False
+            # q['time_to_expire'] = time_to_expire(q.)
     question_dicts.sort(key=lambda k: k['time'], reverse=True)
     return jsonify(question_dicts)
 
