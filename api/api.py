@@ -185,7 +185,7 @@ def register():
         password = request.json["password"]
         confirm_password = request.json["confirm_password"]
         username = request.json["username"]
-        image_file = request.json["image_file"]        
+        image_file = request.json["image_file"]
         print({"email": email, "password": password,
               "confirm_password": confirm_password, "username": username})
 
@@ -206,7 +206,8 @@ def register():
 
         # add a new user
         try:
-            user = User(username, email, password, confirm_password, image_file)
+            user = User(username, email, password,
+                        confirm_password, image_file)
             db.session.add(user)
             db.session.commit()
             print("Successfully add a user!")
@@ -349,6 +350,7 @@ def getAllQuestions():
         "total_votes"   : 5,
         "expired"       : TRUE,
         "time_to_expire": 123456,
+        "owner_image"   : "image",
         "option_list": [
             {
                 "optionID"       : 1234556,
@@ -389,6 +391,8 @@ def getAllQuestions():
         q['option_list'] = option_dicts
         q['username'] = User.query.filter(
             User.UID == q['ownerID']).first().username
+        q['owner_image'] = User.query.filter(
+            User.UID == q['ownerID']).first().image_file
 
         UID = int(request.args.get('UID'))
         user_vote_record = UserVote.query.filter(
@@ -434,6 +438,7 @@ def listTopics():
         "total_votes"   : 5,
         "expired"       : TRUE,
         "time_to_expire": 123456,
+        "owner_image"   : "image",
         "option_list": [
             {
                 "optionID"       : 1234556,
@@ -478,6 +483,8 @@ def listTopics():
         q['option_list'] = option_dicts
         q['username'] = User.query.filter(
             User.UID == q['ownerID']).first().username
+        q['owner_image'] = User.query.filter(
+            User.UID == q['ownerID']).first().image_file
 
         UID = int(request.args.get('UID'))
         user_vote_record = UserVote.query.filter(
@@ -716,6 +723,7 @@ def getHistoricalQuestions():
         print(e)
         return jsonify({"error": e})
 
+
 @app.route('/api/getVotes', methods=["POST"])
 def getVotes():
     """ request an UID, return all vote actions of a this user and its user name. For each vote action, 
@@ -897,6 +905,7 @@ def getAttitudes():
     except Exception as e:
         print(e)
         return jsonify({"error": e})
+
 
 @app.route('/api/provideOptions')
 def provideOptions(question):
