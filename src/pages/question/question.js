@@ -69,7 +69,6 @@ export default class question extends Component {
       },
       optionList: [],
       hasUndefined: true,
-
     };
 
     // this.props = {
@@ -83,11 +82,11 @@ export default class question extends Component {
     const formData = new FormData();
     formData.append("files[]", option.file);
     console.log(option.file);
-    console.log(option)
+    console.log(option);
     const reader = new FileReader();
     reader.readAsDataURL(option.file);
-    reader.onloadend = function(e) {
-      console.log(e.target.result);// print base64
+    reader.onloadend = function (e) {
+      console.log(e.target.result); // print base64
       if (e && e.target && e.target.result) {
         option.onSuccess();
       }
@@ -164,7 +163,7 @@ export default class question extends Component {
         // console.log(rOption.optionText)
         for (let i in options) {
           console.log(options);
-          if (i == options.length-1 && i%3 == 0) {
+          if (i == options.length - 1 && i % 3 == 0) {
             this.state.optionList.push({
               title: options[i].option_name,
               background: "#E2D4F3",
