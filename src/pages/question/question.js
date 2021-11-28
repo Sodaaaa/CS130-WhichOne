@@ -142,22 +142,30 @@ export default class question extends Component {
         // console.log(rOption.optionText)
         for (let i in options) {
           console.log(options);
-          if (i % 3 == 0) {
+          if (i == options.length-1 && i%3 == 0) {
             this.state.optionList.push({
               title: options[i].option_name,
               background: "#E2D4F3",
               fonts: [{ text: options[i].option_name, top: "18%" }],
             });
+            break;
+          }
+          if (i % 3 == 0) {
+            this.state.optionList.push({
+              title: options[i].option_name,
+              background: "#eae3f3",
+              fonts: [{ text: options[i].option_name, top: "18%" }],
+            });
           } else if (i % 3 == 1) {
             this.state.optionList.push({
               title: options[i].option_name,
-              background: "#fff",
+              background: "#E2D4F3",
               fonts: [{ text: options[i].option_name, top: "18%" }],
             });
           } else if (i % 3 == 2) {
             this.state.optionList.push({
               title: options[i].option_name,
-              background: "#FFC0CB",
+              background: "#d0bbe9",
               fonts: [{ text: options[i].option_name, top: "18%" }],
             });
           }
