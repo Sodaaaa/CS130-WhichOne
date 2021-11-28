@@ -69,11 +69,33 @@ export default class question extends Component {
       },
       optionList: [],
       hasUndefined: true,
+
+    };
+
+    // this.props = {
+    //   customRequest: this.customRequest,
+    //   showUploadList: false, // 不展示文件列表
+    //   // beforeUpload: beforeUpload
+    // };
+  }
+
+  customRequest(option) {
+    const formData = new FormData();
+    formData.append("files[]", option.file);
+    console.log(option.file);
+    console.log(option)
+    const reader = new FileReader();
+    reader.readAsDataURL(option.file);
+    reader.onloadend = function(e) {
+      console.log(e.target.result);// print base64
+      if (e && e.target && e.target.result) {
+        option.onSuccess();
+      }
     };
   }
 
   onSubmit = (values) => {
-    // console.log(values);
+    console.log(values);
     const expiredTimeUnix = Math.round(values.expiredDate._d.getTime() / 1000);
     const currentTimeUnix = Math.round(new Date().getTime() / 1000);
     // console.log(expiredTimeUnix, currentTimeUnix)
@@ -278,10 +300,14 @@ export default class question extends Component {
                             getValueFromEvent={normFile}
                             // extra="choose an image to show your options"
                           >
+                            {/* <input type="file" onChange={this.handleFileChange}/> */}
                             <Upload
                               name="logo"
-                              action="/upload.do"
+                              // action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                              // action="/upload.do"
+                              customRequest={this.customRequest}
                               listType="picture"
+                              maxCount={1}
                             >
                               <Button
                                 icon={<UploadOutlined />}
