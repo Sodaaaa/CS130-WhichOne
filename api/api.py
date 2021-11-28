@@ -109,7 +109,7 @@ class Option(db.Model):
     questionID = db.Column(db.Integer, db.ForeignKey(
         'question.questionID'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    image = db.Column(db.String(1000000))
+    image = db.Column(db.String(100000000000000000000000000000))
     votes = db.Column(db.Integer, nullable=False)
 
     def __init__(self, name, image=None):
@@ -121,8 +121,7 @@ class Option(db.Model):
         self.votes = 0
 
     def __repr__(self):
-        return f"Option('{self.OptionID}', '{self.questionID}', '{self.votes}')"
-
+        return f"Option('{self.OptionID}', '{self.questionID}', '{self.votes}', '{self.name}', '{self.image}')"
 
 class Feedback(db.Model):
     __tablename__ = "feedback"
@@ -265,7 +264,6 @@ def getUserinfo():
         print(error)
         return jsonify({"error": error})
 
-
 @app.route('/api/recordPostedQuestion', methods=["POST"])
 def recordPostedQuestion():
     """ Record the posted question into our database.
@@ -306,16 +304,17 @@ def recordPostedQuestion():
 
         question = Question(ownerID, time, tag, question,
                             anonymous, timeLimit)
-
-        for op in request.json['options']:
+        data = request.json['options']
+        for op in data:
             option = None
             if 'option_image' not in op:
                 option = Option(op['option_name'])
             else:
-                print(op['option_image'])
-                image_str = op['option_name'][0]['option_image'][0]['thumbUrl']
-                print(image_str)
-                option = Option(op['option_name'], image_str)
+                option_name = op['option_name']
+                option_image = op['option_image'][0]['thumbUrl']
+                option = Option(option_name, option_image)
+                print("--------- try-------------")
+                print(option)
             question.option.append(option)
         try:
 
@@ -376,7 +375,7 @@ def getAllQuestions():
                        'likes': q.likes,
                        'dislikes': q.dislikes,
                        'feedbackID': q.feedbackID,
-                       'timeLimit': int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
+                       'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
     for q in question_dicts:
         option_list = Option.query.filter(
             Option.questionID == q['questionID']).all()
@@ -464,7 +463,7 @@ def listTopics():
                             'likes': q.likes,
                             'dislikes': q.dislikes,
                             'feedbackID': q.feedbackID,
-                            'timeLimit': int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
+                            'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
 
     for q in question_dicts:
         option_list = Option.query.filter(
@@ -924,6 +923,7 @@ def listHotTopics():
         for tag_ in tags:
             q = Question.query\
                 .filter_by(tag=tag_)\
+                .filter(Question.timeLimit < datetime.datetime.now())\
                 .order_by((Question.likes+Question.dislikes).desc())\
                 .first()
             if not q:
