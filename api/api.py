@@ -15,6 +15,10 @@ db = SQLAlchemy(app)
 pp = pprint.PrettyPrinter(indent=4)
 
 
+def expired(dt):
+    return dt < datetime.datetime.now()
+
+
 class User(db.Model):
     __tablename__ = "user"
     UID = db.Column(db.Integer, primary_key=True)
@@ -367,7 +371,7 @@ def getAllQuestions():
                        'likes': q.likes,
                        'dislikes': q.dislikes,
                        'feedbackID': q.feedbackID,
-                       'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
+                       'timeLimit': int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
     for q in question_dicts:
         option_list = Option.query.filter(
             Option.questionID == q['questionID']).all()
@@ -454,7 +458,7 @@ def listTopics():
                             'likes': q.likes,
                             'dislikes': q.dislikes,
                             'feedbackID': q.feedbackID,
-                            'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
+                            'timeLimit': int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
 
     for q in question_dicts:
         option_list = Option.query.filter(
