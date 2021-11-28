@@ -52,6 +52,7 @@ export default class profile extends Component {
       username: null,
       email: null,
       loading: false,
+      avatar: null,
     };
   }
 
@@ -134,7 +135,19 @@ export default class profile extends Component {
       })
       .then((res) => {
         console.log(res);
-        // imageFile: res.data.image_file,
+        console.log("avatar:" + res.data.image_file);
+        this.setState({
+          avatar:
+            res.data.image_file === undefined ? (
+              <Avatar
+                size={100}
+                style={{ backgroundColor: "#6C5CE7" }}
+                icon={<UserOutlined />}
+              />
+            ) : (
+              <Avatar src={res.data.image_file} />
+            ),
+        });
         this.setState({ username: res.data[0].username });
         this.setState({ email: res.data[0].email });
       });
@@ -204,7 +217,8 @@ export default class profile extends Component {
         </Content> */}
         <Content style={{ padding: "50px 50px" }} className="profile-content">
           <div className="user-profile">
-            <Avatar
+            {this.state.avatar}
+            {/* <Avatar
               size={150}
               // src={<Image src="https://joeschmoe.io/api/v1/random" />}
               src={
@@ -218,7 +232,7 @@ export default class profile extends Component {
                   "https://joeschmoe.io/api/v1/random"
                 )
               }
-            />
+            /> */}
             <div className="user-name">{this.state.username}</div>
             <div className="logout">
               <Button
