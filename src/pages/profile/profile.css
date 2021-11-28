@@ -26,29 +26,7 @@
   background-color: #6c5ce7;
 }
 
-.posted-questions {
-  /* text-align: center; */
-  margin: 5px 50px;
-  padding: 20px 100px;
-  background-color: #ffffff;
-  font-size: 20px;
-  font-weight: 600;
-  border-radius: 10px;
-  /* height: 200px; */
-}
-
-.past-votes {
-  /* text-align: center; */
-  margin: 5px 50px;
-  padding: 20px 100px;
-  background-color: #ffffff;
-  font-size: 20px;
-  font-weight: 600;
-  border-radius: 10px;
-  /* height: 200px; */
-}
-
-.past-attitude {
+.history-data{
   /* text-align: center; */
   margin: 5px 50px;
   padding: 20px 100px;

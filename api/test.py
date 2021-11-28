@@ -115,6 +115,36 @@ class MyTestClass(unittest.TestCase):
         self.assertEqual(response.getcode(), 200)
         print("Finish test : success the getUserinfo function, code is 200")
 
+    def test_right_recordVote(self):
+        self.__request_data = {
+            "userID"        : 5,
+            "questionID"    : 1,
+            "optionID"      : 1
+        }
+        self.__url = "http://127.0.0.1:3000/api/recordVote"
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("Start to test recordVote function")
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success the recordVote function, code is 200")
+    
+    def test_right_recordAttitude(self):
+        self.__request_data = {
+            "userID"        : 5,
+            "questionID"    : 1,
+            "attitude"      : 0
+        }
+        self.__url = "http://127.0.0.1:3000/api/recordAttitude"
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("Start to test recordAttitude function")
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success the recordAttitude function, code is 200")
+
     def setUp(self):
         drop_all_and_create_all()
 
