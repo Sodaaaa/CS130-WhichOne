@@ -61,6 +61,7 @@ export default class vote extends Component {
         // liked: res.data[i].chosenAttitude === 0 ? true : false,
         // disliked: res.data[i].chosenAttitude === 1 ? true : false,
         voted: res.data[i].voted,
+        total_votes: res.data[i].total_votes,
         attitude: res.data[i].chosenAttitude,
         ID: res.data[i].questionID,
         uid: res.data[i].ownerID,
