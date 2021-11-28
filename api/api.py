@@ -65,13 +65,13 @@ def getUID(email):
 def getUserImage(UID):
     users = User.query.all()
     user = list(filter(lambda x: x.UID == UID, users))[0]
-    return user.UID
+    return user.image_file
 
 
 def getUsername(UID):
     users = User.query.all()
     user = list(filter(lambda x: x.UID == UID, users))[0]
-    return user.image_file
+    return user.username
 
 
 class Question(db.Model):
