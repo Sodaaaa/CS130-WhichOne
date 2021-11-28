@@ -338,7 +338,7 @@ def getAllQuestions():
         "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
         "total_votes"   : 5,
         "expired"       : TRUE,
-        "options": [
+        "option_list": [
             {
                 "optionID"       : 1234556,
                 "option_name"    : "option content",
@@ -366,16 +366,16 @@ def getAllQuestions():
                        'feedbackID': q.feedbackID,
                        'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
     for q in question_dicts:
-        options = Option.query.filter(
+        option_list = Option.query.filter(
             Option.questionID == q['questionID']).all()
         # TODO: return image
         option_dicts = [{'option_name': o.name, 'option_image': 'none', 'optionID': o.OptionID, 'option_vote': o.votes}
-                        for o in options]
+                        for o in option_list]
         total_votes = 0
         for o in option_dicts:
             total_votes += o['option_vote']
         q['total_votes'] = total_votes
-        q['options'] = option_dicts
+        q['option_list'] = option_dicts
         q['username'] = User.query.filter(
             User.UID == q['ownerID']).first().username
 
@@ -422,7 +422,7 @@ def listTopics():
         "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
         "total_votes"   : 5,
         "expired"       : TRUE,
-        "options": [
+        "option_list": [
             {
                 "optionID"       : 1234556,
                 "option_name"    : "option content",
@@ -454,16 +454,16 @@ def listTopics():
                             'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
 
     for q in question_dicts:
-        options = Option.query.filter(
+        option_list = Option.query.filter(
             Option.questionID == q['questionID']).all()
         # TODO: return image
         option_dicts = [{'option_name': o.name, 'option_image': 'none', 'optionID': o.OptionID, 'option_vote': o.votes}
-                        for o in options]
+                        for o in option_list]
         total_votes = 0
         for o in option_dicts:
             total_votes += o['option_vote']
         q['total_votes'] = total_votes
-        q['options'] = option_dicts
+        q['option_list'] = option_dicts
         q['username'] = User.query.filter(
             User.UID == q['ownerID']).first().username
 
