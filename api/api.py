@@ -101,7 +101,7 @@ class Option(db.Model):
     questionID = db.Column(db.Integer, db.ForeignKey(
         'question.questionID'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    image = db.Column(db.String(50))
+    image = db.Column(db.String(1000000))
     votes = db.Column(db.Integer, nullable=False)
 
     def __init__(self, name, image=None):
@@ -304,7 +304,10 @@ def recordPostedQuestion():
             if 'option_image' not in op:
                 option = Option(op['option_name'])
             else:
-                option = Option(op['option_name'], op['option_image'])
+                print(op['option_image'])
+                image_str = op['option_name'][0]['option_image'][0]['thumbUrl']
+                print(image_str)
+                option = Option(op['option_name'], image_str)
             question.option.append(option)
         try:
 
@@ -369,7 +372,7 @@ def getAllQuestions():
         option_list = Option.query.filter(
             Option.questionID == q['questionID']).all()
         # TODO: return image
-        option_dicts = [{'option_name': o.name, 'option_image': 'none', 'optionID': o.OptionID, 'option_vote': o.votes}
+        option_dicts = [{'option_name': o.name, 'option_image': o.image, 'optionID': o.OptionID, 'option_vote': o.votes}
                         for o in option_list]
         total_votes = 0
         for o in option_dicts:
@@ -457,7 +460,7 @@ def listTopics():
         option_list = Option.query.filter(
             Option.questionID == q['questionID']).all()
         # TODO: return image
-        option_dicts = [{'option_name': o.name, 'option_image': 'none', 'optionID': o.OptionID, 'option_vote': o.votes}
+        option_dicts = [{'option_name': o.name, 'option_image': o.image, 'optionID': o.OptionID, 'option_vote': o.votes}
                         for o in option_list]
         total_votes = 0
         for o in option_dicts:
@@ -654,11 +657,13 @@ def getHistoricalQuestions():
         result = []
         for q in postedQ:
             att = -1
-            attitude = list(filter(lambda x: x.userID == uid and x.questionID == q.questionID, userAttitudes))
+            attitude = list(filter(lambda x: x.userID ==
+                            uid and x.questionID == q.questionID, userAttitudes))
             if len(attitude) != 0:
                 att = attitude[0].attitude
             voted = -1
-            vote = list(filter(lambda x: x.userID == uid and x.questionID == q.questionID, userVotes))
+            vote = list(filter(lambda x: x.userID ==
+                        uid and x.questionID == q.questionID, userVotes))
             if len(vote) != 0:
                 voted = vote[0].vote_result
             all_options = list(
@@ -733,7 +738,8 @@ def getVotes():
             q = list(filter(lambda x: x.questionID ==
                      vote.questionID, questions))[0]
             att = -1
-            attitude = list(filter(lambda x: x.userID == uid and x.questionID == q.questionID, userAttitudes))
+            attitude = list(filter(lambda x: x.userID ==
+                            uid and x.questionID == q.questionID, userAttitudes))
             if len(attitude) != 0:
                 att = attitude[0].attitude
             all_options = list(
@@ -821,7 +827,8 @@ def getAttitudes():
             q = list(filter(lambda x: x.questionID ==
                      att.questionID, questions))[0]
             voted = -1
-            vote = list(filter(lambda x: x.userID == uid and x.questionID == q.questionID, userVotes))
+            vote = list(filter(lambda x: x.userID ==
+                        uid and x.questionID == q.questionID, userVotes))
             if len(vote) != 0:
                 voted = vote[0].vote_result
             all_options = list(
