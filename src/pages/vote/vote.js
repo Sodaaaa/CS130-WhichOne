@@ -79,7 +79,7 @@ export default class vote extends Component {
               icon={<UserOutlined />}
             />
           ) : (
-            <Avatar src={res.data[i].owner_image} />
+            <Avatar src={"https://joeschmoe.io/api/v1/" + res.data[i].owner_image} />
           ),
       };
       console.log(question);
