@@ -10,7 +10,6 @@ import {
   Upload,
   Switch,
   Modal,
-  Spin,
 } from "antd/lib";
 import {
   UploadOutlined,
@@ -39,7 +38,8 @@ export default class question extends Component {
     super();
     this.myLucky = React.createRef();
     this.state = {
-      visible: false,
+      autoVisible: false,
+      postVisible: false,
       modalText: "",
       modalTopic: "",
       blocks: [{ padding: "13px", background: "#6C5CE7" }],
@@ -119,10 +119,14 @@ export default class question extends Component {
           console.log("post failed");
           alert(res.data.error);
           this.formRef.current.resetFields();
+          this.showPostModal();
+          this.setState({ modalText: "Post failed..." });
         } else {
           console.log("post successfully");
+          this.showPostModal();
+          this.setState({ modalText: "You have successfully posted a question! Click Confirm to view it on the vote page..." });
           // this.props.history.push('/vote');
-          window.location.href = "./vote";
+          // window.location.href = "./vote";
         }
       });
   };
@@ -136,7 +140,7 @@ export default class question extends Component {
   autoSelect = () => {
     // console.log(values);
     this.setState({ hasUndefined: true });
-    this.showModal();
+    this.showAutoModal();
     var topic = this.formRef.current.getFieldValue("topic");
     var options = this.formRef.current.getFieldValue("options");
     console.log(this.state.modalText);
@@ -188,23 +192,38 @@ export default class question extends Component {
     }
   };
 
-  handleConfirm = () => {
-    this.hideModal();
-    console.log("confirm");
+  handleAutoConfirm = () => {
+    this.hideAutoModal();
     this.formRef.current.resetFields();
   };
 
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
+  showAutoModal = () => {
+    this.setState({ autoVisible: true })
+    // setModalText("hi")
+    // setConfirmLoading(true);
+    // setTimeout(() => {
+    //   setVisible(false);
+    //   setConfirmLoading(false);
+    // }, 2000);
   };
 
-  hideModal = () => {
-    console.log("hide");
-    this.setState({
-      visible: false,
-    });
+  hideAutoModal = () => {
+    this.setState({ autoVisible: false });
+    this.state.optionList = [];
+  };
+
+  handlePostConfirm = () => {
+    this.hidePostModal();
+    this.formRef.current.resetFields();
+    window.location.href = "./vote";
+  };
+
+  showPostModal = () => {
+    this.setState({ postVisible: true })
+  };
+
+  hidePostModal = () => {
+    this.setState({ postVisible: false });
     this.state.optionList = [];
   };
 
@@ -360,9 +379,9 @@ export default class question extends Component {
                   <Modal
                     className="auto-select-modal"
                     title="Auto Select"
-                    visible={this.state.visible}
-                    onOk={this.handleConfirm}
-                    onCancel={this.hideModal}
+                    visible={this.state.autoVisible}
+                    onOk={this.handleAutoConfirm}
+                    onCancel={this.hideAutoModal}
                     okText="Confirm"
                     cancelText="Cancel"
                     focusTriggerAfterClose={false}
@@ -411,6 +430,21 @@ export default class question extends Component {
                   >
                     Post
                   </Button>
+                  <Modal
+                    className="post-modal"
+                    title="Post a Question"
+                    visible={this.state.postVisible}
+                    onOk={this.handlePostConfirm}
+                    // onCancel={this.hidePostModal}
+                    okText="Confirm"
+                    // cancelText="Cancel"
+                    footer={<Button key="back" onClick={this.handlePostConfirm}>
+                      Confirm
+                    </Button>}
+                    focusTriggerAfterClose={false}
+                  >
+                    <p>{this.state.modalText}</p>
+                  </Modal>
                 </Form.Item>
               </Form>
             </div>
