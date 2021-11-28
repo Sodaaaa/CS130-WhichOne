@@ -217,7 +217,7 @@ class QuestionList extends Component {
                       {item.dislikes}
                     </Space>
                   </span>,
-                  <p> expires on {item.expiryTime} </p>,
+                  <p> {item.expired ? "expired on "+item.expiryTime : "expires on "+item.expiryTime} </p>,
                 ]}
                 // extra={
                 //   <img
