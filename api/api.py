@@ -58,17 +58,20 @@ def getUser(email):
 
 
 def getUID(email):
+    """given user's email, return this user's UID"""
     users = User.query.all()
     user = list(filter(lambda x: x.email == email, users))[0]
     return user.UID
 
 def getUserImage(UID):
+    """given user's UID, return this user's user image"""
     users = User.query.all()
     user = list(filter(lambda x: x.UID == UID, users))[0]
     return user.image_file
 
 
 def getUsername(UID):
+    """given user's UID, return this user's username"""
     users = User.query.all()
     user = list(filter(lambda x: x.UID == UID, users))[0]
     return user.username
@@ -184,7 +187,10 @@ class UserAttitude(db.Model):
 
 @app.route("/api/register", methods=["POST"])
 def register():
-    """ return {"success": True} if successfuly register a new user, otherwise return corresponding error"""
+    """ request an email address, a password, a confirm_password, 
+    a username and a random user image string
+    return {"success": True} if successfuly register a new user, 
+    otherwise return corresponding error"""
     try:
         email = request.json["email"]
         password = request.json["password"]
@@ -227,7 +233,9 @@ def register():
 
 @app.route("/api/login", methods=["POST"])
 def login():
-    """ return {"success": True} if successfuly login, otherwise return corresponding error"""
+    """ request an email address and a password, 
+    return {"success": True} if successfuly register login, 
+    otherwise return corresponding error"""
     try:
         email = request.json["email"]
         password = request.json["password"]
@@ -251,11 +259,7 @@ def login():
 
 @app.route("/api/getUserinfo", methods=["POST"])
 def getUserinfo():
-    """ request an UID, return userinfo in below format
-    [   {   'email': 'shirley9611@gmail.com',
-        'image_file': None,
-        'userID': 4,
-        'username': 'shirley'}]"""
+    """ request an UID, return username, email and user image in json format"""
     try:
         uid = request.json["UID"]
         users = User.query.all()
@@ -636,16 +640,12 @@ def cancelAttitude():
         return jsonify({"error": e})
 
 
-@app.route('/api/recordFeedback')
-def recordFeedback():
-    """ Record the feedback of a user's question. """
-    pass
-
-
 @app.route('/api/getHistoricalQuestions', methods=["POST"])
 def getHistoricalQuestions():
-    """ Return all questions and corresponding option information posted by a user and the user's username, 
-    not include its feeback and anoymous option. Assume not choose attitude and not vote
+    """ request a user's UID, return all questions and corresponding information 
+    has been posted by this user and this user's username and user image
+    """
+    """
     This API use the POST method.
     The returned json object is be in the form below:
     [{   'anonymous': False,
@@ -732,6 +732,9 @@ def getHistoricalQuestions():
 
 @app.route('/api/getVotes', methods=["POST"])
 def getVotes():
+    """ request a user's UID, return all questions and corresponding information 
+    has been voted by this user and this user's username and user image
+    """
     """ request an UID, return all vote actions of a this user and its user name. For each vote action, 
     return the questionID, ownerID, time, tag , question(description) and the voted option name
     This API use the POST method. Assume not choose attitude
@@ -823,9 +826,10 @@ def getVotes():
 
 @app.route('/api/getAttitudes', methods=["POST"])
 def getAttitudes():
-    """ Return all attitudes of a user. """
-    """ request an UID, return all attitude actions of a this user and its usernamec. For each attitude action, 
-    return the questionID, ownerID, time, tag , question(description) and the attidue as Like or Dislike
+    """ request a user's UID, return all questions and corresponding information 
+    has been liked or dislike by this user and this user's username and user image
+    """
+    """
     This API use the POST method. Assume not vote
     The returned json object is be in the form below:
     [{   'anonymous': False,
