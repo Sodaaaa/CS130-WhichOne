@@ -39,7 +39,7 @@ class QuestionList extends Component {
     this.state = {
       listData: this.props.questionList,
       loggedIn: localStorage.getItem("loggedIn") == "true",
-      //optionList: this.props.optionList
+      optionListData: this.props.optionList,
     };
   }
 
@@ -245,7 +245,14 @@ class QuestionList extends Component {
                     </Tag>
                   }
                 />
-                {item.content}
+                {/* {item.content} */}
+                <OptionList
+                  options={this.state.optionListData[idx]}
+                  expired={false}
+                  voted={item.voted}
+                  questionID={item.ID}
+                  // parentCallback={this.handleOptionCallBack}
+                />
               </List.Item>
             </Panel>
           </Collapse>

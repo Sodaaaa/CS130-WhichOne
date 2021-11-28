@@ -41,8 +41,12 @@ export default class profile extends Component {
     this.state = {
       loggedIn: true,
       questionlistData: [],
+      optionListData: [],
       votelistData: [],
+      optionListData2: [],
       attitudeData: [],
+      optionListData3: [],
+      populated: false,
       username: null,
       email: null,
       loading: false,
@@ -74,40 +78,50 @@ export default class profile extends Component {
     this.props.history.push("/login");
   };
 
-  populateList(res, list) {
+  populateList(res, questionList, optionList) {
     for (let i = 0; i < res.data.length; i++) {
-      console.log(res.data[i].avator);
+      optionList.push(res.data[i].option_list);
+      console.log(optionList);
       let question = {
         title: res.data[i].question,
         description: res.data[i].tag,
-        content: (
-          <OptionList options={res.data[i].option_list} expired={false} />
-        ),
+        // content: <OptionList
+        //             options={res.data[i].options}
+        //             expired={false}
+        //             voted={res.data[i].voted}
+        //             questionID={res.data[i].questionID}
+        //             // parentCallback={this.handleOptionCallBack}
+        //           />,
         likes: res.data[i].likes,
         dislikes: res.data[i].dislikes,
         // liked: res.data[i].chosenAttitude === 0 ? true : false,
         // disliked: res.data[i].chosenAttitude === 1 ? true : false,
+        voted: res.data[i].voted,
         attitude: res.data[i].chosenAttitude,
         ID: res.data[i].questionID,
         uid: res.data[i].ownerID,
         username: res.data[i].username,
         isAnonymous: res.data[i].anonymous,
+        // '#E2D4F3'
         avatar:
           res.data[i].avator === undefined ? (
             <Avatar
-              style={{ backgroundColor: "#E2D4F3" }}
+              style={{ backgroundColor: "#6C5CE7" }}
               icon={<UserOutlined />}
             />
           ) : (
             <Avatar src={res.data[i].avator} />
           ),
       };
+      console.log(question);
       if (res.data[i].anonymous) {
         question.avatar = <Avatar>A</Avatar>;
-        question.uid = "Anonymous";
+        question.username = "Anonymous";
       }
       //else question.avatar = res.data[i].avator === undefined? <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : res.data[i].avator};
-      list.push(question);
+      questionList.push(question);
+      // options.push({content: res.data[i].options})
+      // console.log(list[i]);
     }
   }
 
@@ -123,38 +137,60 @@ export default class profile extends Component {
         this.setState({ email: res.data[0].email });
       });
 
-    const list = [];
+    const questionList = [];
+    const optionList = [];
     axios
       .post("/api/getHistoricalQuestions", {
         UID: Number(localStorage.getItem("UID")),
       })
       .then((res) => {
-        // console.log("result is", res);
-        this.populateList(res, list);
-        this.setState({ questionlistData: list });
+        console.log("result is", res);
+        this.populateList(res, questionList, optionList);
+        this.setState({
+          questionlistData: questionList,
+          optionListData: optionList,
+          populated: true,
+        });
+        console.log("option1: " + this.state.optionListData);
       });
 
     const votelist = [];
+    const optionList2 = [];
     axios
       .post("/api/getVotes", {
         UID: Number(localStorage.getItem("UID")),
       })
       .then((res) => {
         // console.log("vote result is", res);
-        this.populateList(res, votelist);
-        this.setState({ votelistData: votelist });
+        this.populateList(res, votelist, optionList2);
+        this.setState({
+          votelistData: votelist,
+          optionListData2: optionList2,
+          populated: true,
+        });
+        console.log("option2: " + this.state.optionListData2);
       });
 
     const attitudelist = [];
+    const optionList3 = [];
     axios
       .post("/api/getAttitudes", {
         UID: Number(localStorage.getItem("UID")),
       })
       .then((res) => {
         // console.log("vote result is", res);
-        this.populateList(res, attitudelist);
-        this.setState({ attitudeData: attitudelist });
+        this.populateList(res, attitudelist, optionList3);
+        this.setState({
+          attitudeData: attitudelist,
+          optionListData3: optionList3,
+          populated: true,
+        });
+        console.log("option3: " + this.state.optionListData3);
       });
+
+    // console.log("option1: " + this.state.optionListData);
+    // console.log("option2: " + this.state.optionListData2);
+    // console.log("option3: " + this.state.optionListData3);
   }
 
   render() {
@@ -169,7 +205,17 @@ export default class profile extends Component {
             <Avatar
               size={150}
               // src={<Image src="https://joeschmoe.io/api/v1/random" />}
-              src = {this.state.imageUrl ? <img src={this.state.imageUrl} alt="avatar" style={{ width: '100%' }} /> : "https://joeschmoe.io/api/v1/random"}
+              src={
+                this.state.imageUrl ? (
+                  <img
+                    src={this.state.imageUrl}
+                    alt="avatar"
+                    style={{ width: "100%" }}
+                  />
+                ) : (
+                  "https://joeschmoe.io/api/v1/random"
+                )
+              }
             />
             <div className="user-name">{this.state.username}</div>
             <div className="logout">
@@ -191,10 +237,7 @@ export default class profile extends Component {
                 // beforeUpload={beforeUpload}
                 // onChange={this.handleUpload}
               >
-                <Button
-                  icon={<UploadOutlined />}
-                  style={{ marginLeft: 20 }}
-                >
+                <Button icon={<UploadOutlined />} style={{ marginLeft: 20 }}>
                   Upload Avatar
                 </Button>
               </Upload>
@@ -211,17 +254,32 @@ export default class profile extends Component {
           <div className="posted-questions">
             Posted Questions
             <br />
-            <QuestionList questionList={this.state.questionlistData} />
+            {this.state.populated === false ? null : (
+              <QuestionList
+                questionList={this.state.questionlistData}
+                optionList={this.state.optionListData}
+              />
+            )}
           </div>
           <div className="past-votes">
             Your Votes
             <br />
-            <QuestionList questionList={this.state.votelistData} />
+            {this.state.populated === false ? null : (
+              <QuestionList
+                questionList={this.state.votelistData}
+                optionList={this.state.optionListData2}
+              />
+            )}
           </div>
           <div className="past-attitude">
             Questions you liked/disliked
             <br />
-            <QuestionList questionList={this.state.attitudeData} />
+            {this.state.populated === false ? null : (
+              <QuestionList
+                questionList={this.state.attitudeData}
+                optionList={this.state.optionListData3}
+              />
+            )}
           </div>
         </Content>
       </Layout>

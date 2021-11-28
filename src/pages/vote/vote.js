@@ -37,26 +37,30 @@ export default class vote extends Component {
     super(props);
     this.state = {
       listData: [],
+      optionListData: [],
       listPopulated: false,
     };
   }
 
-  populateList(res, list) {
+  populateList(res, questionList, optionList) {
     for (let i = 0; i < res.data.length; i++) {
+      optionList.push(res.data[i].options_list);
+      console.log(optionList);
       let question = {
         title: res.data[i].question,
         description: res.data[i].tag,
-        content: <OptionList 
-                    options={res.data[i].options} 
-                    expired={false} 
-                    voted={res.data[i].voted} 
-                    questionID={res.data[i].questionID} 
-                    // parentCallback={this.handleOptionCallBack}
-                  />,
+        // content: <OptionList
+        //             options={res.data[i].options}
+        //             expired={false}
+        //             voted={res.data[i].voted}
+        //             questionID={res.data[i].questionID}
+        //             // parentCallback={this.handleOptionCallBack}
+        //           />,
         likes: res.data[i].likes,
         dislikes: res.data[i].dislikes,
         // liked: res.data[i].chosenAttitude === 0 ? true : false,
         // disliked: res.data[i].chosenAttitude === 1 ? true : false,
+        voted: res.data[i].voted,
         attitude: res.data[i].chosenAttitude,
         ID: res.data[i].questionID,
         uid: res.data[i].ownerID,
@@ -79,22 +83,27 @@ export default class vote extends Component {
         question.username = "Anonymous";
       }
       //else question.avatar = res.data[i].avator === undefined? <Avatar style={{ backgroundColor: '#E2D4F3' }} icon={<UserOutlined />} /> : res.data[i].avator};
-      list.push(question);
+      questionList.push(question);
       // options.push({content: res.data[i].options})
       // console.log(list[i]);
     }
   }
 
   getAllQuestions() {
-    const list = [];
+    const questionList = [];
+    const optionList = [];
     axios
       .get("/api/getAllQuestions", {
         params: { UID: Number(localStorage.getItem("UID")) },
       })
       .then((res) => {
-        // console.log(res);
-        this.populateList(res, list);
-        this.setState({ listData: list, listPopulated: true });
+        console.log(res);
+        this.populateList(res, questionList, optionList);
+        this.setState({
+          listData: questionList,
+          optionListData: optionList,
+          listPopulated: true,
+        });
         //this.onTriggerCallBack();
       });
   }
@@ -102,15 +111,23 @@ export default class vote extends Component {
   handleCallback = (tags) => {
     console.log("tags: " + tags);
     if (tags.length != 0) {
-      const list = [];
+      const questionList = [];
+      const optionList = [];
       axios
         .get("/api/listTopics", {
-          params: { tags: tags.join(), UID: Number(localStorage.getItem("UID")) },
+          params: {
+            tags: tags.join(),
+            UID: Number(localStorage.getItem("UID")),
+          },
         })
         .then((res) => {
           // console.log(res);
-          this.populateList(res, list);
-          this.setState({ listData: list, listPopulated: true });
+          this.populateList(res, questionList, optionList);
+          this.setState({
+            listData: questionList,
+            optionListData: optionList,
+            listPopulated: true,
+          });
           // localStorage.setItem("tag", "null");
           localStorage.removeItem("tag");
           console.log(localStorage.getItem("tag"));
@@ -149,7 +166,10 @@ export default class vote extends Component {
             </div>
             <div className="vote-questions">
               {this.state.listPopulated === false ? null : (
-                <QuestionList questionList={this.state.listData} />
+                <QuestionList
+                  questionList={this.state.listData}
+                  optionList={this.state.optionListData}
+                />
               )}
             </div>
           </div>

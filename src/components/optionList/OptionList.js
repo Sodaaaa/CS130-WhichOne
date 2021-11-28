@@ -1,13 +1,5 @@
 import React, { Component } from "react";
-import {
-  Button,
-  Radio,
-  Input,
-  Space,
-  notification,
-  Progress,
-  Statistic,
-} from "antd";
+import { Button, Radio, Space, notification, Progress, Statistic } from "antd";
 import axios from "axios";
 
 class OptionList extends Component {
@@ -15,12 +7,14 @@ class OptionList extends Component {
     super(props);
     this.state = {
       value: this.props.voted,
+      idx: -1,
       listData: this.props.options,
       expired: this.props.expired,
       voted: this.props.voted,
       questionID: this.props.questionID,
       loggedIn: localStorage.getItem("loggedIn") == "true",
     };
+    console.log("voted", this.state.voted);
   }
 
   openNotification = () => {
@@ -41,40 +35,34 @@ class OptionList extends Component {
     }
 
     console.log("radio checked", e.target.value);
-    //console.log(e.target.value)
+    console.log("target: ", e.target);
     this.setState({
       value: e.target.value,
+      idx: e.target.idx,
     });
   };
 
-  // onTriggerCallBack() {
-  //   console.log("triggered")
-  //   this.props.parentCallback();
-  // }
-
-
   vote = () => {
+    this.state.listData[this.state.idx].option_vote += 1;
     this.setState({
       voted: this.state.value,
-      // listData: this.state.listData
+      listData: this.state.listData,
     });
-    console.log(this.state.value)
-    axios.post('/api/recordVote', {
-      userID: Number(localStorage.getItem('UID')),
-      questionID: Number(this.state.questionID),
-      optionID: Number(this.state.value)
-    }).then((res) => {
-      console.log(res)
-      // this.setState({listData: this.state.listData})
-      // this.onTriggerCallBack();
-    })
+    axios
+      .post("/api/recordVote", {
+        userID: Number(localStorage.getItem("UID")),
+        questionID: Number(this.state.questionID),
+        optionID: Number(this.state.value),
+      })
+      .then((res) => {
+        console.log(res);
+        this.setState({ listData: this.state.listData });
+        // this.onTriggerCallBack();
+      });
   };
 
   render() {
-    // console.log(localStorage.getItem('loggedIn')=="true");
     const { value, listData } = this.state;
-    //console.log("optionList" + listData);
-    //listData.map((option) => (console.log("option: " + option.optionText)));
     console.log("expired is ", this.state.expired);
     return (
       <div>
@@ -88,7 +76,7 @@ class OptionList extends Component {
             {listData.map((option, i) => (
               <div key={i}>
                 <Radio
-                  style={{minWidth:100}}
+                  style={{ minWidth: 100 }}
                   disabled={
                     !this.state.loggedIn ||
                     this.state.expired ||
@@ -97,6 +85,7 @@ class OptionList extends Component {
                   className="option"
                   value={option.optionID}
                   key={i}
+                  idx={i}
                 >
                   <p>{option.option_name} </p>
                   {/* <p>{this.state.voted}</p> */}
