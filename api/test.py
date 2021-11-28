@@ -1,10 +1,22 @@
 import json
 import urllib.request
 import unittest
-from fakeData import drop_all_data, generate_fake_data
+from fakeData import generate_fake_data
+from api import db, User, Question, Option, UserVote, UserAttitude
 
 test_data = [{'username': 'testuser', 'email': 'testuser@gmail.com', 'password': '123456', 'confirm_password': '123456'},
              {'username': 'testuser2', 'email': 'testuser2@gmail.com', 'password': '1234562', 'confirm_password': '1234562'}]
+
+
+def drop_all():
+    db.drop_all()
+    db.session.commit()
+
+
+def drop_all_and_create_all():
+    db.drop_all()
+    db.create_all()
+    db.session.commit()
 
 
 class MyTestClass(unittest.TestCase):
@@ -104,10 +116,10 @@ class MyTestClass(unittest.TestCase):
         print("Finish test : success the getUserinfo function, code is 200")
 
     def setUp(self):
-        generate_fake_data()
+        drop_all_and_create_all()
 
     def tearDown(self) -> None:
-        drop_all_data()
+        drop_all()
         return super().tearDown()
 
 

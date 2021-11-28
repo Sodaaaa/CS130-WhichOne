@@ -96,11 +96,6 @@ user_attitude_data = [
 ]
 
 
-def drop_all_data():
-    db.drop_all()
-    db.session.commit()
-
-
 def generate_fake_data():
     db.drop_all()
     db.create_all()
