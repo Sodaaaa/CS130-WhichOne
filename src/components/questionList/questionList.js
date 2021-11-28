@@ -166,7 +166,7 @@ class QuestionList extends Component {
           onChange: (page) => {
             console.log(page);
           },
-          pageSize: 8,
+          pageSize: 6,
         }}
         dataSource={this.state.listData}
         renderItem={(item, idx) => (
