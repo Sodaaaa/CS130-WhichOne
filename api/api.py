@@ -868,7 +868,7 @@ def listHotTopics():
             "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
             "total_votes"   : 100,
             "expired"       : False,
-            "options"       :
+            "option_list"       :
             [
                 {
                     "optionID"       : 123456,
@@ -923,7 +923,7 @@ def listHotTopics():
                 "dislikes": q.dislikes,
                 "feedbackID": q.feedbackID,
                 "timeLimit": int(q.timeLimit.timestamp()),
-                "options": option_list,
+                "option_list": option_list,
                 "total_votes": total_votes,
                 "expired": expired
             }
