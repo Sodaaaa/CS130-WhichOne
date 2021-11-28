@@ -62,11 +62,16 @@ def getUID(email):
     user = list(filter(lambda x: x.email == email, users))[0]
     return user.UID
 
+def getUserImage(UID):
+    users = User.query.all()
+    user = list(filter(lambda x: x.UID == UID, users))[0]
+    return user.UID
+
 
 def getUsername(UID):
     users = User.query.all()
     user = list(filter(lambda x: x.UID == UID, users))[0]
-    return user.username
+    return user.image_file
 
 
 class Question(db.Model):
@@ -256,7 +261,7 @@ def getUserinfo():
         users = User.query.all()
         user = list(filter(lambda x: x.UID == uid, users))[0]
         result = [{"userID": user.UID, "username": user.username,
-                   "email": user.email, "image_file": user.image_file}]
+                   "email": user.email, "owner_image": user.image_file}]
         print("------ successful get userinfo---------")
         pp.pprint(result)
         return jsonify(result)
@@ -697,6 +702,7 @@ def getHistoricalQuestions():
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
+                    'owner_image':getUserImage(uid),
                     'time': q.time,
                     'tag': q.tag,
                     'question': q.question,
@@ -784,6 +790,7 @@ def getVotes():
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
+                    'owner_image':getUserImage(uid),
                     'time': q.time,
                     'tag': q.tag,
                     'question': q.question,
@@ -880,6 +887,7 @@ def getAttitudes():
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
+                    'owner_image':getUserImage(uid),
                     'time': q.time,
                     'tag': q.tag,
                     'question': q.question,
