@@ -680,10 +680,15 @@ def getHistoricalQuestions():
                 voted = vote[0].vote_result
             all_options = list(
                 filter(lambda x: x.questionID == q.questionID, options))
-            option_list = [{'optionID': o.OptionID,
-                            'option_name': o.name,
-                            'option_image': o.image,
-                            'option_vote': o.votes} for o in all_options]
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {'optionID': o.OptionID,
+                        'option_name': o.name,
+                        'option_image': o.image,
+                        'option_vote': o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
@@ -698,8 +703,12 @@ def getHistoricalQuestions():
                     'option_list': option_list,
                     'username': getUsername(uid),
                     'chosenAttitude': att,
-                    'voted': voted}
-
+                    'voted': voted,
+                    'total_votes': total_votes}
+            if datetime.datetime.fromtimestamp(info['timeLimit']) < datetime.datetime.now():
+                info['expired'] = True
+            else:
+                info['expired'] = False
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
         print('------------------successful ---------------------')
@@ -708,7 +717,6 @@ def getHistoricalQuestions():
     except Exception as e:
         print(e)
         return jsonify({"error": e})
-
 
 @app.route('/api/getVotes', methods=["POST"])
 def getVotes():
@@ -756,11 +764,15 @@ def getVotes():
                 att = attitude[0].attitude
             all_options = list(
                 filter(lambda x: x.questionID == q.questionID, options))
-            option_list = [{'optionID': o.OptionID,
-                            'option_name': o.name,
-                            'option_image': o.image,
-                            'option_vote': o.votes} for o in all_options]
-
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {'optionID': o.OptionID,
+                        'option_name': o.name,
+                        'option_image': o.image,
+                        'option_vote': o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
             vote_option = list(filter(lambda x: x.OptionID ==
                                vote.vote_result, options))[0]
             info = {'userID': uid,
@@ -778,7 +790,12 @@ def getVotes():
                     'username': getUsername(uid),
                     'vote_result': vote_option.OptionID,
                     'chosenAttitude': att,
-                    'voted': vote_option.OptionID}
+                    'voted': vote_option.OptionID,
+                    'total_votes': total_votes}
+            if datetime.datetime.fromtimestamp(info['timeLimit']) < datetime.datetime.now():
+                info['expired'] = True
+            else:
+                info['expired'] = False
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
         print('------------------successful ---------------------')
@@ -845,10 +862,15 @@ def getAttitudes():
                 voted = vote[0].vote_result
             all_options = list(
                 filter(lambda x: x.questionID == q.questionID, options))
-            option_list = [{'optionID': o.OptionID,
-                            'option_name': o.name,
-                            'option_image': o.image,
-                            'option_vote': o.votes} for o in all_options]
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {'optionID': o.OptionID,
+                        'option_name': o.name,
+                        'option_image': o.image,
+                        'option_vote': o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
@@ -863,7 +885,12 @@ def getAttitudes():
                     'option_list': option_list,
                     'username': getUsername(uid),
                     'chosenAttitude': att.attitude,
-                    'voted': voted}
+                    'voted': voted,
+                    'total_votes': total_votes}
+            if datetime.datetime.fromtimestamp(info['timeLimit']) < datetime.datetime.now():
+                info['expired'] = True
+            else:
+                info['expired'] = False
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
         print('------------------successful get attitude---------------------')
@@ -872,7 +899,6 @@ def getAttitudes():
     except Exception as e:
         print(e)
         return jsonify({"error": e})
-
 
 @app.route('/api/provideOptions')
 def provideOptions(question):
