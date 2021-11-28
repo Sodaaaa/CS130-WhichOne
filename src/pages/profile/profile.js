@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Descriptions, Avatar, Image, Button, Upload, message } from "antd";
+import { Descriptions, Avatar, Image, Button, Upload, message, Tabs } from "antd";
 import { UploadOutlined, UserOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { Layout } from "antd/lib";
@@ -10,12 +10,11 @@ import OptionList from "../../components/optionList/OptionList";
 import QuestionList from "../../components/questionList/questionList";
 
 const { Header, Content } = Layout;
+const { TabPane } = Tabs;
 
-const dataSource = [
-  { key: "1", name: "daFei", age: 32 },
-  { key: "2", name: "foo", age: 42 },
-  { key: "3", name: "bar", age: 32 },
-];
+function callback(key) {
+  console.log(key);
+}
 
 // function getBase64(img, callback) {
 //   const reader = new FileReader();
@@ -267,35 +266,33 @@ export default class profile extends Component {
               </Descriptions.Item>
             </Descriptions>
           </div>
-          <div className="posted-questions">
-            Posted Questions
-            <br />
-            {this.state.questionPopulated === false ? null : (
-              <QuestionList
-                questionList={this.state.questionlistData}
-                optionList={this.state.optionListData}
-              />
-            )}
-          </div>
-          <div className="past-votes">
-            Your Votes
-            <br />
-            {this.state.votePopulated === false ? null : (
-              <QuestionList
-                questionList={this.state.votelistData}
-                optionList={this.state.optionListData2}
-              />
-            )}
-          </div>
-          <div className="past-attitude">
-            Questions you liked/disliked
-            <br />
-            {this.state.attitudePopulated === false ? null : (
-              <QuestionList
-                questionList={this.state.attitudeData}
-                optionList={this.state.optionListData3}
-              />
-            )}
+          <div className = "history-data">
+            <Tabs defaultActiveKey="1" onChange={callback}>
+              <TabPane tab="Posted Questions" key="1">
+                {this.state.questionPopulated === false ? null : (
+                  <QuestionList
+                    questionList={this.state.questionlistData}
+                    optionList={this.state.optionListData}
+                  />
+                )}
+              </TabPane>
+              <TabPane tab="Your Votes" key="2">
+                {this.state.votePopulated === false ? null : (
+                  <QuestionList
+                    questionList={this.state.votelistData}
+                    optionList={this.state.optionListData2}
+                  />
+                )}
+              </TabPane>
+              <TabPane tab="Questions you liked/disliked" key="3">
+                {this.state.attitudePopulated === false ? null : (
+                  <QuestionList
+                    questionList={this.state.attitudeData}
+                    optionList={this.state.optionListData3}
+                  />
+                )}
+              </TabPane>
+            </Tabs>
           </div>
         </Content>
       </Layout>

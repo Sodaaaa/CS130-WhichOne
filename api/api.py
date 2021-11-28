@@ -647,10 +647,20 @@ def getHistoricalQuestions():
     try:
         uid = request.json["UID"]
         questions = Question.query.all()
+        userVotes = UserVote.query.all()
+        userAttitudes = UserAttitude.query.all()
         postedQ = list(filter(lambda x: x.ownerID == uid, questions))
         options = Option.query.all()
         result = []
         for q in postedQ:
+            att = 0
+            attitude = list(filter(lambda x: x.userID == uid and x.questionID == q.questionID, userAttitudes))
+            if len(attitude) != 0:
+                att = attitude[0].attitude
+            voted = -1
+            vote = list(filter(lambda x: x.userID == uid and x.questionID == q.questionID, userVotes))
+            if len(vote) != 0:
+                voted = vote[0].vote_result
             all_options = list(
                 filter(lambda x: x.questionID == q.questionID, options))
             option_list = [{'optionID': o.OptionID,
@@ -670,8 +680,8 @@ def getHistoricalQuestions():
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
                     'username': getUsername(uid),
-                    'chosenAttitude': -1,
-                    'voted': -1}
+                    'chosenAttitude': att,
+                    'voted': voted}
 
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
@@ -716,11 +726,16 @@ def getVotes():
         userVotes = UserVote.query.filter(UserVote.userID == uid).all()
         questions = Question.query.all()
         options = Option.query.all()
+        userAttitudes = UserAttitude.query.all()
         userVotes = list(filter(lambda x: x.userID == uid, userVotes))
         result = []
         for vote in userVotes:
             q = list(filter(lambda x: x.questionID ==
                      vote.questionID, questions))[0]
+            att = 0
+            attitude = list(filter(lambda x: x.userID == uid and x.questionID == q.questionID, userAttitudes))
+            if len(attitude) != 0:
+                att = attitude[0].attitude
             all_options = list(
                 filter(lambda x: x.questionID == q.questionID, options))
             option_list = [{'optionID': o.OptionID,
@@ -744,7 +759,7 @@ def getVotes():
                     'option_list': option_list,
                     'username': getUsername(uid),
                     'vote_result': vote_option.OptionID,
-                    'chosenAttitude': -1,
+                    'chosenAttitude': att,
                     'voted': vote_option.OptionID}
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
@@ -797,16 +812,18 @@ def getAttitudes():
     try:
         uid = request.json["UID"]
         userAttitudes = UserAttitude.query.all()
+        userVotes = UserVote.query.all()
         questions = Question.query.all()
         options = Option.query.all()
         userAttitudes = list(filter(lambda x: x.userID == uid, userAttitudes))
         result = []
         for att in userAttitudes:
-            # res = 'Like'
-            # if att.attitude != 0:
-            #     res = 'Dislike'
             q = list(filter(lambda x: x.questionID ==
                      att.questionID, questions))[0]
+            voted = -1
+            vote = list(filter(lambda x: x.userID == uid and x.questionID == q.questionID, userVotes))
+            if len(vote) != 0:
+                voted = vote[0].vote_result
             all_options = list(
                 filter(lambda x: x.questionID == q.questionID, options))
             option_list = [{'optionID': o.OptionID,
@@ -827,7 +844,7 @@ def getAttitudes():
                     'option_list': option_list,
                     'username': getUsername(uid),
                     'chosenAttitude': att.attitude,
-                    'voted': -1}
+                    'voted': voted}
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
         print('------------------successful get attitude---------------------')
