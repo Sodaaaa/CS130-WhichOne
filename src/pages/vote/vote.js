@@ -44,7 +44,7 @@ export default class vote extends Component {
 
   populateList(res, questionList, optionList) {
     for (let i = 0; i < res.data.length; i++) {
-      optionList.push(res.data[i].options_list);
+      optionList.push(res.data[i].option_list);
       console.log(optionList);
       let question = {
         title: res.data[i].question,
