@@ -106,15 +106,21 @@ class OptionList extends Component {
                   <div>
                     <Progress
                       percent={
-                        ((option.option_vote * 1.0) / this.state.totalVotes) *
-                        100
+                        this.state.totalVotes === 0
+                          ? 0
+                          : ((option.option_vote * 1.0) /
+                              this.state.totalVotes) *
+                            100
                       }
                       strokeColor="#E2D4F3"
                       format={() =>
-                        (
-                          ((option.option_vote * 1.0) / this.state.totalVotes) *
-                          100
-                        ).toFixed(2) + "%"
+                        this.state.totalVotes === 0
+                          ? 0
+                          : (
+                              ((option.option_vote * 1.0) /
+                                this.state.totalVotes) *
+                              100
+                            ).toFixed(2) + "%"
                       }
                     />
                     <Statistic
