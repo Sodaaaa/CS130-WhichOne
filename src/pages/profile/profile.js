@@ -56,12 +56,14 @@ export default class profile extends Component {
     for (let i = 0; i < res.data.length; i++) {
       optionList.push(res.data[i].option_list);
       console.log(optionList);
+      let expiryDate = new Date(res.data[i].timeLimit * 1000);
       let question = {
         title: res.data[i].question,
         description: res.data[i].tag,
         // expired = res.data[i].expired,
         expired: res.data[i].expired,
         total_votes: res.data[i].total_votes,
+        expiryTime: expiryDate.toLocaleDateString(),
         // content: <OptionList
         //             options={res.data[i].options}
         //             expired={false}
