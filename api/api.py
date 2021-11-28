@@ -29,19 +29,16 @@ class User(db.Model):
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    # confirm_password = db.Column(db.String(60), nullable=False)
-    image_file = db.Column(db.String(20))
-    # , nullable=False, default='default.jpg')
-    # questions = db.relationship('Question', backref='author', lazy=True)
+    image_file = db.Column(db.String(999))
 
     def __init__(self, username, email, password, confirm_password, image_file=None):
         self.username = username
         self.email = email
         self.password = password
-        # self.confirm_password = confirm_password
-
         if image_file != None:
             self.image_file = image_file
+        else:
+            self.image_file = None
 
     def __repr__(self):
         return f"User('{self.UID}', '{self.username}', '{self.email}', '{self.password}', '{self.image_file}')"
@@ -61,12 +58,20 @@ def getUser(email):
 
 
 def getUID(email):
+    """given user's email, return this user's UID"""
     users = User.query.all()
     user = list(filter(lambda x: x.email == email, users))[0]
     return user.UID
 
+def getUserImage(UID):
+    """given user's UID, return this user's user image"""
+    users = User.query.all()
+    user = list(filter(lambda x: x.UID == UID, users))[0]
+    return user.image_file
+
 
 def getUsername(UID):
+    """given user's UID, return this user's username"""
     users = User.query.all()
     user = list(filter(lambda x: x.UID == UID, users))[0]
     return user.username
@@ -182,12 +187,16 @@ class UserAttitude(db.Model):
 
 @app.route("/api/register", methods=["POST"])
 def register():
-    """ return {"success": True} if successfuly register a new user, otherwise return corresponding error"""
+    """ request an email address, a password, a confirm_password, 
+    a username and a random user image string
+    return {"success": True} if successfuly register a new user, 
+    otherwise return corresponding error"""
     try:
         email = request.json["email"]
         password = request.json["password"]
         confirm_password = request.json["confirm_password"]
         username = request.json["username"]
+        image_file = request.json["image_file"]
         print({"email": email, "password": password,
               "confirm_password": confirm_password, "username": username})
 
@@ -208,7 +217,8 @@ def register():
 
         # add a new user
         try:
-            user = User(username, email, password, confirm_password)
+            user = User(username, email, password,
+                        confirm_password, image_file)
             db.session.add(user)
             db.session.commit()
             print("Successfully add a user!")
@@ -223,7 +233,9 @@ def register():
 
 @app.route("/api/login", methods=["POST"])
 def login():
-    """ return {"success": True} if successfuly login, otherwise return corresponding error"""
+    """ request an email address and a password, 
+    return {"success": True} if successfuly register login, 
+    otherwise return corresponding error"""
     try:
         email = request.json["email"]
         password = request.json["password"]
@@ -247,17 +259,13 @@ def login():
 
 @app.route("/api/getUserinfo", methods=["POST"])
 def getUserinfo():
-    """ request an UID, return userinfo in below format
-    [   {   'email': 'shirley9611@gmail.com',
-        'image_file': None,
-        'userID': 4,
-        'username': 'shirley'}]"""
+    """ request an UID, return username, email and user image in json format"""
     try:
         uid = request.json["UID"]
         users = User.query.all()
         user = list(filter(lambda x: x.UID == uid, users))[0]
         result = [{"userID": user.UID, "username": user.username,
-                   "email": user.email, "image_file": user.image_file}]
+                   "email": user.email, "owner_image": user.image_file}]
         print("------ successful get userinfo---------")
         pp.pprint(result)
         return jsonify(result)
@@ -351,6 +359,7 @@ def getAllQuestions():
         "total_votes"   : 5,
         "expired"       : TRUE,
         "time_to_expire": 123456,
+        "owner_image"   : "image",
         "option_list": [
             {
                 "optionID"       : 1234556,
@@ -391,6 +400,8 @@ def getAllQuestions():
         q['option_list'] = option_dicts
         q['username'] = User.query.filter(
             User.UID == q['ownerID']).first().username
+        q['owner_image'] = User.query.filter(
+            User.UID == q['ownerID']).first().image_file
 
         UID = int(request.args.get('UID'))
         user_vote_record = UserVote.query.filter(
@@ -436,6 +447,7 @@ def listTopics():
         "total_votes"   : 5,
         "expired"       : TRUE,
         "time_to_expire": 123456,
+        "owner_image"   : "image",
         "option_list": [
             {
                 "optionID"       : 1234556,
@@ -480,6 +492,8 @@ def listTopics():
         q['option_list'] = option_dicts
         q['username'] = User.query.filter(
             User.UID == q['ownerID']).first().username
+        q['owner_image'] = User.query.filter(
+            User.UID == q['ownerID']).first().image_file
 
         UID = int(request.args.get('UID'))
         user_vote_record = UserVote.query.filter(
@@ -626,16 +640,12 @@ def cancelAttitude():
         return jsonify({"error": e})
 
 
-@app.route('/api/recordFeedback')
-def recordFeedback():
-    """ Record the feedback of a user's question. """
-    pass
-
-
 @app.route('/api/getHistoricalQuestions', methods=["POST"])
 def getHistoricalQuestions():
-    """ Return all questions and corresponding option information posted by a user and the user's username, 
-    not include its feeback and anoymous option. Assume not choose attitude and not vote
+    """ request a user's UID, return all questions and corresponding information 
+    has been posted by this user and this user's username and user image
+    """
+    """
     This API use the POST method.
     The returned json object is be in the form below:
     [{   'anonymous': False,
@@ -680,13 +690,19 @@ def getHistoricalQuestions():
                 voted = vote[0].vote_result
             all_options = list(
                 filter(lambda x: x.questionID == q.questionID, options))
-            option_list = [{'optionID': o.OptionID,
-                            'option_name': o.name,
-                            'option_image': o.image,
-                            'option_vote': o.votes} for o in all_options]
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {'optionID': o.OptionID,
+                        'option_name': o.name,
+                        'option_image': o.image,
+                        'option_vote': o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
+                    'owner_image':getUserImage(uid),
                     'time': q.time,
                     'tag': q.tag,
                     'question': q.question,
@@ -698,8 +714,12 @@ def getHistoricalQuestions():
                     'option_list': option_list,
                     'username': getUsername(uid),
                     'chosenAttitude': att,
-                    'voted': voted}
-
+                    'voted': voted,
+                    'total_votes': total_votes}
+            if datetime.datetime.fromtimestamp(info['timeLimit']) < datetime.datetime.now():
+                info['expired'] = True
+            else:
+                info['expired'] = False
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
         print('------------------successful ---------------------')
@@ -712,6 +732,9 @@ def getHistoricalQuestions():
 
 @app.route('/api/getVotes', methods=["POST"])
 def getVotes():
+    """ request a user's UID, return all questions and corresponding information 
+    has been voted by this user and this user's username and user image
+    """
     """ request an UID, return all vote actions of a this user and its user name. For each vote action, 
     return the questionID, ownerID, time, tag , question(description) and the voted option name
     This API use the POST method. Assume not choose attitude
@@ -756,16 +779,21 @@ def getVotes():
                 att = attitude[0].attitude
             all_options = list(
                 filter(lambda x: x.questionID == q.questionID, options))
-            option_list = [{'optionID': o.OptionID,
-                            'option_name': o.name,
-                            'option_image': o.image,
-                            'option_vote': o.votes} for o in all_options]
-
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {'optionID': o.OptionID,
+                        'option_name': o.name,
+                        'option_image': o.image,
+                        'option_vote': o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
             vote_option = list(filter(lambda x: x.OptionID ==
                                vote.vote_result, options))[0]
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
+                    'owner_image':getUserImage(q.ownerID),
                     'time': q.time,
                     'tag': q.tag,
                     'question': q.question,
@@ -775,10 +803,15 @@ def getVotes():
                     'feedbackID': q.feedbackID,
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
-                    'username': getUsername(uid),
+                    'username': getUsername(q.ownerID),
                     'vote_result': vote_option.OptionID,
                     'chosenAttitude': att,
-                    'voted': vote_option.OptionID}
+                    'voted': vote_option.OptionID,
+                    'total_votes': total_votes}
+            if datetime.datetime.fromtimestamp(info['timeLimit']) < datetime.datetime.now():
+                info['expired'] = True
+            else:
+                info['expired'] = False
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
         print('------------------successful ---------------------')
@@ -793,9 +826,10 @@ def getVotes():
 
 @app.route('/api/getAttitudes', methods=["POST"])
 def getAttitudes():
-    """ Return all attitudes of a user. """
-    """ request an UID, return all attitude actions of a this user and its usernamec. For each attitude action, 
-    return the questionID, ownerID, time, tag , question(description) and the attidue as Like or Dislike
+    """ request a user's UID, return all questions and corresponding information 
+    has been liked or dislike by this user and this user's username and user image
+    """
+    """
     This API use the POST method. Assume not vote
     The returned json object is be in the form below:
     [{   'anonymous': False,
@@ -845,13 +879,19 @@ def getAttitudes():
                 voted = vote[0].vote_result
             all_options = list(
                 filter(lambda x: x.questionID == q.questionID, options))
-            option_list = [{'optionID': o.OptionID,
-                            'option_name': o.name,
-                            'option_image': o.image,
-                            'option_vote': o.votes} for o in all_options]
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {'optionID': o.OptionID,
+                        'option_name': o.name,
+                        'option_image': o.image,
+                        'option_vote': o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
+                    'owner_image':getUserImage(q.ownerID),
                     'time': q.time,
                     'tag': q.tag,
                     'question': q.question,
@@ -861,9 +901,14 @@ def getAttitudes():
                     'feedbackID': q.feedbackID,
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
-                    'username': getUsername(uid),
+                    'username': getUsername(q.ownerID),
                     'chosenAttitude': att.attitude,
-                    'voted': voted}
+                    'voted': voted,
+                    'total_votes': total_votes}
+            if datetime.datetime.fromtimestamp(info['timeLimit']) < datetime.datetime.now():
+                info['expired'] = True
+            else:
+                info['expired'] = False
             result.append(info)
         result.sort(key=lambda k: k['time'], reverse=True)
         print('------------------successful get attitude---------------------')
@@ -890,8 +935,8 @@ def listHotTopics():
         {
             "questionID"    : 123456,
             "ownerID"       : 123456,
-            "ownername"      : "xxx",
-            "ownerImage"     : "xxx",
+            "ownername"     : "xxx",
+            "owner_image"   : "xxx",
             "time"          : <timestamp>,
             "tag"           : "Food",
             "question"      : "What ... ?",
@@ -951,7 +996,7 @@ def listHotTopics():
                 "questionID": id,
                 "ownerID": q.ownerID,
                 "ownerName": owner.username,
-                "ownerImage": owner.image_file,
+                "owner_image": owner.image_file,
                 "time": int(q.time.timestamp()),
                 "tag": q.tag,
                 "question": q.question,

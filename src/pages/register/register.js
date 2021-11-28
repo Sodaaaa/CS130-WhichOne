@@ -24,7 +24,11 @@ export default class register extends Component {
   formRef = React.createRef();
   constructor(props) {
     super(props);
-    this.state = { username: "", password: "" };
+    this.state = {
+      username: "",
+      password: "",
+      image_file: Math.floor(Math.random() * 100).toString(),
+    };
   }
 
   handleSubmit = () => {
@@ -37,8 +41,10 @@ export default class register extends Component {
         password: document.getElementById("registerPW").value,
         confirm_password: document.getElementById("registerConfirm").value,
         username: document.getElementById("registerUserName").value,
+        image_file: this.state.image_file,
       })
       .then((res) => {
+        console.log("image_file seed is", this.state.image_file);
         console.log(res);
         if (res.data.error) {
           console.log("error");
@@ -146,7 +152,7 @@ export default class register extends Component {
 
               <Form.Item
                 name="nickname"
-                label="Nickname"
+                label="Username"
                 tooltip="What do you want others to call you?"
                 rules={[
                   {

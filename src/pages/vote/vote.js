@@ -46,9 +46,13 @@ export default class vote extends Component {
     for (let i = 0; i < res.data.length; i++) {
       optionList.push(res.data[i].option_list);
       console.log(optionList);
+      let expiryDate = new Date(res.data[i].timeLimit * 1000);
+      console.log(res.data[i].timeLimit * 1000);
       let question = {
         title: res.data[i].question,
         description: res.data[i].tag,
+        expired: res.data[i].expired,
+        expiryTime: expiryDate.toLocaleDateString(),
         // content: <OptionList
         //             options={res.data[i].options}
         //             expired={false}
@@ -69,13 +73,13 @@ export default class vote extends Component {
         isAnonymous: res.data[i].anonymous,
         // '#E2D4F3'
         avatar:
-          res.data[i].avator === undefined ? (
+          res.data[i].owner_image === null ? (
             <Avatar
               style={{ backgroundColor: "#6C5CE7" }}
               icon={<UserOutlined />}
             />
           ) : (
-            <Avatar src={res.data[i].avator} />
+            <Avatar src={"https://joeschmoe.io/api/v1/" + res.data[i].owner_image} />
           ),
       };
       console.log(question);
@@ -122,13 +126,14 @@ export default class vote extends Component {
           },
         })
         .then((res) => {
-          // console.log(res);
+          console.log("filtered questions: ", res);
           this.populateList(res, questionList, optionList);
           this.setState({
             listData: questionList,
             optionListData: optionList,
             listPopulated: true,
           });
+          console.log("filtered optionListData", this.state.optionListData);
           // localStorage.setItem("tag", "null");
           localStorage.removeItem("tag");
           console.log(localStorage.getItem("tag"));

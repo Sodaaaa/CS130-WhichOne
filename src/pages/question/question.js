@@ -117,7 +117,10 @@ export default class question extends Component {
         } else {
           console.log("post successfully");
           this.showPostModal();
-          this.setState({ modalText: "You have successfully posted a question! Click Confirm to view it on the vote page..." });
+          this.setState({
+            modalText:
+              "You have successfully posted a question! Click Confirm to view it on the vote page...",
+          });
           // this.props.history.push('/vote');
           // window.location.href = "./vote";
         }
@@ -214,7 +217,7 @@ export default class question extends Component {
   };
 
   showPostModal = () => {
-    this.setState({ postVisible: true })
+    this.setState({ postVisible: true });
   };
 
   hidePostModal = () => {
@@ -422,9 +425,11 @@ export default class question extends Component {
                     // onCancel={this.hidePostModal}
                     okText="Confirm"
                     // cancelText="Cancel"
-                    footer={<Button key="back" onClick={this.handlePostConfirm}>
-                      Confirm
-                    </Button>}
+                    footer={
+                      <Button key="back" onClick={this.handlePostConfirm}>
+                        Confirm
+                      </Button>
+                    }
                     focusTriggerAfterClose={false}
                   >
                     <p>{this.state.modalText}</p>

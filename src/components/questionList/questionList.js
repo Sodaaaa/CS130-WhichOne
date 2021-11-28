@@ -148,6 +148,11 @@ class QuestionList extends Component {
     if (prevProps.questionList != this.props.questionList) {
       this.setState({ listData: this.props.questionList });
     }
+    // console.log('prevOptions: ', prevProps.optionList);
+    // console.log('this.props.options', this.props.optionList)
+    if (prevProps.optionList != this.props.optionList) {
+      this.setState({ optionListData: this.props.optionList });
+    }
   }
 
   render() {
@@ -166,7 +171,7 @@ class QuestionList extends Component {
           onChange: (page) => {
             console.log(page);
           },
-          pageSize: 8,
+          pageSize: 6,
         }}
         dataSource={this.state.listData}
         renderItem={(item, idx) => (
@@ -212,6 +217,7 @@ class QuestionList extends Component {
                       {item.dislikes}
                     </Space>
                   </span>,
+                  <p> {item.expired ? "expired on "+item.expiryTime : "expires on "+item.expiryTime} </p>,
                 ]}
                 // extra={
                 //   <img
@@ -248,7 +254,7 @@ class QuestionList extends Component {
                 {/* {item.content} */}
                 <OptionList
                   options={this.state.optionListData[idx]}
-                  expired={false}
+                  expired={item.expired}
                   voted={item.voted}
                   totalVotes={item.total_votes}
                   questionID={item.ID}

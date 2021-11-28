@@ -43,6 +43,14 @@ class OptionList extends Component {
     });
   };
 
+  // componentDidUpdate(prevProps) {
+  //   console.log('prevlistData: ', prevProps.listData);
+  //   console.log('this.props.listData', this.props.listData)
+  //   if (prevProps.listData != this.props.listData) {
+  //     this.setState({ listData: this.props.questionList });
+  //   }
+  // }
+
   vote = () => {
     console.log("option chosen: ", this.state.value);
     if (this.state.value != -1) {
@@ -71,6 +79,7 @@ class OptionList extends Component {
   render() {
     const { value, listData } = this.state;
     console.log("expired is ", this.state.expired);
+    console.log("optionList: ", listData);
     return (
       <div>
         <Radio.Group
@@ -78,8 +87,8 @@ class OptionList extends Component {
           onChange={this.onChange}
           value={value}
         >
-          {/* <Space direction="horizontal" wrap="true" size='large'> */}
-          <Space direction="vertical">
+          <Space direction="horizontal" wrap="true" size={70}>
+            {/* <Space direction="vertical"> */}
             {listData.map((option, i) => (
               <div key={i}>
                 <Radio
@@ -96,27 +105,37 @@ class OptionList extends Component {
                 >
                   <p>{option.option_name} </p>
                   {/* <p>{this.state.voted}</p> */}
-                  {/* <img 
-                  width={272}
-                  alt="logo"
-                  src="https://www.k9ofmine.com/wp-content/uploads/2021/03/white-colored-maltese-850x520.jpg"
-                /> */}
+                  {option.option_image === "none" ? null : (
+                    <img
+                      width={272}
+                      alt="logo"
+                      src={option.option_image}
+                      //"https://www.k9ofmine.com/wp-content/uploads/2021/03/white-colored-maltese-850x520.jpg"
+                    />
+                  )}
                 </Radio>
                 {this.state.voted != -1 || this.state.expired ? (
                   <div>
                     <Progress
                       percent={
-                        ((option.option_vote * 1.0) / this.state.totalVotes) *
-                        100
+                        this.state.totalVotes === 0
+                          ? 0
+                          : ((option.option_vote * 1.0) /
+                              this.state.totalVotes) *
+                            100
                       }
                       strokeColor="#E2D4F3"
                       format={() =>
-                        (
-                          ((option.option_vote * 1.0) / this.state.totalVotes) *
-                          100
-                        ).toFixed(2) + "%"
+                        this.state.totalVotes === 0
+                          ? 0
+                          : (
+                              ((option.option_vote * 1.0) /
+                                this.state.totalVotes) *
+                              100
+                            ).toFixed(2) + "%"
                       }
                     />
+                    {option.option_vote}
                     <Statistic
                       // value={this.state.listData[i].option_vote}
                       value={option.option_vote}
