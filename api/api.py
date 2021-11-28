@@ -29,19 +29,13 @@ class User(db.Model):
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    # confirm_password = db.Column(db.String(60), nullable=False)
-    image_file = db.Column(db.String(20))
-    # , nullable=False, default='default.jpg')
-    # questions = db.relationship('Question', backref='author', lazy=True)
+    image_file = db.Column(db.String(999), nullable=False)
 
-    def __init__(self, username, email, password, confirm_password, image_file=None):
+    def __init__(self, username, email, password, confirm_password, image_file):
         self.username = username
         self.email = email
         self.password = password
-        # self.confirm_password = confirm_password
-
-        if image_file != None:
-            self.image_file = image_file
+        self.image_file = image_file
 
     def __repr__(self):
         return f"User('{self.UID}', '{self.username}', '{self.email}', '{self.password}', '{self.image_file}')"
@@ -188,6 +182,7 @@ def register():
         password = request.json["password"]
         confirm_password = request.json["confirm_password"]
         username = request.json["username"]
+        image_file = request.json["image_file"]        
         print({"email": email, "password": password,
               "confirm_password": confirm_password, "username": username})
 
@@ -208,7 +203,7 @@ def register():
 
         # add a new user
         try:
-            user = User(username, email, password, confirm_password)
+            user = User(username, email, password, confirm_password, image_file)
             db.session.add(user)
             db.session.commit()
             print("Successfully add a user!")
