@@ -15,7 +15,7 @@ export default class login extends Component {
   formRef = React.createRef();
   constructor(props) {
     super(props);
-    this.state = { username: "", password: "", loggedIn: false};
+    this.state = { username: "", password: "", loggedIn: false };
   }
 
   handleSubmit = () => {

@@ -61,7 +61,7 @@ export default class profile extends Component {
         description: res.data[i].tag,
         // expired = res.data[i].expired,
         expired: res.data[i].expired,
-        total_votes:res.data[i].total_votes,
+        total_votes: res.data[i].total_votes,
         // content: <OptionList
         //             options={res.data[i].options}
         //             expired={false}
@@ -119,7 +119,10 @@ export default class profile extends Component {
                 icon={<UserOutlined />}
               />
             ) : (
-              <Avatar size={150} src={"https://joeschmoe.io/api/v1/"+res.data[0].image_file} />
+              <Avatar
+                size={150}
+                src={"https://joeschmoe.io/api/v1/" + res.data[0].image_file}
+              />
             ),
         });
         console.log("image file data is", res.data[0].image_file);

@@ -148,6 +148,11 @@ class QuestionList extends Component {
     if (prevProps.questionList != this.props.questionList) {
       this.setState({ listData: this.props.questionList });
     }
+    // console.log('prevOptions: ', prevProps.optionList);
+    // console.log('this.props.options', this.props.optionList)
+    if (prevProps.optionList != this.props.optionList) {
+      this.setState({ optionListData: this.props.optionList });
+    }
   }
 
   render() {
@@ -212,6 +217,7 @@ class QuestionList extends Component {
                       {item.dislikes}
                     </Space>
                   </span>,
+                  <p> expires on {item.expiryTime} </p>,
                 ]}
                 // extra={
                 //   <img
