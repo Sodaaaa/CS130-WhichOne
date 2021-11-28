@@ -83,7 +83,8 @@ user_vote_data = [
     {'userID': 5, 'questionID': 5, 'vote_result': 15},
     {'userID': 6, 'questionID': 5, 'vote_result': 15},
     {'userID': 5, 'questionID': 1, 'vote_result': 1},
-    {'userID': 6, 'questionID': 1, 'vote_result': 2}
+    {'userID': 6, 'questionID': 1, 'vote_result': 2},
+    {'userID': 5, 'questionID': 8, 'vote_result': 26}
 ]
 
 user_attitude_data = [
@@ -92,7 +93,8 @@ user_attitude_data = [
     {'userID': 5, 'questionID': 3, 'attitude': 1},
     {'userID': 6, 'questionID': 3, 'attitude': 0},
     {'userID': 2, 'questionID': 3, 'attitude': 1},
-    {'userID': 3, 'questionID': 3, 'attitude': 1}
+    {'userID': 3, 'questionID': 3, 'attitude': 1},
+    {'userID': 5, 'questionID': 8, 'attitude': 1}
 ]
 
 
