@@ -33,7 +33,6 @@ const normFile = (e) => {
 };
 
 export default class question extends Component {
-  //state = {visible: false, modalText: "", modalTopic: ""};
   constructor() {
     super();
     this.myLucky = React.createRef();
@@ -71,11 +70,6 @@ export default class question extends Component {
       hasUndefined: true,
     };
 
-    // this.props = {
-    //   customRequest: this.customRequest,
-    //   showUploadList: false, // 不展示文件列表
-    //   // beforeUpload: beforeUpload
-    // };
   }
 
   customRequest(option) {
@@ -206,12 +200,6 @@ export default class question extends Component {
 
   showAutoModal = () => {
     this.setState({ autoVisible: true })
-    // setModalText("hi")
-    // setConfirmLoading(true);
-    // setTimeout(() => {
-    //   setVisible(false);
-    //   setConfirmLoading(false);
-    // }, 2000);
   };
 
   hideAutoModal = () => {
@@ -299,7 +287,7 @@ export default class question extends Component {
                       {fields.map(({ key, name, fieldKey, ...restField }) => (
                         <Space
                           key={key}
-                          style={{ display: "flex", marginLeft: 130 }}
+                          style={{ display: "flex", marginLeft: 135 }}
                           align="baseline"
                         >
                           <Form.Item
@@ -310,7 +298,6 @@ export default class question extends Component {
                             rules={[
                               { required: true, message: "Missing options" },
                             ]}
-                            // style={{marginLeft: 20 }}
                           >
                             <Input
                               style={{ marginLeft: 20 }}
@@ -324,13 +311,9 @@ export default class question extends Component {
                             fieldKey={[fieldKey, "option_image"]}
                             valuePropName="fileList"
                             getValueFromEvent={normFile}
-                            // extra="choose an image to show your options"
                           >
-                            {/* <input type="file" onChange={this.handleFileChange}/> */}
                             <Upload
                               name="logo"
-                              // action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                              // action="/upload.do"
                               customRequest={this.customRequest}
                               listType="picture"
                               maxCount={1}
@@ -407,22 +390,16 @@ export default class question extends Component {
                           buttons={this.state.buttons}
                           defaultStyle={this.state.defaultStyle}
                           onStart={() => {
-                            // 点击抽奖按钮会触发star回调
-                            // 调用抽奖组件的play方法开始游戏
                             this.myLucky.current.play();
-                            // 模拟调用接口异步抽奖
                             setTimeout(() => {
-                              // 假设拿到后端返回的中奖索引
                               const index = (Math.random() * 6) >> 0;
-                              // 调用stop停止旋转并传递中奖索引
                               this.myLucky.current.stop(index);
                             }, 2500);
                           }}
                           onEnd={(prize) => {
-                            // 抽奖结束会触发end回调
                             console.log(prize);
                             alert(
-                              "We auto select an option for you:" + prize.title
+                              "We auto select an option for you: " + prize.title
                             );
                             this.state.optionList = [];
                           }}
