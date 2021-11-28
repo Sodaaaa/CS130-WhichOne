@@ -101,7 +101,7 @@ class Option(db.Model):
     questionID = db.Column(db.Integer, db.ForeignKey(
         'question.questionID'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    image = db.Column(db.String(50))
+    image = db.Column(db.String(1000000))
     votes = db.Column(db.Integer, nullable=False)
 
     def __init__(self, name, image=None):
@@ -304,7 +304,10 @@ def recordPostedQuestion():
             if 'option_image' not in op:
                 option = Option(op['option_name'])
             else:
-                option = Option(op['option_name'], op['option_image'])
+                print(op['option_image'])
+                image_str = op['option_name'][0]['option_image'][0]['thumbUrl']
+                print(image_str)
+                option = Option(op['option_name'])
             question.option.append(option)
         try:
 
