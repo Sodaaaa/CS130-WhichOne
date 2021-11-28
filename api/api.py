@@ -107,7 +107,7 @@ class Option(db.Model):
     def __init__(self, name, image=None):
         self.name = name
         if image != None:
-            self.image = None
+            self.image = image
         else:
             self.image = 'none'
         self.votes = 0
