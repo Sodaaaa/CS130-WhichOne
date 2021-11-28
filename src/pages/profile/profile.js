@@ -24,24 +24,6 @@ function callback(key) {
   console.log(key);
 }
 
-// function getBase64(img, callback) {
-//   const reader = new FileReader();
-//   reader.addEventListener('load', () => callback(reader.result));
-//   reader.readAsDataURL(img);
-// }
-
-// function beforeUpload(file) {
-//   const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-//   if (!isJpgOrPng) {
-//     message.error('You can only upload JPG/PNG file!');
-//   }
-//   const isLt2M = file.size / 1024 / 1024 < 2;
-//   if (!isLt2M) {
-//     message.error('Image must smaller than 2MB!');
-//   }
-//   return isJpgOrPng && isLt2M;
-// }
-
 export default class profile extends Component {
   constructor(props) {
     super(props);
@@ -63,24 +45,6 @@ export default class profile extends Component {
     };
   }
 
-  // handleUpload = info => {
-  //   console.log(this.state.imageUrl);
-  //   if (info.file.status === 'uploading') {
-  //     this.setState({ loading: true });
-  //     return;
-  //   }
-  //   if (info.file.status === 'done') {
-  //     // Get this url from response in real world.
-  //     getBase64(info.file.originFileObj, imageUrl =>
-  //       this.setState({
-  //         imageUrl,
-  //         loading: false,
-  //       }),
-  //     );
-  //     console.log(this.state.imageUrl);
-  //   }
-  // };
-
   handleSubmit = () => {
     //event.preventDefault();
     this.setState({ loggedIn: true });
@@ -96,7 +60,8 @@ export default class profile extends Component {
         title: res.data[i].question,
         description: res.data[i].tag,
         // expired = res.data[i].expired,
-        expired: false,
+        expired: res.data[i].expired,
+        total_votes:res.data[i].total_votes,
         // content: <OptionList
         //             options={res.data[i].options}
         //             expired={false}
@@ -144,19 +109,20 @@ export default class profile extends Component {
       })
       .then((res) => {
         console.log(res);
-        console.log("avatar:" + res.data.image_file);
+        console.log("avatar:" + res.data[0].image_file);
         this.setState({
           avatar:
-            res.data.image_file === undefined ? (
+            res.data[0].image_file === undefined ? (
               <Avatar
                 size={100}
                 style={{ backgroundColor: "#6C5CE7" }}
                 icon={<UserOutlined />}
               />
             ) : (
-              <Avatar src={res.data.image_file} />
+              <Avatar size={150} src={"https://joeschmoe.io/api/v1/"+res.data[0].image_file} />
             ),
         });
+        console.log("image file data is", res.data[0].image_file);
         this.setState({ username: res.data[0].username });
         this.setState({ email: res.data[0].email });
       });
@@ -252,20 +218,6 @@ export default class profile extends Component {
               >
                 Log Out
               </Button>
-              <Upload
-                className="avatar-uploader"
-                name="avatar"
-                // action="/upload.do"
-                listType="picture"
-                showUploadList={false}
-                // action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                // beforeUpload={beforeUpload}
-                // onChange={this.handleUpload}
-              >
-                <Button icon={<UploadOutlined />} style={{ marginLeft: 20 }}>
-                  Upload Avatar
-                </Button>
-              </Upload>
             </div>
             <Descriptions bordered>
               <Descriptions.Item label="UserName">
