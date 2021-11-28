@@ -123,6 +123,7 @@ class Option(db.Model):
     def __repr__(self):
         return f"Option('{self.OptionID}', '{self.questionID}', '{self.votes}', '{self.name}', '{self.image}')"
 
+
 class Feedback(db.Model):
     __tablename__ = "feedback"
     FeedbackID = db.Column(db.Integer, primary_key=True)
@@ -264,6 +265,7 @@ def getUserinfo():
         print(error)
         return jsonify({"error": error})
 
+
 @app.route('/api/recordPostedQuestion', methods=["POST"])
 def recordPostedQuestion():
     """ Record the posted question into our database.
@@ -375,7 +377,7 @@ def getAllQuestions():
                        'likes': q.likes,
                        'dislikes': q.dislikes,
                        'feedbackID': q.feedbackID,
-                       'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
+                       'timeLimit': int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
     for q in question_dicts:
         option_list = Option.query.filter(
             Option.questionID == q['questionID']).all()
@@ -463,7 +465,7 @@ def listTopics():
                             'likes': q.likes,
                             'dislikes': q.dislikes,
                             'feedbackID': q.feedbackID,
-                            'timeLimit': int(q.timeLimit.timestamp())} for q in questions]
+                            'timeLimit': int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
 
     for q in question_dicts:
         option_list = Option.query.filter(
@@ -923,7 +925,7 @@ def listHotTopics():
         for tag_ in tags:
             q = Question.query\
                 .filter_by(tag=tag_)\
-                .filter(Question.timeLimit < datetime.datetime.now())\
+                .filter(Question.timeLimit > datetime.datetime.now())\
                 .order_by((Question.likes+Question.dislikes).desc())\
                 .first()
             if not q:

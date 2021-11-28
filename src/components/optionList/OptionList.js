@@ -44,23 +44,28 @@ class OptionList extends Component {
   };
 
   vote = () => {
-    this.state.listData[this.state.idx].option_vote += 1;
-    this.state.totalVotes += 1;
-    this.setState({
-      voted: this.state.value,
-      listData: this.state.listData,
-    });
-    axios
-      .post("/api/recordVote", {
-        userID: Number(localStorage.getItem("UID")),
-        questionID: Number(this.state.questionID),
-        optionID: Number(this.state.value),
-      })
-      .then((res) => {
-        console.log(res);
-        this.setState({ listData: this.state.listData });
-        // this.onTriggerCallBack();
+    console.log("option chosen: ", this.state.value);
+    if (this.state.value != -1) {
+      this.state.listData[this.state.idx].option_vote += 1;
+      this.state.totalVotes += 1;
+      this.setState({
+        voted: this.state.value,
+        listData: this.state.listData,
       });
+      axios
+        .post("/api/recordVote", {
+          userID: Number(localStorage.getItem("UID")),
+          questionID: Number(this.state.questionID),
+          optionID: Number(this.state.value),
+        })
+        .then((res) => {
+          console.log(res);
+          this.setState({ listData: this.state.listData });
+          // this.onTriggerCallBack();
+        });
+    } else {
+      alert("Please select an option!");
+    }
   };
 
   render() {
@@ -97,7 +102,7 @@ class OptionList extends Component {
                   src="https://www.k9ofmine.com/wp-content/uploads/2021/03/white-colored-maltese-850x520.jpg"
                 /> */}
                 </Radio>
-                {this.state.voted === -1 ? null : (
+                {this.state.voted != -1 || this.state.expired ? (
                   <div>
                     <Progress
                       percent={
@@ -119,7 +124,7 @@ class OptionList extends Component {
                       valueStyle={{ fontSize: 12 }}
                     />
                   </div>
-                )}
+                ) : null}
               </div>
             ))}
             {/* <Radio className="option" value={1}>
