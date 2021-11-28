@@ -78,8 +78,8 @@ class OptionList extends Component {
           onChange={this.onChange}
           value={value}
         >
-          {/* <Space direction="horizontal" wrap="true" size='large'> */}
-          <Space direction="vertical">
+          <Space direction="horizontal" wrap="true" size={70}>
+            {/* <Space direction="vertical"> */}
             {listData.map((option, i) => (
               <div key={i}>
                 <Radio
@@ -96,11 +96,14 @@ class OptionList extends Component {
                 >
                   <p>{option.option_name} </p>
                   {/* <p>{this.state.voted}</p> */}
-                  {/* <img 
-                  width={272}
-                  alt="logo"
-                  src="https://www.k9ofmine.com/wp-content/uploads/2021/03/white-colored-maltese-850x520.jpg"
-                /> */}
+                  {option.option_image === "none" ? null : (
+                    <img
+                      width={272}
+                      alt="logo"
+                      src={option.option_image}
+                      //"https://www.k9ofmine.com/wp-content/uploads/2021/03/white-colored-maltese-850x520.jpg"
+                    />
+                  )}
                 </Radio>
                 {this.state.voted != -1 || this.state.expired ? (
                   <div>
