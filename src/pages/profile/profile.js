@@ -1,5 +1,13 @@
 import React, { Component } from "react";
-import { Descriptions, Avatar, Image, Button, Upload, message, Tabs } from "antd";
+import {
+  Descriptions,
+  Avatar,
+  Image,
+  Button,
+  Upload,
+  message,
+  Tabs,
+} from "antd";
 import { UploadOutlined, UserOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { Layout } from "antd/lib";
@@ -267,7 +275,7 @@ export default class profile extends Component {
               </Descriptions.Item>
             </Descriptions>
           </div>
-          <div className = "history-data">
+          <div className="history-data">
             <Tabs defaultActiveKey="1" onChange={callback}>
               <TabPane tab="Posted Questions" key="1">
                 {this.state.questionPopulated === false ? null : (

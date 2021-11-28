@@ -250,6 +250,7 @@ class QuestionList extends Component {
                   options={this.state.optionListData[idx]}
                   expired={item.expired}
                   voted={item.voted}
+                  totalVotes={item.total_votes}
                   questionID={item.ID}
                   // parentCallback={this.handleOptionCallBack}
                 />

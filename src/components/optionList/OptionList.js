@@ -11,6 +11,7 @@ class OptionList extends Component {
       listData: this.props.options,
       expired: this.props.expired,
       voted: this.props.voted,
+      totalVotes: this.props.totalVotes,
       questionID: this.props.questionID,
       loggedIn: localStorage.getItem("loggedIn") == "true",
     };
@@ -44,6 +45,7 @@ class OptionList extends Component {
 
   vote = () => {
     this.state.listData[this.state.idx].option_vote += 1;
+    this.state.totalVotes += 1;
     this.setState({
       voted: this.state.value,
       listData: this.state.listData,
@@ -97,11 +99,23 @@ class OptionList extends Component {
                 </Radio>
                 {this.state.voted === -1 ? null : (
                   <div>
-                    <Progress percent={50} strokeColor="#E2D4F3" />
+                    <Progress
+                      percent={
+                        ((option.option_vote * 1.0) / this.state.totalVotes) *
+                        100
+                      }
+                      strokeColor="#E2D4F3"
+                      format={() =>
+                        (
+                          ((option.option_vote * 1.0) / this.state.totalVotes) *
+                          100
+                        ).toFixed(2) + "%"
+                      }
+                    />
                     <Statistic
                       // value={this.state.listData[i].option_vote}
                       value={option.option_vote}
-                      suffix={"/" + 150}
+                      suffix={"/ " + this.state.totalVotes}
                       valueStyle={{ fontSize: 12 }}
                     />
                   </div>
@@ -145,7 +159,9 @@ class OptionList extends Component {
           onClick={() => this.vote()}
           className="vote-submit-btn"
           style={{ marginTop: 10 }}
-          disabled={this.state.voted != -1}
+          disabled={
+            !this.state.loggedIn || this.state.expired || this.state.voted != -1
+          }
         >
           Vote
         </Button>
