@@ -87,6 +87,7 @@ export default class profile extends Component {
       let question = {
         title: res.data[i].question,
         description: res.data[i].tag,
+        expired = res.data[i].expired,
         // content: <OptionList
         //             options={res.data[i].options}
         //             expired={false}
