@@ -653,7 +653,7 @@ def getHistoricalQuestions():
         options = Option.query.all()
         result = []
         for q in postedQ:
-            att = 0
+            att = -1
             attitude = list(filter(lambda x: x.userID == uid and x.questionID == q.questionID, userAttitudes))
             if len(attitude) != 0:
                 att = attitude[0].attitude
@@ -732,7 +732,7 @@ def getVotes():
         for vote in userVotes:
             q = list(filter(lambda x: x.questionID ==
                      vote.questionID, questions))[0]
-            att = 0
+            att = -1
             attitude = list(filter(lambda x: x.userID == uid and x.questionID == q.questionID, userAttitudes))
             if len(attitude) != 0:
                 att = attitude[0].attitude
