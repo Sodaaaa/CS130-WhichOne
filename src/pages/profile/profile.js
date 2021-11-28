@@ -46,7 +46,9 @@ export default class profile extends Component {
       optionListData2: [],
       attitudeData: [],
       optionListData3: [],
-      populated: false,
+      questionPopulated: false,
+      votePopulated: false,
+      attitudePopulated: false,
       username: null,
       email: null,
       loading: false,
@@ -149,7 +151,7 @@ export default class profile extends Component {
         this.setState({
           questionlistData: questionList,
           optionListData: optionList,
-          populated: true,
+          questionPopulated: true,
         });
         console.log("option1: " + this.state.optionListData);
       });
@@ -161,12 +163,12 @@ export default class profile extends Component {
         UID: Number(localStorage.getItem("UID")),
       })
       .then((res) => {
-        // console.log("vote result is", res);
+        console.log("vote result is", res);
         this.populateList(res, votelist, optionList2);
         this.setState({
           votelistData: votelist,
           optionListData2: optionList2,
-          populated: true,
+          votePopulated: true,
         });
         console.log("option2: " + this.state.optionListData2);
       });
@@ -183,7 +185,7 @@ export default class profile extends Component {
         this.setState({
           attitudeData: attitudelist,
           optionListData3: optionList3,
-          populated: true,
+          attitudePopulated: true,
         });
         console.log("option3: " + this.state.optionListData3);
       });
@@ -254,7 +256,7 @@ export default class profile extends Component {
           <div className="posted-questions">
             Posted Questions
             <br />
-            {this.state.populated === false ? null : (
+            {this.state.questionPopulated === false ? null : (
               <QuestionList
                 questionList={this.state.questionlistData}
                 optionList={this.state.optionListData}
@@ -264,7 +266,7 @@ export default class profile extends Component {
           <div className="past-votes">
             Your Votes
             <br />
-            {this.state.populated === false ? null : (
+            {this.state.votePopulated === false ? null : (
               <QuestionList
                 questionList={this.state.votelistData}
                 optionList={this.state.optionListData2}
@@ -274,7 +276,7 @@ export default class profile extends Component {
           <div className="past-attitude">
             Questions you liked/disliked
             <br />
-            {this.state.populated === false ? null : (
+            {this.state.attitudePopulated === false ? null : (
               <QuestionList
                 questionList={this.state.attitudeData}
                 optionList={this.state.optionListData3}
