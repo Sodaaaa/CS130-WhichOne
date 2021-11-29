@@ -115,7 +115,8 @@ class MyTestClass(unittest.TestCase):
         self.assertEqual(response.getcode(), 200)
         print("Finish test : success the getUserinfo function, code is 200")
 
-    def test_right_recordVote(self):
+    def test_recordVote(self):
+        generate_fake_data()
         self.__request_data = {
             "userID"        : 5,
             "questionID"    : 1,
@@ -128,9 +129,12 @@ class MyTestClass(unittest.TestCase):
         response = urllib.request.urlopen(req)
         print("Start to test recordVote function")
         self.assertEqual(response.getcode(), 200)
-        print("Finish test : success the recordVote function, code is 200")
+        response_json = json.loads(bytes.decode(response.read(), 'utf-8'))
+        self.assertEqual(response_json['success'], True)
+        print("Finish test : success recording vote, code is 200")
     
-    def test_right_recordAttitude(self):
+    def test_recordAttitude(self):
+        generate_fake_data()
         self.__request_data = {
             "userID"        : 5,
             "questionID"    : 1,
@@ -143,7 +147,9 @@ class MyTestClass(unittest.TestCase):
         response = urllib.request.urlopen(req)
         print("Start to test recordAttitude function")
         self.assertEqual(response.getcode(), 200)
-        print("Finish test : success the recordAttitude function, code is 200")
+        response_json = json.loads(bytes.decode(response.read(), 'utf-8'))
+        self.assertEqual(response_json['success'], True)
+        print("Finish test : success recording attitude, code is 200")
 
     def setUp(self):
         drop_all_and_create_all()
