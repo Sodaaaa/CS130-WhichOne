@@ -42,14 +42,6 @@ export default class question extends Component {
       modalText: "",
       modalTopic: "",
       blocks: [{ padding: "13px", background: "#6C5CE7" }],
-      // prizes: [
-      //   { title: '1元红包', background: '#E2D4F3', fonts: [{ text: '1元红包', top: '18%' }]},
-      //   { title: '100元红包', background: '#E2D4F3', fonts: [{ text: '100元红包', top: '18%' }] },
-      //   { title: '0.5元红包', background: '#E2D4F3', fonts: [{ text: '0.5元红包', top: '18%' }] },
-      //   { title: '2元红包', background: '#E2D4F3', fonts: [{ text: '2元红包', top: '18%' }] },
-      //   { title: '10元红包', background: '#E2D4F3', fonts: [{ text: '10元红包', top: '18%' }] },
-      //   { title: '50元红包', background: '#E2D4F3', fonts: [{ text: '50元红包', top: '18%' }] },
-      // ],
       buttons: [
         { radius: "50px", background: "#6C5CE7" },
         { radius: "45px", background: "#fff" },
@@ -347,7 +339,7 @@ export default class question extends Component {
                   )}
                 </Form.List>
                 <Form.Item
-                  label="Expired Date"
+                  label="Expire Date"
                   name="expiredDate"
                   rules={[{ required: true, message: "Missing expired date" }]}
                 >
