@@ -202,8 +202,7 @@ export default class question extends Component {
   };
 
   handlePostConfirm = () => {
-    this.hidePostModal();
-    this.formRef.current.resetFields();
+    this.hidePostModal();    
     window.location.href = "./vote";
   };
 
@@ -213,6 +212,7 @@ export default class question extends Component {
 
   hidePostModal = () => {
     this.setState({ postVisible: false });
+    this.formRef.current.resetFields();
     this.state.optionList = [];
   };
 
@@ -413,7 +413,7 @@ export default class question extends Component {
                     title="Post a Question"
                     visible={this.state.postVisible}
                     onOk={this.handlePostConfirm}
-                    // onCancel={this.hidePostModal}
+                    onCancel={this.hidePostModal}
                     okText="Confirm"
                     // cancelText="Cancel"
                     footer={
