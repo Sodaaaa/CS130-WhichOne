@@ -1,6 +1,7 @@
 .profile-content {
   /* background-color: white; */
   background: url("../../img/background.jfif") no-repeat;
+  background-size: cover;
 }
 
 .user-profile {

@@ -79,7 +79,9 @@ export default class vote extends Component {
               icon={<UserOutlined />}
             />
           ) : (
-            <Avatar src={"https://joeschmoe.io/api/v1/" + res.data[i].owner_image} />
+            <Avatar
+              src={"https://joeschmoe.io/api/v1/" + res.data[i].owner_image}
+            />
           ),
       };
       console.log(question);
@@ -160,6 +162,7 @@ export default class vote extends Component {
           style={{
             padding: "0px 50px",
             background: `url(${Background}) no-repeat`,
+            backgroundSize: "cover",
           }}
           className="vote-content"
         >

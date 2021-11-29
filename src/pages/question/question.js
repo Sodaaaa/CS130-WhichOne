@@ -61,7 +61,6 @@ export default class question extends Component {
       optionList: [],
       hasUndefined: true,
     };
-
   }
 
   customRequest(option) {
@@ -194,7 +193,7 @@ export default class question extends Component {
   };
 
   showAutoModal = () => {
-    this.setState({ autoVisible: true })
+    this.setState({ autoVisible: true });
   };
 
   hideAutoModal = () => {

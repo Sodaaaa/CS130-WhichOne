@@ -89,7 +89,9 @@ export default class profile extends Component {
               icon={<UserOutlined />}
             />
           ) : (
-            <Avatar src={"https://joeschmoe.io/api/v1/" + res.data[i].owner_image} />
+            <Avatar
+              src={"https://joeschmoe.io/api/v1/" + res.data[i].owner_image}
+            />
           ),
       };
       // console.log(question);

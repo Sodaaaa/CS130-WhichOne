@@ -33,8 +33,8 @@ export default class MenuBar extends Component {
     }
     return (
       <Header>
-        <div className="logo">         
-          <img className="logo-img" src="logo.png"/>
+        <div className="logo">
+          <img className="logo-img" src="logo.png" />
           <span> Which One </span>
         </div>
         <Menu
