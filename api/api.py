@@ -189,7 +189,7 @@ class UserAttitude(db.Model):
 @app.route("/api/register", methods=["POST"])
 def register():
     """ request an email address, a password, a confirm_password, 
-    a username and a random user image string
+    a username and a random user image string,
     return {"success": True} if successfuly register a new user, 
     otherwise return corresponding error"""
     try:
@@ -345,7 +345,7 @@ def recordPostedQuestion():
 @app.route('/api/getAllQuestions', methods=["GET"])
 def getAllQuestions():
     """ 
-    The request should provide a 'UID' parameter which is a int
+    The request should provide a 'UID' parameter which is a int.
     Return all questions. 
     """
     """
@@ -432,10 +432,10 @@ def getAllQuestions():
 @app.route('/api/listTopics', methods=["GET"])
 def listTopics():
     """ 
-    The request should provide a 'tags' parameter whose value is a string
-    The request should provide a 'UID' parameter which is a int
-    Different tags should be separated by coma
-    Example url: "http://localhost:5000/api/listTopics?tags=abc,def"
+    The request should provide a 'tags' parameter whose value is a string.
+    The request should provide a 'UID' parameter which is a int.
+    Different tags should be separated by coma.
+    Example url: "http://localhost:5000/api/listTopics?tags=abc,def".
     Return all topics of specific tags. 
     """
     """
@@ -526,8 +526,10 @@ def listTopics():
 
 @app.route('/api/recordVote', methods=["POST"])
 def recordVote():
-    """ Record the "vote" action of a user. 
+    """ Record the "vote" action of a user, given userID, questionID and optionID. 
     This API use the POST method.
+    """
+    """
     The posted json object should be in the form below:
     {
         "userID"        : 123456,
@@ -557,8 +559,10 @@ def recordVote():
 
 @app.route('/api/recordAttitude', methods=["POST"])
 def recordAttitude():
-    """ Record the "like" or "dislike" action of a user. 
+    """ Record the "like" or "dislike" action of a user, given userID, questionID and attitude. 
     This API use the POST method.
+    """
+    """
     The posted json object should be in the form below:
     ("attitude" is an interger, 0 represents like, 1 represents dislike.)
     {
@@ -607,8 +611,10 @@ def recordAttitude():
 
 @app.route('/api/cancelAttitude', methods=["POST"])
 def cancelAttitude():
-    """ Cancel the "like" or "dislike" action of a user. 
+    """ Cancel the "like" or "dislike" action of a user, given userID, questionID and attitude. 
     This API use the POST method.
+    """
+    """
     The posted json object should be in the form below:
     ("attitude" is an interger, 0 represents like, 1 represents dislike.)
     {
@@ -925,18 +931,13 @@ def getAttitudes():
         print(e)
         return jsonify({"error": e})
 
-
-@app.route('/api/provideOptions')
-def provideOptions(question):
-    """ Return a list of possible options based on the question. """
-    pass
-
-
 @app.route('/api/listHotTopics', methods=["GET"])
 def listHotTopics():
     """ Return the hottest topic (with most likes + dislikes) of each tag. 
     The request should provide a 'UID' parameter.
     This API use the GET method.
+    """
+    """
     The returned json object is be in the form below:
     [
         {
