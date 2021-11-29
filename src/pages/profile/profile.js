@@ -1,10 +1,5 @@
 import React, { Component } from "react";
-import {
-  Descriptions,
-  Avatar,
-  Button,
-  Tabs,
-} from "antd";
+import { Descriptions, Avatar, Button, Tabs } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 // import { Link } from "react-router-dom";
 import { Layout } from "antd/lib";

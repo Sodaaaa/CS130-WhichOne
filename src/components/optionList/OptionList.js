@@ -115,7 +115,9 @@ class OptionList extends Component {
                     />
                   )}
                 </Radio>
-                {this.state.voted != -1 || this.state.expired || this.state.userID === Number(localStorage.getItem('UID')) ? (
+                {this.state.voted != -1 ||
+                this.state.expired ||
+                this.state.userID === Number(localStorage.getItem("UID")) ? (
                   <div>
                     <Progress
                       percent={

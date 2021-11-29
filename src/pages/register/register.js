@@ -1,10 +1,6 @@
 import React, { Component } from "react";
 import { Layout } from "antd/lib";
-import {
-  Form,
-  Input,
-  Button,
-} from "antd";
+import { Form, Input, Button } from "antd";
 import { Redirect } from "react-router-dom";
 import "./register.css";
 import MenuBar from "../../components/MenuBar/MenuBar";

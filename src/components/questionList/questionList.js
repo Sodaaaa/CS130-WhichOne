@@ -38,6 +38,7 @@ class QuestionList extends Component {
       listData: this.props.questionList,
       loggedIn: localStorage.getItem("loggedIn") == "true",
       optionListData: this.props.optionList,
+      currentPage: 0,
     };
   }
 
@@ -167,7 +168,8 @@ class QuestionList extends Component {
         size="large"
         pagination={{
           onChange: (page) => {
-            console.log(page);
+            console.log("page", page);
+            this.setState({ currentPage: page - 1 });
           },
           pageSize: 6,
         }}
@@ -256,7 +258,9 @@ class QuestionList extends Component {
                 />
                 {/* {item.content} */}
                 <OptionList
-                  options={this.state.optionListData[idx]}
+                  options={
+                    this.state.optionListData[idx + 6 * this.state.currentPage]
+                  }
                   expired={item.expired}
                   voted={item.voted}
                   totalVotes={item.total_votes}

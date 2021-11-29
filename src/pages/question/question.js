@@ -91,8 +91,7 @@ export default class question extends Component {
     if (values.options == undefined || values.options.length < 2) {
       this.showPostFailedModal();
       this.setState({ modalText: "Please provide at least TWO options!" });
-    }
-    else{    
+    } else {
       axios
         .post("/api/recordPostedQuestion", {
           ownerID: localStorage.getItem("UID"),
@@ -134,7 +133,7 @@ export default class question extends Component {
   autoSelect = () => {
     // console.log(values);
     this.setState({ hasUndefined: true });
-    
+
     var topic = this.formRef.current.getFieldValue("topic");
     var options = this.formRef.current.getFieldValue("options");
     // console.log(this.state.modalText);
@@ -221,7 +220,7 @@ export default class question extends Component {
   };
 
   handlePostConfirm = () => {
-    this.hidePostModal();    
+    this.hidePostModal();
     window.location.href = "./vote";
   };
 
