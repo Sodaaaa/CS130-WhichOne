@@ -27,43 +27,88 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import time
-from os import name
+import re
 import enum
-from flask import Flask, request, jsonify, url_for, flash, redirect, render_template
+import pprint
+from flask import Flask, json, request, jsonify, url_for, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from forms import RegistrationForm, LoginForm
+import datetime
 
 app = Flask(__name__)
 app.config[&#39;SQLALCHEMY_DATABASE_URI&#39;] = &#39;sqlite:///data.db&#39;
 app.config[&#39;SQLALCHEMY_TRACK_MODIFICATIONS&#39;] = False
 app.config[&#39;SECRET_KEY&#39;] = &#39;0bbabb38f22b256ab947284622266494&#39;
 db = SQLAlchemy(app)
+pp = pprint.PrettyPrinter(indent=4)
+
+
+def expired(dt):
+    return dt &lt; datetime.datetime.now()
+
+
+def time_to_expire(expire_dt):
+    return expire_dt.timestamp() - datetime.datetime.now().timestamp()
 
 
 class User(db.Model):
+    __tablename__ = &#34;user&#34;
     UID = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
+    username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False,
-                           default=&#39;default.jpg&#39;)
     password = db.Column(db.String(60), nullable=False)
-    questions = db.relationship(&#39;Question&#39;, backref=&#39;author&#39;, lazy=True)
+    image_file = db.Column(db.String(999))
 
-    def __init__(self, username, email, password, image_file=None):
+    def __init__(self, username, email, password, confirm_password, image_file=None):
         self.username = username
         self.email = email
         self.password = password
-
         if image_file != None:
             self.image_file = image_file
+        else:
+            self.image_file = None
 
     def __repr__(self):
-        return f&#34;User(&#39;{self.UID}&#39;, &#39;{self.username}&#39;, &#39;{self.email}&#39;, &#39;{self.image_file}&#39;)&#34;
+        return f&#34;User(&#39;{self.UID}&#39;, &#39;{self.username}&#39;, &#39;{self.email}&#39;, &#39;{self.password}&#39;, &#39;{self.image_file}&#39;)&#34;
+
+
+def getAllUsers():
+    &#34;&#34;&#34;return a list of all current users&#39; information dictionary&#34;&#34;&#34;
+    users = User.query.all()
+    return [{&#34;UID&#34;: i.UID, &#34;username&#34;: i.username, &#34;email&#34;: i.email, &#34;password&#34;: i.password} for i in users]
+
+
+def getUser(email):
+    &#34;&#34;&#34;given user&#39;s email, return UID, username, email and password of this user&#34;&#34;&#34;
+    users = User.query.all()
+    user = list(filter(lambda x: x.email == email, users))[0]
+    return {&#34;UID&#34;: user.UID, &#34;username&#34;: user.username, &#34;email&#34;: user.email, &#34;password&#34;: user.password}
+
+
+def getUID(email):
+    &#34;&#34;&#34;given user&#39;s email, return this user&#39;s UID&#34;&#34;&#34;
+    users = User.query.all()
+    user = list(filter(lambda x: x.email == email, users))[0]
+    return user.UID
+
+
+def getUserImage(UID):
+    &#34;&#34;&#34;given user&#39;s UID, return this user&#39;s user image&#34;&#34;&#34;
+    users = User.query.all()
+    user = list(filter(lambda x: x.UID == UID, users))[0]
+    return user.image_file
+
+
+def getUsername(UID):
+    &#34;&#34;&#34;given user&#39;s UID, return this user&#39;s username&#34;&#34;&#34;
+    users = User.query.all()
+    user = list(filter(lambda x: x.UID == UID, users))[0]
+    return user.username
 
 
 class Question(db.Model):
-    QuestionID = db.Column(db.Integer, primary_key=True)
+    __tablename__ = &#34;question&#34;
+    questionID = db.Column(db.Integer, primary_key=True)
     ownerID = db.Column(db.Integer, db.ForeignKey(&#39;user.UID&#39;), nullable=False)
     time = db.Column(db.DateTime)
     tag = db.Column(db.String(20))
@@ -71,14 +116,12 @@ class Question(db.Model):
     anonymous = db.Column(db.Boolean)
     likes = db.Column(db.Integer)
     dislikes = db.Column(db.Integer)
-    feedback = db.Column(db.Integer)
-    isAutoSelect = db.Column(db.Boolean)
-    timeLimit = db.Column(db.Integer)
+    timeLimit = db.Column(db.DateTime)
 
-    options = db.relationship(
+    option = db.relationship(
         &#34;Option&#34;, cascade=&#34;all, delete&#34;, backref=&#34;Question&#34;)
 
-    def __init__(self, ownerID, time, tag, question, anonymous, isAutoSelect, timeLimit):
+    def __init__(self, ownerID, time, tag, question, anonymous,  timeLimit):
         self.ownerID = ownerID
         self.time = time
         self.tag = tag
@@ -86,52 +129,31 @@ class Question(db.Model):
         self.anonymous = anonymous
         self.likes = 0
         self.dislikes = 0
-        self.feedbackID = -1
-        self.isAutoSelect = isAutoSelect
         self.timeLimit = timeLimit
 
     def __repr__(self):
-        return f&#34;Question(&#39;{self.QuestionID}&#39;, &#39;{self.ownerID}&#39;, &#39;{self.time}&#39;)&#34;
+        return f&#34;Question(&#39;{self.questionID}&#39;, &#39;{self.ownerID}&#39;, &#39;{self.time}&#39;)&#34;
 
 
 class Option(db.Model):
+    __tablename__ = &#34;option&#34;
     OptionID = db.Column(db.Integer, primary_key=True)
     questionID = db.Column(db.Integer, db.ForeignKey(
-        &#39;question.QuestionID&#39;), nullable=False)
+        &#39;question.questionID&#39;), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    image = db.Column(db.String(50))
+    image = db.Column(db.String(100000000000000000000000000000))
     votes = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, questionID, name, image=None):
-        self.questionID = questionID
+    def __init__(self, name, image=None):
         self.name = name
         if image != None:
-            self.image = None
+            self.image = image
         else:
             self.image = &#39;none&#39;
         self.votes = 0
 
     def __repr__(self):
-        return f&#34;Option(&#39;{self.OptionID}&#39;, &#39;{self.questionID}&#39;, &#39;{self.votes}&#39;)&#34;
-
-
-class Feedback(db.Model):
-    FeedbackID = db.Column(db.Integer, primary_key=True)
-    questionID = db.Column(db.Integer, db.ForeignKey(
-        &#39;question.QuestionID&#39;), nullable=False)
-    text = db.Column(db.String(500))
-    image = db.Column(db.String(50))
-
-    def __init__(self, questionID, text, image=None):
-        self.questionID = questionID
-        self.text = text
-        if image != None:
-            self.image = None
-        else:
-            self.image = &#39;none&#39;
-
-    def __repr__(self):
-        return f&#34;Feedback(&#39;{self.FeedbackID}&#39;, &#39;{self.questionID}&#39;, &#39;{self.text}&#39;)&#34;
+        return f&#34;Option(&#39;{self.OptionID}&#39;, &#39;{self.questionID}&#39;, &#39;{self.votes}&#39;, &#39;{self.name}&#39;, &#39;{self.image}&#39;)&#34;
 
 
 class UserVote(db.Model):
@@ -139,7 +161,7 @@ class UserVote(db.Model):
     userID = db.Column(db.Integer, db.ForeignKey(
         &#39;user.UID&#39;), nullable=False)
     questionID = db.Column(db.Integer, db.ForeignKey(
-        &#39;question.QuestionID&#39;), nullable=False)
+        &#39;question.questionID&#39;), nullable=False)
     # vote_result is an interger represents the option user choose
     vote_result = db.Column(db.Integer, nullable=False)
 
@@ -157,7 +179,7 @@ class UserAttitude(db.Model):
     userID = db.Column(db.Integer, db.ForeignKey(
         &#39;user.UID&#39;), nullable=False)
     questionID = db.Column(db.Integer, db.ForeignKey(
-        &#39;question.QuestionID&#39;), nullable=False)
+        &#39;question.questionID&#39;), nullable=False)
     # attitude is an interger, 0 represents like, 1 represents dislike
     attitude = db.Column(db.Integer, nullable=False)
 
@@ -169,28 +191,102 @@ class UserAttitude(db.Model):
     def __repr__(self):
         return f&#34;UserVote(&#39;{self.UserAttitudeID}&#39;, &#39;{self.userID}&#39;, &#39;{self.questionID}&#39;, &#39;{self.attitude}&#39;)&#34;
 
-db.create_all()
 
-@app.route(&#34;/api/register&#34;, methods=[&#39;GET&#39;, &#39;POST&#39;])
+@app.route(&#34;/api/register&#34;, methods=[&#34;POST&#34;])
 def register():
-    &#34;&#34;&#34; add new user to the database &#34;&#34;&#34;
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        flash(f&#39;Account created for {form.username.data}!&#39;, &#39;success&#39;)
-        return redirect(url_for(&#39;home&#39;))
-    return render_template(&#39;register.html&#39;, title=&#39;Register&#39;, form=form)
+    &#34;&#34;&#34; request an email address, a password, a confirm_password, 
+    a username and a random user image string,
+    return {&#34;success&#34;: True} if successfuly register a new user, 
+    otherwise return corresponding error&#34;&#34;&#34;
+    try:
+        email = request.json[&#34;email&#34;]
+        password = request.json[&#34;password&#34;]
+        confirm_password = request.json[&#34;confirm_password&#34;]
+        username = request.json[&#34;username&#34;]
+        image_file = request.json[&#34;image_file&#34;]
+        print({&#34;email&#34;: email, &#34;password&#34;: password,
+              &#34;confirm_password&#34;: confirm_password, &#34;username&#34;: username})
+
+        # registration information check
+        if not (email and password and confirm_password and username):
+            return jsonify({&#34;error&#34;: &#34;Invalid form&#34;})
+        elif password != confirm_password:
+            return jsonify({&#34;error&#34;: &#34;Inconsistent confirm password&#34;})
+
+        # Email validation check
+        if not re.match(r&#34;[\w._]{5,}@\w{3,}\.\w{2,4}&#34;, email):
+            return jsonify({&#34;error&#34;: &#34;Invalid email&#34;})
+
+        # Check to see if user already exists
+        users = getAllUsers()
+        if len(list(filter(lambda x: x[&#34;email&#34;] == email, users))) == 1:
+            return jsonify({&#34;error&#34;: &#34;Email address already existed&#34;})
+
+        # add a new user
+        try:
+            user = User(username, email, password,
+                        confirm_password, image_file)
+            db.session.add(user)
+            db.session.commit()
+            print(&#34;Successfully add a user!&#34;)
+        except Exception as error:
+            print(error)
+        return jsonify({&#34;success&#34;: True})
+
+    except Exception as error:
+        print(error)
+        return jsonify({&#34;error&#34;: &#34;Invalid form&#34;})
 
 
-@app.route(&#34;/api/login&#34;, methods=[&#39;GET&#39;, &#39;POST&#39;])
+@app.route(&#34;/api/login&#34;, methods=[&#34;POST&#34;])
 def login():
-    &#34;&#34;&#34; verify existed user, if success return True, otherwise return False&#34;&#34;&#34;
-    pass
+    &#34;&#34;&#34; request an email address and a password, 
+    return {&#34;success&#34;: True} if successfuly register login, 
+    otherwise return corresponding error&#34;&#34;&#34;
+    try:
+        email = request.json[&#34;email&#34;]
+        password = request.json[&#34;password&#34;]
+        if email and password:
+            user = list(filter(
+                lambda x: x[&#34;email&#34;] == email and x[&#34;password&#34;] == password, getAllUsers()))
+            print(&#34;User Information:&#34;, user)
+            # Check if user exists
+            if len(user) == 1:
+                print(&#34;Successfully Login&#34;)
+                UID = getUID(email)
+                return jsonify({&#34;success&#34;: UID})
+            else:
+                return jsonify({&#34;error&#34;: &#34;Invalid credentials&#34;})
+        else:
+            return jsonify({&#34;error&#34;: &#34;Invalid form&#34;})
+    except Exception as error:
+        print(error)
+        return jsonify({&#34;error&#34;: &#34;Invalid form&#34;})
+
+
+@app.route(&#34;/api/getUserinfo&#34;, methods=[&#34;POST&#34;])
+def getUserinfo():
+    &#34;&#34;&#34; request an UID, return username, email and user image in json format&#34;&#34;&#34;
+    try:
+        uid = request.json[&#34;UID&#34;]
+        users = User.query.all()
+        user = list(filter(lambda x: x.UID == uid, users))[0]
+        result = [{&#34;userID&#34;: user.UID, &#34;username&#34;: user.username,
+                   &#34;email&#34;: user.email, &#34;owner_image&#34;: user.image_file}]
+        print(&#34;------ successful get userinfo---------&#34;)
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as error:
+        print(error)
+        return jsonify({&#34;error&#34;: error})
 
 
 @app.route(&#39;/api/recordPostedQuestion&#39;, methods=[&#34;POST&#34;])
 def recordPostedQuestion():
-    &#34;&#34;&#34; Record the posted question into our database. 
+    &#34;&#34;&#34; Record the posted question into our database.
     This API use the POST method.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
     The posted json object should be in the form below:
 
     {
@@ -199,70 +295,245 @@ def recordPostedQuestion():
         &#34;tag&#34;           : &#34;tagname&#34;,
         &#34;question&#34;      : &#34;question content&#34;,
         &#34;annoymous&#34;     : TRUE,
-        &#34;isAutoSelect&#34;  : FALSE,
         &#34;timeLimit&#34;     : 1636665474,
         &#34;options&#34;: [
             {
-                &#34;optionText&#34;    : &#34;option content&#34;,
-                &#34;optionImage&#34;   : &#34;ImageFiliePath&#34;
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;ImageFiliePath&#34;
             },
             {
-                &#34;optionText&#34;    : &#34;option content&#34;,
-                &#34;optionImage&#34;   : &#34;ImageFiliePath&#34;
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;ImageFiliePath&#34;
             }
         ]
     }
 
+    &#34;time&#34; should be a unix timestamp indicating the time the question is posted
+    &#34;timeLimit&#34; should be a unix timestamp indicating the time the question expires
     If no image, the &#34;optionImage&#34; field should be an empty string
     &#34;&#34;&#34;
     method = request.method
     if method.lower() == &#39;post&#39;:
-        ownerID = request[&#39;ownerID&#39;]
-        time = request[&#39;time&#39;]
-        tag = request[&#39;tag&#39;]
-        question = request[&#39;question&#39;]
-        anonymous = request[&#39;anonymous&#39;]
-        isAutoSelect = request[&#39;isAutoSelect&#39;]
-        timeLimit = request[&#39;timeLimit&#39;]
+        ownerID = request.json[&#39;ownerID&#39;]
+        time = datetime.datetime.fromtimestamp(request.json[&#39;time&#39;])
+        tag = request.json[&#39;tag&#39;]
+        question = request.json[&#39;question&#39;]
+        anonymous = request.json[&#39;anonymous&#39;]
+        timeLimit = datetime.datetime.fromtimestamp(request.json[&#39;timeLimit&#39;])
 
+        question = Question(ownerID, time, tag, question,
+                            anonymous, timeLimit)
+        data = request.json[&#39;options&#39;]
+        for op in data:
+            option = None
+            if &#39;option_image&#39; not in op:
+                option = Option(op[&#39;option_name&#39;])
+            else:
+                option_name = op[&#39;option_name&#39;]
+                option_image = op[&#39;option_image&#39;][0][&#39;thumbUrl&#39;]
+                option = Option(option_name, option_image)
+                print(&#34;--------- try-------------&#34;)
+                print(option)
+            question.option.append(option)
         try:
-            question = Question(ownerID, time, tag, question,
-                                anonymous, isAutoSelect, timeLimit)
-            db.session.add(question)
-            db.session.refresh(question)
-            questionID = question.id
-            db.session.commit()
-        except Exception as e:
-            return ({&#39;error&#39;: e})
-        # TODO: get questionID
-        # Insert options in the Option table
-        for op in request[&#39;options&#39;]:
-            try:
-                # TODO: should not add Option this way, because there is a relationship with Question
-                if(op[&#39;optionImage&#39;] == &#39;&#39;):
-                    option = Option(questionID, op[&#39;optionText&#39;])
-                else:
-                    option = Option(questionID,
-                                    op[&#39;optionText&#39;], op[&#39;optionImage&#39;])
-                db.session.add(option)
-                db.session.commit()
-            except Exception as e:
-                # TODO: delete the question and cascade deletion of child
-                pass
 
+            db.session.add(question)
+            # db.session.refresh(question)
+            # questionID = question.id
+            db.session.commit()
+
+        except Exception as e:
+            print(e)
+            return ({&#39;error&#39;: e})
     return ({&#39;success&#39;: True})
 
 
-@app.route(&#39;/api/listTopics&#39;)
-def listTopics(tag):
-    &#34;&#34;&#34; Return all topics of a specific tag. &#34;&#34;&#34;
-    pass
+@app.route(&#39;/api/getAllQuestions&#39;, methods=[&#34;GET&#34;])
+def getAllQuestions():
+    &#34;&#34;&#34; 
+    The request should provide a &#39;UID&#39; parameter which is a int.
+    Return all questions. 
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    The returned data should be in format below:
+    [{
+        &#34;questionID&#34;    : 123456,
+        &#34;ownerID&#34;       : 123456,
+        &#34;username&#34;      : &#34;name&#34;,
+        &#34;time&#34;          : 1636665474,
+        &#34;tag&#34;           : &#34;tagname&#34;,
+        &#34;question&#34;      : &#34;question content&#34;,
+        &#34;annoymous&#34;     : TRUE,
+        &#34;timeLimit&#34;     : 1636665474,
+        &#34;chosenAttitude&#34;: -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
+        &#34;voted&#34;         : 1,     (-1 for not voted, otherwise return the voted optionID)
+        &#34;total_votes&#34;   : 5,
+        &#34;expired&#34;       : TRUE,
+        &#34;time_to_expire&#34;: 123456,
+        &#34;owner_image&#34;   : &#34;image&#34;,
+        &#34;option_list&#34;: [
+            {
+                &#34;optionID&#34;       : 1234556,
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;base64 string or none&#34;,
+                &#34;option_vote&#34;    : 123
+            },
+            {
+                &#34;optionID&#34;       : 1234557,
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;base64 string or none&#34;,
+                &#34;option_vote&#34;    : 123
+            }
+        ]
+    }]
+    &#34;&#34;&#34;
+    questions = Question.query.all()
+    question_dicts = [{&#39;questionID&#39;: q.questionID,
+                       &#39;ownerID&#39;: q.ownerID,
+                       &#39;time&#39;: int(q.time.timestamp()),
+                       &#39;tag&#39;: q.tag,
+                       &#39;question&#39;: q.question,
+                       &#39;anonymous&#39;: q.anonymous,
+                       &#39;likes&#39;: q.likes,
+                       &#39;dislikes&#39;: q.dislikes,
+                       &#39;timeLimit&#39;: int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
+    for q in question_dicts:
+        option_list = Option.query.filter(
+            Option.questionID == q[&#39;questionID&#39;]).all()
+        # TODO: return image
+        option_dicts = [{&#39;option_name&#39;: o.name, &#39;option_image&#39;: o.image, &#39;optionID&#39;: o.OptionID, &#39;option_vote&#39;: o.votes}
+                        for o in option_list]
+        total_votes = 0
+        for o in option_dicts:
+            total_votes += o[&#39;option_vote&#39;]
+        q[&#39;total_votes&#39;] = total_votes
+        q[&#39;option_list&#39;] = option_dicts
+        q[&#39;username&#39;] = User.query.filter(
+            User.UID == q[&#39;ownerID&#39;]).first().username
+        q[&#39;owner_image&#39;] = User.query.filter(
+            User.UID == q[&#39;ownerID&#39;]).first().image_file
+
+        UID = int(request.args.get(&#39;UID&#39;))
+        user_vote_record = UserVote.query.filter(
+            UserVote.userID == UID).filter(UserVote.questionID == q[&#39;questionID&#39;]).first()
+        if user_vote_record == None:
+            q[&#39;voted&#39;] = -1
+        else:
+            q[&#39;voted&#39;] = user_vote_record.vote_result
+        user_attitude_record = UserAttitude.query.filter(
+            UserAttitude.userID == UID).filter(UserAttitude.questionID == q[&#39;questionID&#39;]).first()
+        if user_attitude_record == None:
+            q[&#39;chosenAttitude&#39;] = -1
+        else:
+            q[&#39;chosenAttitude&#39;] = user_attitude_record.attitude
+        if datetime.datetime.fromtimestamp(q[&#39;timeLimit&#39;]) &lt; datetime.datetime.now():
+            q[&#39;expired&#39;] = True
+        else:
+            q[&#39;expired&#39;] = False
+    question_dicts.sort(key=lambda k: k[&#39;time&#39;], reverse=True)
+    return jsonify(question_dicts)
+
+
+@app.route(&#39;/api/listTopics&#39;, methods=[&#34;GET&#34;])
+def listTopics():
+    &#34;&#34;&#34; 
+    The request should provide a &#39;tags&#39; parameter whose value is a string.
+    The request should provide a &#39;UID&#39; parameter which is a int.
+    Different tags should be separated by coma.
+    Example url: &#34;http://localhost:5000/api/listTopics?tags=abc,def&#34;.
+    Return all topics of specific tags. 
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    The returned data should be in format below:
+    [{
+        &#34;questionID&#34;    : 123456,
+        &#34;ownerID&#34;       : 123456,
+        &#34;username&#34;      : &#34;name&#34;,
+        &#34;time&#34;          : 1636665474,
+        &#34;tag&#34;           : &#34;tagname&#34;,
+        &#34;question&#34;      : &#34;question content&#34;,
+        &#34;annoymous&#34;     : TRUE,
+        &#34;timeLimit&#34;     : 1636665474,
+        &#34;chosenAttitude&#34;: -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
+        &#34;voted&#34;         : 1,     (-1 for not voted, otherwise return the voted optionID)
+        &#34;total_votes&#34;   : 5,
+        &#34;expired&#34;       : TRUE,
+        &#34;time_to_expire&#34;: 123456,
+        &#34;owner_image&#34;   : &#34;image&#34;,
+        &#34;option_list&#34;: [
+            {
+                &#34;optionID&#34;       : 1234556,
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;base64 str or none&#34;,
+                &#34;option_vote&#34;    : 123
+            },
+            {
+                &#34;optionID&#34;       : 1234557,
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;base64 str or none&#34;,
+                &#34;option_vote&#34;    : 123
+            }
+        ]
+    }]
+    &#34;&#34;&#34;
+    question_dicts = []
+    for tag in request.args.get(&#39;tags&#39;).split(&#39;,&#39;):
+        questions = Question.query.filter(
+            Question.tag == tag).all()
+        question_dicts += [{&#39;questionID&#39;: q.questionID,
+                            &#39;ownerID&#39;: q.ownerID,
+                            &#39;time&#39;: int(q.time.timestamp()),
+                            &#39;tag&#39;: q.tag,
+                            &#39;question&#39;: q.question,
+                            &#39;anonymous&#39;: q.anonymous,
+                            &#39;likes&#39;: q.likes,
+                            &#39;dislikes&#39;: q.dislikes,
+                            &#39;timeLimit&#39;: int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
+
+    for q in question_dicts:
+        option_list = Option.query.filter(
+            Option.questionID == q[&#39;questionID&#39;]).all()
+        # TODO: return image
+        option_dicts = [{&#39;option_name&#39;: o.name, &#39;option_image&#39;: o.image, &#39;optionID&#39;: o.OptionID, &#39;option_vote&#39;: o.votes}
+                        for o in option_list]
+        total_votes = 0
+        for o in option_dicts:
+            total_votes += o[&#39;option_vote&#39;]
+        q[&#39;total_votes&#39;] = total_votes
+        q[&#39;option_list&#39;] = option_dicts
+        q[&#39;username&#39;] = User.query.filter(
+            User.UID == q[&#39;ownerID&#39;]).first().username
+        q[&#39;owner_image&#39;] = User.query.filter(
+            User.UID == q[&#39;ownerID&#39;]).first().image_file
+
+        UID = int(request.args.get(&#39;UID&#39;))
+        user_vote_record = UserVote.query.filter(
+            UserVote.userID == UID).filter(UserVote.questionID == q[&#39;questionID&#39;]).first()
+        if user_vote_record == None:
+            q[&#39;voted&#39;] = -1
+        else:
+            q[&#39;voted&#39;] = user_vote_record.vote_result
+        user_attitude_record = UserAttitude.query.filter(
+            UserAttitude.userID == UID).filter(UserAttitude.questionID == q[&#39;questionID&#39;]).first()
+        if user_attitude_record == None:
+            q[&#39;chosenAttitude&#39;] = -1
+        else:
+            q[&#39;chosenAttitude&#39;] = user_attitude_record.attitude
+        if datetime.datetime.fromtimestamp(q[&#39;timeLimit&#39;]) &lt; datetime.datetime.now():
+            q[&#39;expired&#39;] = True
+        else:
+            q[&#39;expired&#39;] = False
+            # q[&#39;time_to_expire&#39;] = time_to_expire(q.)
+    question_dicts.sort(key=lambda k: k[&#39;time&#39;], reverse=True)
+    return jsonify(question_dicts)
 
 
 @app.route(&#39;/api/recordVote&#39;, methods=[&#34;POST&#34;])
 def recordVote():
-    &#34;&#34;&#34; Record the &#34;vote&#34; action of a user. 
+    &#34;&#34;&#34; Record the &#34;vote&#34; action of a user, given userID, questionID and optionID. 
     This API use the POST method.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
     The posted json object should be in the form below:
     {
         &#34;userID&#34;        : 123456,
@@ -270,85 +541,497 @@ def recordVote():
         &#34;optionID&#34;      : 123456
     }
     &#34;&#34;&#34;
-    method = request.method
-    if method.lower() == &#39;post&#39;:
-        userID = request[&#39;userID&#39;]
-        questionID = request[&#39;questionID&#39;]
-        vote_result = request[&#39;optionID&#39;]
+    try:
+        userID = request.json[&#39;userID&#39;]
+        questionID = request.json[&#39;questionID&#39;]
+        vote_result = request.json[&#39;optionID&#39;]
         if userID and questionID and vote_result:
-            user_vote = UserVote(userID, questionID, vote_result)
-            db.session.add(user_vote)
             option = Option.query.get(vote_result)
             option.votes += 1
+            user_vote = UserVote(userID, questionID, vote_result)
+            db.session.add(user_vote)
             db.session.commit()
+            print(&#34;Success!&#34;)
+            return jsonify({&#34;success&#34;: True})
+        else:
+            print(&#34;missing data&#34;)
+            return jsonify({&#34;error&#34;: &#34;Missing userID or questionID or vote_result&#34;})
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})
 
 
 @app.route(&#39;/api/recordAttitude&#39;, methods=[&#34;POST&#34;])
 def recordAttitude():
-    &#34;&#34;&#34; Record the &#34;like&#34; or &#34;dislike&#34; action of a user. 
+    &#34;&#34;&#34; Record the &#34;like&#34; or &#34;dislike&#34; action of a user, given userID, questionID and attitude. 
     This API use the POST method.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
     The posted json object should be in the form below:
+    (&#34;attitude&#34; is an interger, 0 represents like, 1 represents dislike.)
     {
         &#34;userID&#34;        : 123456,
         &#34;questionID&#34;    : 123456,
         &#34;attitude&#34;      : 0
     }
     &#34;&#34;&#34;
-    method = request.method
-    if method.lower() == &#39;post&#39;:
-        userID = request[&#39;userID&#39;]
-        questionID = request[&#39;questionID&#39;]
-        attitude = request[&#39;attitude&#39;]
-        if userID and questionID and attitude:
-            user_attitude = UserAttitude(userID, questionID, attitude)
-            db.session.add(user_attitude)
+    try:
+        userID = request.json[&#39;userID&#39;]
+        questionID = request.json[&#39;questionID&#39;]
+        attitude = request.json[&#39;attitude&#39;]
+        if userID and questionID:
+            if attitude != 0 and attitude != 1:
+                print(&#34;invalid attitude&#34;)
+                return jsonify({&#34;error&#34;: &#34;invalid attitude&#34;})
             question = Question.query.get(questionID)
+            user_attitude = UserAttitude.query.filter_by(
+                userID=userID, questionID=questionID).first()
+            if user_attitude:
+                if user_attitude.attitude == attitude:
+                    print(&#34;repeated attitude&#34;)
+                    return jsonify({&#34;error&#34;: &#34;repeated attitude&#34;})
+                else:
+                    if user_attitude.attitude == 0:
+                        question.likes -= 1
+                    else:
+                        question.dislikes -= 1
+                    db.session.delete(user_attitude)
             if attitude == 0:
                 question.likes += 1
             else:
                 question.dislikes += 1
+            user_attitude = UserAttitude(userID, questionID, attitude)
+            db.session.add(user_attitude)
             db.session.commit()
+            print(&#34;Success!&#34;)
+            return jsonify({&#34;success&#34;: True})
+        else:
+            print(&#34;Missing userID or questionID&#34;)
+            return jsonify({&#34;error&#34;: &#34;Missing userID or questionID&#34;})
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})
 
 
-@app.route(&#39;/api/recordFeedback&#39;)
-def recordFeedback():
-    &#34;&#34;&#34; Record the feedback of a user&#39;s question. &#34;&#34;&#34;
-    pass
+@app.route(&#39;/api/cancelAttitude&#39;, methods=[&#34;POST&#34;])
+def cancelAttitude():
+    &#34;&#34;&#34; Cancel the &#34;like&#34; or &#34;dislike&#34; action of a user, given userID, questionID and attitude. 
+    This API use the POST method.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    The posted json object should be in the form below:
+    (&#34;attitude&#34; is an interger, 0 represents like, 1 represents dislike.)
+    {
+        &#34;userID&#34;        : 123456,
+        &#34;questionID&#34;    : 123456,
+        &#34;attitude&#34;      : 0
+    }
+    &#34;&#34;&#34;
+    try:
+        userID = request.json[&#39;userID&#39;]
+        questionID = request.json[&#39;questionID&#39;]
+        attitude = request.json[&#39;attitude&#39;]
+        if userID and questionID:
+            if attitude != 0 and attitude != 1:
+                print(&#34;invalid attitude&#34;)
+                return jsonify({&#34;error&#34;: &#34;invalid attitude&#34;})
+            question = Question.query.get(questionID)
+            user_attitude = UserAttitude.query.filter_by(
+                userID=userID, questionID=questionID, attitude=attitude).first()
+            if not user_attitude:
+                print(&#34;attitude doesn&#39;t exist&#34;)
+                return jsonify({&#34;error&#34;: &#34;attitude doesn&#39;t exist&#34;})
+            db.session.delete(user_attitude)
+            if attitude == 0:
+                question.likes -= 1
+            else:
+                question.dislikes -= 1
+            db.session.commit()
+            print(&#34;Success!&#34;)
+            return jsonify({&#34;success&#34;: True})
+        else:
+            print(&#34;Missing userID or questionID&#34;)
+            return jsonify({&#34;error&#34;: &#34;Missing userID or questionID&#34;})
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})
 
 
-@app.route(&#39;/api/getHistoricalQuestions&#39;)
-def getHistoricalQuestions(user):
-    &#34;&#34;&#34; Return all questions posted by a user. &#34;&#34;&#34;
-    pass
+@app.route(&#39;/api/getHistoricalQuestions&#39;, methods=[&#34;POST&#34;])
+def getHistoricalQuestions():
+    &#34;&#34;&#34; request a user&#39;s UID, return all questions and corresponding information 
+    has been posted by this user and this user&#39;s username and user image
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    This API use the POST method.
+    The returned json object is be in the form below:
+    [{   &#39;anonymous&#39;: False,
+        &#39;dislikes&#39;: 0,
+        &#39;likes&#39;: 0,
+        &#39;option_list&#39;: [   {   &#39;optionID&#39;: 1,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;Food1&#39;,
+                               &#39;option_vote&#39;: 0},
+                           {   &#39;optionID&#39;: 2,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;Food2&#39;,
+                               &#39;option_vote&#39;: 0}],
+        &#39;ownerID&#39;: 1,
+        &#39;question&#39;: &#39;What food should I choose?&#39;,
+        &#39;questionID&#39;: 1,
+        &#39;tag&#39;: &#39;Food&#39;,
+        &#39;time&#39;: datetime.datetime(2021, 11, 20, 0, 0),
+        &#39;timeLimit&#39;: 1638259200,
+        &#39;userID&#39;: 1,
+        &#39;username&#39;: &#39;testuser&#39;}]&#34;&#34;&#34;
+
+    try:
+        uid = request.json[&#34;UID&#34;]
+        questions = Question.query.all()
+        userVotes = UserVote.query.all()
+        userAttitudes = UserAttitude.query.all()
+        postedQ = list(filter(lambda x: x.ownerID == uid, questions))
+        options = Option.query.all()
+        result = []
+        for q in postedQ:
+            att = -1
+            attitude = list(filter(lambda x: x.userID ==
+                            uid and x.questionID == q.questionID, userAttitudes))
+            if len(attitude) != 0:
+                att = attitude[0].attitude
+            voted = -1
+            vote = list(filter(lambda x: x.userID ==
+                        uid and x.questionID == q.questionID, userVotes))
+            if len(vote) != 0:
+                voted = vote[0].vote_result
+            all_options = list(
+                filter(lambda x: x.questionID == q.questionID, options))
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {&#39;optionID&#39;: o.OptionID,
+                        &#39;option_name&#39;: o.name,
+                        &#39;option_image&#39;: o.image,
+                        &#39;option_vote&#39;: o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
+            info = {&#39;userID&#39;: uid,
+                    &#39;questionID&#39;: q.questionID,
+                    &#39;ownerID&#39;: q.ownerID,
+                    &#39;owner_image&#39;: getUserImage(uid),
+                    &#39;time&#39;: q.time,
+                    &#39;tag&#39;: q.tag,
+                    &#39;question&#39;: q.question,
+                    &#39;anonymous&#39;: q.anonymous,
+                    &#39;likes&#39;: q.likes,
+                    &#39;dislikes&#39;: q.dislikes,
+                    &#39;timeLimit&#39;: int(q.timeLimit.timestamp()),
+                    &#39;option_list&#39;: option_list,
+                    &#39;username&#39;: getUsername(uid),
+                    &#39;chosenAttitude&#39;: att,
+                    &#39;voted&#39;: voted,
+                    &#39;total_votes&#39;: total_votes}
+            if datetime.datetime.fromtimestamp(info[&#39;timeLimit&#39;]) &lt; datetime.datetime.now():
+                info[&#39;expired&#39;] = True
+            else:
+                info[&#39;expired&#39;] = False
+            result.append(info)
+        result.sort(key=lambda k: k[&#39;time&#39;], reverse=True)
+        print(&#39;------------------successful ---------------------&#39;)
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})
 
 
-@app.route(&#39;/api/getVotes&#39;)
-def getVotes(user):
-    &#34;&#34;&#34; Return all vote actions of a user. &#34;&#34;&#34;
-    pass
+@app.route(&#39;/api/getVotes&#39;, methods=[&#34;POST&#34;])
+def getVotes():
+    &#34;&#34;&#34; request a user&#39;s UID, return all questions and corresponding information 
+    has been voted by this user and this user&#39;s username and user image
+    &#34;&#34;&#34;
+    &#34;&#34;&#34; request an UID, return all vote actions of a this user and its user name. For each vote action, 
+    return the questionID, ownerID, time, tag , question(description) and the voted option name
+    This API use the POST method. Assume not choose attitude
+    The returned json object is be in the form below:
+    [{&#39;anonymous&#39;: False,
+    &#39;dislikes&#39;: 0,
+    &#39;likes&#39;: 0,
+    &#39;option_list&#39;: [{&#39;optionID&#39;: 1,
+                &#39;option_image&#39;: &#39;none&#39;,
+                &#39;option_name&#39;: &#39;Food1&#39;,
+                &#39;option_vote&#39;: 0},
+                {&#39;optionID&#39;: 2,
+                &#39;option_image&#39;: &#39;none&#39;,
+                &#39;option_name&#39;: &#39;Food2&#39;,
+                &#39;option_vote&#39;: 0}],
+    &#39;ownerID&#39;: 1,
+    &#39;question&#39;: &#39;What food should I choose?&#39;,
+    &#39;questionID&#39;: 1,
+    &#39;tag&#39;: &#39;Food&#39;,
+    &#39;time&#39;: datetime.datetime(2021, 11, 20, 0, 0),
+    &#39;timeLimit&#39;: 1638259200,
+    &#39;userID&#39;: 5,
+    &#39;username&#39;: &#39;voteUser1&#39;,
+    &#39;vote_result&#39;: 1}]
+    &#34;&#34;&#34;
+    try:
+        uid = request.json[&#34;UID&#34;]
+        userVotes = UserVote.query.filter(UserVote.userID == uid).all()
+        questions = Question.query.all()
+        options = Option.query.all()
+        userAttitudes = UserAttitude.query.all()
+        userVotes = list(filter(lambda x: x.userID == uid, userVotes))
+        result = []
+        for vote in userVotes:
+            q = list(filter(lambda x: x.questionID ==
+                     vote.questionID, questions))[0]
+            att = -1
+            attitude = list(filter(lambda x: x.userID ==
+                            uid and x.questionID == q.questionID, userAttitudes))
+            if len(attitude) != 0:
+                att = attitude[0].attitude
+            all_options = list(
+                filter(lambda x: x.questionID == q.questionID, options))
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {&#39;optionID&#39;: o.OptionID,
+                        &#39;option_name&#39;: o.name,
+                        &#39;option_image&#39;: o.image,
+                        &#39;option_vote&#39;: o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
+            vote_option = list(filter(lambda x: x.OptionID ==
+                               vote.vote_result, options))[0]
+            info = {&#39;userID&#39;: uid,
+                    &#39;questionID&#39;: q.questionID,
+                    &#39;ownerID&#39;: q.ownerID,
+                    &#39;owner_image&#39;: getUserImage(q.ownerID),
+                    &#39;time&#39;: q.time,
+                    &#39;tag&#39;: q.tag,
+                    &#39;question&#39;: q.question,
+                    &#39;anonymous&#39;: q.anonymous,
+                    &#39;likes&#39;: q.likes,
+                    &#39;dislikes&#39;: q.dislikes,
+                    &#39;timeLimit&#39;: int(q.timeLimit.timestamp()),
+                    &#39;option_list&#39;: option_list,
+                    &#39;username&#39;: getUsername(q.ownerID),
+                    &#39;vote_result&#39;: vote_option.OptionID,
+                    &#39;chosenAttitude&#39;: att,
+                    &#39;voted&#39;: vote_option.OptionID,
+                    &#39;total_votes&#39;: total_votes}
+            if datetime.datetime.fromtimestamp(info[&#39;timeLimit&#39;]) &lt; datetime.datetime.now():
+                info[&#39;expired&#39;] = True
+            else:
+                info[&#39;expired&#39;] = False
+            result.append(info)
+        result.sort(key=lambda k: k[&#39;time&#39;], reverse=True)
+        print(&#39;------------------successful ---------------------&#39;)
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})
+    questions = Question.query.filter(
+        Question.tag == request.args.get(&#39;tag&#39;)).all()
 
 
-@app.route(&#39;/api/getAttitudes&#39;)
-def getAttitudes(user):
-    &#34;&#34;&#34; Return all attitudes of a user. &#34;&#34;&#34;
-    pass
+@app.route(&#39;/api/getAttitudes&#39;, methods=[&#34;POST&#34;])
+def getAttitudes():
+    &#34;&#34;&#34; request a user&#39;s UID, return all questions and corresponding information 
+    has been liked or dislike by this user and this user&#39;s username and user image
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    This API use the POST method. Assume not vote
+    The returned json object is be in the form below:
+    [{   &#39;anonymous&#39;: False,
+        &#39;attitude&#39;: &#39;Like&#39;,
+        &#39;dislikes&#39;: 0,
+        &#39;likes&#39;: 0,
+        &#39;option_list&#39;: [   {   &#39;optionID&#39;: 5,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;Dune&#39;,
+                               &#39;option_vote&#39;: 0},
+                           {   &#39;optionID&#39;: 6,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;No Time To Die&#39;,
+                               &#39;option_vote&#39;: 0},
+                           {   &#39;optionID&#39;: 7,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;Eternals&#39;,
+                               &#39;option_vote&#39;: 0},
+                           {   &#39;optionID&#39;: 8,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;Shangqi&#39;,
+                               &#39;option_vote&#39;: 0}],
+        &#39;ownerID&#39;: 3,
+        &#39;question&#39;: &#39;What movie should I choose for date?&#39;,
+        &#39;questionID&#39;: 3,
+        &#39;tag&#39;: &#39;Movie&#39;,
+        &#39;time&#39;: datetime.datetime(2021, 11, 11, 0, 0),
+        &#39;timeLimit&#39;: 1636704000,
+        &#39;userID&#39;: 6,
+        &#39;username&#39;: &#39;voteUser2&#39;}]&#34;&#34;&#34;
+    try:
+        uid = request.json[&#34;UID&#34;]
+        userAttitudes = UserAttitude.query.all()
+        userVotes = UserVote.query.all()
+        questions = Question.query.all()
+        options = Option.query.all()
+        userAttitudes = list(filter(lambda x: x.userID == uid, userAttitudes))
+        result = []
+        for att in userAttitudes:
+            q = list(filter(lambda x: x.questionID ==
+                     att.questionID, questions))[0]
+            voted = -1
+            vote = list(filter(lambda x: x.userID ==
+                        uid and x.questionID == q.questionID, userVotes))
+            if len(vote) != 0:
+                voted = vote[0].vote_result
+            all_options = list(
+                filter(lambda x: x.questionID == q.questionID, options))
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {&#39;optionID&#39;: o.OptionID,
+                        &#39;option_name&#39;: o.name,
+                        &#39;option_image&#39;: o.image,
+                        &#39;option_vote&#39;: o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
+            info = {&#39;userID&#39;: uid,
+                    &#39;questionID&#39;: q.questionID,
+                    &#39;ownerID&#39;: q.ownerID,
+                    &#39;owner_image&#39;: getUserImage(q.ownerID),
+                    &#39;time&#39;: q.time,
+                    &#39;tag&#39;: q.tag,
+                    &#39;question&#39;: q.question,
+                    &#39;anonymous&#39;: q.anonymous,
+                    &#39;likes&#39;: q.likes,
+                    &#39;dislikes&#39;: q.dislikes,
+                    &#39;timeLimit&#39;: int(q.timeLimit.timestamp()),
+                    &#39;option_list&#39;: option_list,
+                    &#39;username&#39;: getUsername(q.ownerID),
+                    &#39;chosenAttitude&#39;: att.attitude,
+                    &#39;voted&#39;: voted,
+                    &#39;total_votes&#39;: total_votes}
+            if datetime.datetime.fromtimestamp(info[&#39;timeLimit&#39;]) &lt; datetime.datetime.now():
+                info[&#39;expired&#39;] = True
+            else:
+                info[&#39;expired&#39;] = False
+            result.append(info)
+        result.sort(key=lambda k: k[&#39;time&#39;], reverse=True)
+        print(&#39;------------------successful get attitude---------------------&#39;)
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})
 
-
-@app.route(&#39;/api/provideOptions&#39;)
-def provideOptions(question):
-    &#34;&#34;&#34; Return a list of possible options based on the question. &#34;&#34;&#34;
-    pass
-
-
-@app.route(&#39;/api/listHotTopics&#39;)
+@app.route(&#39;/api/listHotTopics&#39;, methods=[&#34;GET&#34;])
 def listHotTopics():
-    &#34;&#34;&#34; Return the hottest topic of each tag. &#34;&#34;&#34;
-    pass
+    &#34;&#34;&#34; Return the hottest topic (with most likes + dislikes) of each tag. 
+    The request should provide a &#39;UID&#39; parameter.
+    This API use the GET method.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    The returned json object is be in the form below:
+    [
+        {
+            &#34;questionID&#34;    : 123456,
+            &#34;ownerID&#34;       : 123456,
+            &#34;ownername&#34;     : &#34;xxx&#34;,
+            &#34;owner_image&#34;   : &#34;xxx&#34;,
+            &#34;time&#34;          : &lt;timestamp&gt;,
+            &#34;tag&#34;           : &#34;Food&#34;,
+            &#34;question&#34;      : &#34;What ... ?&#34;,
+            &#34;anonymous&#34;     : False,
+            &#34;likes&#34;         : 2,
+            &#34;dislikes&#34;      : 2,
+            &#34;timeLimit&#34;     : &lt;timestamp&gt;,
+            &#34;chosenAttitude&#34;: -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
+            &#34;voted&#34;         : 1,     (-1 for not voted, otherwise return the voted optionID)
+            &#34;total_votes&#34;   : 100,
+            &#34;expired&#34;       : False,
+            &#34;option_list&#34;       :
+            [
+                {
+                    &#34;optionID&#34;       : 123456,
+                    &#34;option_name&#34;    : &#34;option content&#34;,
+                    &#34;option_image&#34;   : &#34;ImageFiliePath&#34;,
+                    &#34;option_vote&#34;    : 123
+                },
+                ...
+            ]
+        },
+        ...
+    ]
+    &#34;&#34;&#34;
+    try:
+        UID = request.args.get(&#39;UID&#39;)
+        tags = [&#34;Style&#34;, &#34;Sports&#34;, &#34;Music&#34;, &#34;Movie&#34;, &#34;Food&#34;, &#34;Travel&#34;]
+        ret_list = []
+        for tag_ in tags:
+            q = Question.query\
+                .filter_by(tag=tag_)\
+                .filter(Question.timeLimit &gt; datetime.datetime.now())\
+                .order_by((Question.likes+Question.dislikes).desc())\
+                .first()
+            if not q:
+                continue
+            id = q.questionID
+            owner = User.query.get(q.ownerID)
+            expired = False
+            if q.timeLimit.timestamp() &lt; datetime.datetime.now().timestamp():
+                expired = True
+            options = Option.query.filter_by(questionID=id).all()
+            total_votes = 0
+            option_list = []
+            for op in options:
+                op_dict = {}
+                op_dict[&#34;optionID&#34;] = op.OptionID
+                op_dict[&#34;option_name&#34;] = op.name
+                op_dict[&#34;option_image&#34;] = op.image
+                op_dict[&#34;option_vote&#34;] = op.votes
+                total_votes += op.votes
+                option_list.append(op_dict)
 
+            q_dict = {
+                &#34;questionID&#34;: id,
+                &#34;ownerID&#34;: q.ownerID,
+                &#34;ownerName&#34;: owner.username,
+                &#34;owner_image&#34;: owner.image_file,
+                &#34;time&#34;: int(q.time.timestamp()),
+                &#34;tag&#34;: q.tag,
+                &#34;question&#34;: q.question,
+                &#34;anonymous&#34;: q.anonymous,
+                &#34;likes&#34;: q.likes,
+                &#34;dislikes&#34;: q.dislikes,
+                &#34;timeLimit&#34;: int(q.timeLimit.timestamp()),
+                &#34;option_list&#34;: option_list,
+                &#34;total_votes&#34;: total_votes,
+                &#34;expired&#34;: expired
+            }
+            print(UID, id)
+            attitude_ = UserAttitude.query.filter_by(
+                userID=UID, questionID=id).first()
+            if not attitude_:
+                q_dict[&#34;chosenAttitude&#34;] = -1
+            else:
+                q_dict[&#34;chosenAttitude&#34;] = attitude_.attitude
+            vote_ = UserVote.query.filter_by(userID=UID, questionID=id).first()
+            if not vote_:
+                q_dict[&#34;voted&#34;] = -1
+            else:
+                q_dict[&#34;voted&#34;] = vote_.vote_result
+            ret_list.append(q_dict)
+        print(ret_list)
+        return jsonify(ret_list)
 
-@app.route(&#39;/time&#39;)
-def get_current_time():
-    return {&#39;time&#39;: time.time()}
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})
 
 
 if __name__ == &#39;__main__&#39;:
@@ -362,53 +1045,62 @@ if __name__ == &#39;__main__&#39;:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="api.getAttitudes"><code class="name flex">
-<span>def <span class="ident">getAttitudes</span></span>(<span>user)</span>
+<dt id="api.cancelAttitude"><code class="name flex">
+<span>def <span class="ident">cancelAttitude</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return all attitudes of a user.</p></div>
+<div class="desc"><p>Cancel the "like" or "dislike" action of a user, given userID, questionID and attitude.
+This API use the POST method.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@app.route(&#39;/api/getAttitudes&#39;)
-def getAttitudes(user):
-    &#34;&#34;&#34; Return all attitudes of a user. &#34;&#34;&#34;
-    pass</code></pre>
+<pre><code class="python">@app.route(&#39;/api/cancelAttitude&#39;, methods=[&#34;POST&#34;])
+def cancelAttitude():
+    &#34;&#34;&#34; Cancel the &#34;like&#34; or &#34;dislike&#34; action of a user, given userID, questionID and attitude. 
+    This API use the POST method.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    The posted json object should be in the form below:
+    (&#34;attitude&#34; is an interger, 0 represents like, 1 represents dislike.)
+    {
+        &#34;userID&#34;        : 123456,
+        &#34;questionID&#34;    : 123456,
+        &#34;attitude&#34;      : 0
+    }
+    &#34;&#34;&#34;
+    try:
+        userID = request.json[&#39;userID&#39;]
+        questionID = request.json[&#39;questionID&#39;]
+        attitude = request.json[&#39;attitude&#39;]
+        if userID and questionID:
+            if attitude != 0 and attitude != 1:
+                print(&#34;invalid attitude&#34;)
+                return jsonify({&#34;error&#34;: &#34;invalid attitude&#34;})
+            question = Question.query.get(questionID)
+            user_attitude = UserAttitude.query.filter_by(
+                userID=userID, questionID=questionID, attitude=attitude).first()
+            if not user_attitude:
+                print(&#34;attitude doesn&#39;t exist&#34;)
+                return jsonify({&#34;error&#34;: &#34;attitude doesn&#39;t exist&#34;})
+            db.session.delete(user_attitude)
+            if attitude == 0:
+                question.likes -= 1
+            else:
+                question.dislikes -= 1
+            db.session.commit()
+            print(&#34;Success!&#34;)
+            return jsonify({&#34;success&#34;: True})
+        else:
+            print(&#34;Missing userID or questionID&#34;)
+            return jsonify({&#34;error&#34;: &#34;Missing userID or questionID&#34;})
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})</code></pre>
 </details>
 </dd>
-<dt id="api.getHistoricalQuestions"><code class="name flex">
-<span>def <span class="ident">getHistoricalQuestions</span></span>(<span>user)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return all questions posted by a user.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@app.route(&#39;/api/getHistoricalQuestions&#39;)
-def getHistoricalQuestions(user):
-    &#34;&#34;&#34; Return all questions posted by a user. &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-<dt id="api.getVotes"><code class="name flex">
-<span>def <span class="ident">getVotes</span></span>(<span>user)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return all vote actions of a user.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@app.route(&#39;/api/getVotes&#39;)
-def getVotes(user):
-    &#34;&#34;&#34; Return all vote actions of a user. &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-<dt id="api.get_current_time"><code class="name flex">
-<span>def <span class="ident">get_current_time</span></span>(<span>)</span>
+<dt id="api.expired"><code class="name flex">
+<span>def <span class="ident">expired</span></span>(<span>dt)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -416,130 +1108,834 @@ def getVotes(user):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@app.route(&#39;/time&#39;)
-def get_current_time():
-    return {&#39;time&#39;: time.time()}</code></pre>
+<pre><code class="python">def expired(dt):
+    return dt &lt; datetime.datetime.now()</code></pre>
+</details>
+</dd>
+<dt id="api.getAllQuestions"><code class="name flex">
+<span>def <span class="ident">getAllQuestions</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The request should provide a 'UID' parameter which is a int.
+Return all questions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.route(&#39;/api/getAllQuestions&#39;, methods=[&#34;GET&#34;])
+def getAllQuestions():
+    &#34;&#34;&#34; 
+    The request should provide a &#39;UID&#39; parameter which is a int.
+    Return all questions. 
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    The returned data should be in format below:
+    [{
+        &#34;questionID&#34;    : 123456,
+        &#34;ownerID&#34;       : 123456,
+        &#34;username&#34;      : &#34;name&#34;,
+        &#34;time&#34;          : 1636665474,
+        &#34;tag&#34;           : &#34;tagname&#34;,
+        &#34;question&#34;      : &#34;question content&#34;,
+        &#34;annoymous&#34;     : TRUE,
+        &#34;timeLimit&#34;     : 1636665474,
+        &#34;chosenAttitude&#34;: -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
+        &#34;voted&#34;         : 1,     (-1 for not voted, otherwise return the voted optionID)
+        &#34;total_votes&#34;   : 5,
+        &#34;expired&#34;       : TRUE,
+        &#34;time_to_expire&#34;: 123456,
+        &#34;owner_image&#34;   : &#34;image&#34;,
+        &#34;option_list&#34;: [
+            {
+                &#34;optionID&#34;       : 1234556,
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;base64 string or none&#34;,
+                &#34;option_vote&#34;    : 123
+            },
+            {
+                &#34;optionID&#34;       : 1234557,
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;base64 string or none&#34;,
+                &#34;option_vote&#34;    : 123
+            }
+        ]
+    }]
+    &#34;&#34;&#34;
+    questions = Question.query.all()
+    question_dicts = [{&#39;questionID&#39;: q.questionID,
+                       &#39;ownerID&#39;: q.ownerID,
+                       &#39;time&#39;: int(q.time.timestamp()),
+                       &#39;tag&#39;: q.tag,
+                       &#39;question&#39;: q.question,
+                       &#39;anonymous&#39;: q.anonymous,
+                       &#39;likes&#39;: q.likes,
+                       &#39;dislikes&#39;: q.dislikes,
+                       &#39;timeLimit&#39;: int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
+    for q in question_dicts:
+        option_list = Option.query.filter(
+            Option.questionID == q[&#39;questionID&#39;]).all()
+        # TODO: return image
+        option_dicts = [{&#39;option_name&#39;: o.name, &#39;option_image&#39;: o.image, &#39;optionID&#39;: o.OptionID, &#39;option_vote&#39;: o.votes}
+                        for o in option_list]
+        total_votes = 0
+        for o in option_dicts:
+            total_votes += o[&#39;option_vote&#39;]
+        q[&#39;total_votes&#39;] = total_votes
+        q[&#39;option_list&#39;] = option_dicts
+        q[&#39;username&#39;] = User.query.filter(
+            User.UID == q[&#39;ownerID&#39;]).first().username
+        q[&#39;owner_image&#39;] = User.query.filter(
+            User.UID == q[&#39;ownerID&#39;]).first().image_file
+
+        UID = int(request.args.get(&#39;UID&#39;))
+        user_vote_record = UserVote.query.filter(
+            UserVote.userID == UID).filter(UserVote.questionID == q[&#39;questionID&#39;]).first()
+        if user_vote_record == None:
+            q[&#39;voted&#39;] = -1
+        else:
+            q[&#39;voted&#39;] = user_vote_record.vote_result
+        user_attitude_record = UserAttitude.query.filter(
+            UserAttitude.userID == UID).filter(UserAttitude.questionID == q[&#39;questionID&#39;]).first()
+        if user_attitude_record == None:
+            q[&#39;chosenAttitude&#39;] = -1
+        else:
+            q[&#39;chosenAttitude&#39;] = user_attitude_record.attitude
+        if datetime.datetime.fromtimestamp(q[&#39;timeLimit&#39;]) &lt; datetime.datetime.now():
+            q[&#39;expired&#39;] = True
+        else:
+            q[&#39;expired&#39;] = False
+    question_dicts.sort(key=lambda k: k[&#39;time&#39;], reverse=True)
+    return jsonify(question_dicts)</code></pre>
+</details>
+</dd>
+<dt id="api.getAllUsers"><code class="name flex">
+<span>def <span class="ident">getAllUsers</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>return a list of all current users' information dictionary</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAllUsers():
+    &#34;&#34;&#34;return a list of all current users&#39; information dictionary&#34;&#34;&#34;
+    users = User.query.all()
+    return [{&#34;UID&#34;: i.UID, &#34;username&#34;: i.username, &#34;email&#34;: i.email, &#34;password&#34;: i.password} for i in users]</code></pre>
+</details>
+</dd>
+<dt id="api.getAttitudes"><code class="name flex">
+<span>def <span class="ident">getAttitudes</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>request a user's UID, return all questions and corresponding information
+has been liked or dislike by this user and this user's username and user image</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.route(&#39;/api/getAttitudes&#39;, methods=[&#34;POST&#34;])
+def getAttitudes():
+    &#34;&#34;&#34; request a user&#39;s UID, return all questions and corresponding information 
+    has been liked or dislike by this user and this user&#39;s username and user image
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    This API use the POST method. Assume not vote
+    The returned json object is be in the form below:
+    [{   &#39;anonymous&#39;: False,
+        &#39;attitude&#39;: &#39;Like&#39;,
+        &#39;dislikes&#39;: 0,
+        &#39;likes&#39;: 0,
+        &#39;option_list&#39;: [   {   &#39;optionID&#39;: 5,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;Dune&#39;,
+                               &#39;option_vote&#39;: 0},
+                           {   &#39;optionID&#39;: 6,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;No Time To Die&#39;,
+                               &#39;option_vote&#39;: 0},
+                           {   &#39;optionID&#39;: 7,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;Eternals&#39;,
+                               &#39;option_vote&#39;: 0},
+                           {   &#39;optionID&#39;: 8,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;Shangqi&#39;,
+                               &#39;option_vote&#39;: 0}],
+        &#39;ownerID&#39;: 3,
+        &#39;question&#39;: &#39;What movie should I choose for date?&#39;,
+        &#39;questionID&#39;: 3,
+        &#39;tag&#39;: &#39;Movie&#39;,
+        &#39;time&#39;: datetime.datetime(2021, 11, 11, 0, 0),
+        &#39;timeLimit&#39;: 1636704000,
+        &#39;userID&#39;: 6,
+        &#39;username&#39;: &#39;voteUser2&#39;}]&#34;&#34;&#34;
+    try:
+        uid = request.json[&#34;UID&#34;]
+        userAttitudes = UserAttitude.query.all()
+        userVotes = UserVote.query.all()
+        questions = Question.query.all()
+        options = Option.query.all()
+        userAttitudes = list(filter(lambda x: x.userID == uid, userAttitudes))
+        result = []
+        for att in userAttitudes:
+            q = list(filter(lambda x: x.questionID ==
+                     att.questionID, questions))[0]
+            voted = -1
+            vote = list(filter(lambda x: x.userID ==
+                        uid and x.questionID == q.questionID, userVotes))
+            if len(vote) != 0:
+                voted = vote[0].vote_result
+            all_options = list(
+                filter(lambda x: x.questionID == q.questionID, options))
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {&#39;optionID&#39;: o.OptionID,
+                        &#39;option_name&#39;: o.name,
+                        &#39;option_image&#39;: o.image,
+                        &#39;option_vote&#39;: o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
+            info = {&#39;userID&#39;: uid,
+                    &#39;questionID&#39;: q.questionID,
+                    &#39;ownerID&#39;: q.ownerID,
+                    &#39;owner_image&#39;: getUserImage(q.ownerID),
+                    &#39;time&#39;: q.time,
+                    &#39;tag&#39;: q.tag,
+                    &#39;question&#39;: q.question,
+                    &#39;anonymous&#39;: q.anonymous,
+                    &#39;likes&#39;: q.likes,
+                    &#39;dislikes&#39;: q.dislikes,
+                    &#39;timeLimit&#39;: int(q.timeLimit.timestamp()),
+                    &#39;option_list&#39;: option_list,
+                    &#39;username&#39;: getUsername(q.ownerID),
+                    &#39;chosenAttitude&#39;: att.attitude,
+                    &#39;voted&#39;: voted,
+                    &#39;total_votes&#39;: total_votes}
+            if datetime.datetime.fromtimestamp(info[&#39;timeLimit&#39;]) &lt; datetime.datetime.now():
+                info[&#39;expired&#39;] = True
+            else:
+                info[&#39;expired&#39;] = False
+            result.append(info)
+        result.sort(key=lambda k: k[&#39;time&#39;], reverse=True)
+        print(&#39;------------------successful get attitude---------------------&#39;)
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})</code></pre>
+</details>
+</dd>
+<dt id="api.getHistoricalQuestions"><code class="name flex">
+<span>def <span class="ident">getHistoricalQuestions</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>request a user's UID, return all questions and corresponding information
+has been posted by this user and this user's username and user image</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.route(&#39;/api/getHistoricalQuestions&#39;, methods=[&#34;POST&#34;])
+def getHistoricalQuestions():
+    &#34;&#34;&#34; request a user&#39;s UID, return all questions and corresponding information 
+    has been posted by this user and this user&#39;s username and user image
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    This API use the POST method.
+    The returned json object is be in the form below:
+    [{   &#39;anonymous&#39;: False,
+        &#39;dislikes&#39;: 0,
+        &#39;likes&#39;: 0,
+        &#39;option_list&#39;: [   {   &#39;optionID&#39;: 1,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;Food1&#39;,
+                               &#39;option_vote&#39;: 0},
+                           {   &#39;optionID&#39;: 2,
+                               &#39;option_image&#39;: &#39;none&#39;,
+                               &#39;option_name&#39;: &#39;Food2&#39;,
+                               &#39;option_vote&#39;: 0}],
+        &#39;ownerID&#39;: 1,
+        &#39;question&#39;: &#39;What food should I choose?&#39;,
+        &#39;questionID&#39;: 1,
+        &#39;tag&#39;: &#39;Food&#39;,
+        &#39;time&#39;: datetime.datetime(2021, 11, 20, 0, 0),
+        &#39;timeLimit&#39;: 1638259200,
+        &#39;userID&#39;: 1,
+        &#39;username&#39;: &#39;testuser&#39;}]&#34;&#34;&#34;
+
+    try:
+        uid = request.json[&#34;UID&#34;]
+        questions = Question.query.all()
+        userVotes = UserVote.query.all()
+        userAttitudes = UserAttitude.query.all()
+        postedQ = list(filter(lambda x: x.ownerID == uid, questions))
+        options = Option.query.all()
+        result = []
+        for q in postedQ:
+            att = -1
+            attitude = list(filter(lambda x: x.userID ==
+                            uid and x.questionID == q.questionID, userAttitudes))
+            if len(attitude) != 0:
+                att = attitude[0].attitude
+            voted = -1
+            vote = list(filter(lambda x: x.userID ==
+                        uid and x.questionID == q.questionID, userVotes))
+            if len(vote) != 0:
+                voted = vote[0].vote_result
+            all_options = list(
+                filter(lambda x: x.questionID == q.questionID, options))
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {&#39;optionID&#39;: o.OptionID,
+                        &#39;option_name&#39;: o.name,
+                        &#39;option_image&#39;: o.image,
+                        &#39;option_vote&#39;: o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
+            info = {&#39;userID&#39;: uid,
+                    &#39;questionID&#39;: q.questionID,
+                    &#39;ownerID&#39;: q.ownerID,
+                    &#39;owner_image&#39;: getUserImage(uid),
+                    &#39;time&#39;: q.time,
+                    &#39;tag&#39;: q.tag,
+                    &#39;question&#39;: q.question,
+                    &#39;anonymous&#39;: q.anonymous,
+                    &#39;likes&#39;: q.likes,
+                    &#39;dislikes&#39;: q.dislikes,
+                    &#39;timeLimit&#39;: int(q.timeLimit.timestamp()),
+                    &#39;option_list&#39;: option_list,
+                    &#39;username&#39;: getUsername(uid),
+                    &#39;chosenAttitude&#39;: att,
+                    &#39;voted&#39;: voted,
+                    &#39;total_votes&#39;: total_votes}
+            if datetime.datetime.fromtimestamp(info[&#39;timeLimit&#39;]) &lt; datetime.datetime.now():
+                info[&#39;expired&#39;] = True
+            else:
+                info[&#39;expired&#39;] = False
+            result.append(info)
+        result.sort(key=lambda k: k[&#39;time&#39;], reverse=True)
+        print(&#39;------------------successful ---------------------&#39;)
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})</code></pre>
+</details>
+</dd>
+<dt id="api.getUID"><code class="name flex">
+<span>def <span class="ident">getUID</span></span>(<span>email)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>given user's email, return this user's UID</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getUID(email):
+    &#34;&#34;&#34;given user&#39;s email, return this user&#39;s UID&#34;&#34;&#34;
+    users = User.query.all()
+    user = list(filter(lambda x: x.email == email, users))[0]
+    return user.UID</code></pre>
+</details>
+</dd>
+<dt id="api.getUser"><code class="name flex">
+<span>def <span class="ident">getUser</span></span>(<span>email)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>given user's email, return UID, username, email and password of this user</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getUser(email):
+    &#34;&#34;&#34;given user&#39;s email, return UID, username, email and password of this user&#34;&#34;&#34;
+    users = User.query.all()
+    user = list(filter(lambda x: x.email == email, users))[0]
+    return {&#34;UID&#34;: user.UID, &#34;username&#34;: user.username, &#34;email&#34;: user.email, &#34;password&#34;: user.password}</code></pre>
+</details>
+</dd>
+<dt id="api.getUserImage"><code class="name flex">
+<span>def <span class="ident">getUserImage</span></span>(<span>UID)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>given user's UID, return this user's user image</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getUserImage(UID):
+    &#34;&#34;&#34;given user&#39;s UID, return this user&#39;s user image&#34;&#34;&#34;
+    users = User.query.all()
+    user = list(filter(lambda x: x.UID == UID, users))[0]
+    return user.image_file</code></pre>
+</details>
+</dd>
+<dt id="api.getUserinfo"><code class="name flex">
+<span>def <span class="ident">getUserinfo</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>request an UID, return username, email and user image in json format</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.route(&#34;/api/getUserinfo&#34;, methods=[&#34;POST&#34;])
+def getUserinfo():
+    &#34;&#34;&#34; request an UID, return username, email and user image in json format&#34;&#34;&#34;
+    try:
+        uid = request.json[&#34;UID&#34;]
+        users = User.query.all()
+        user = list(filter(lambda x: x.UID == uid, users))[0]
+        result = [{&#34;userID&#34;: user.UID, &#34;username&#34;: user.username,
+                   &#34;email&#34;: user.email, &#34;owner_image&#34;: user.image_file}]
+        print(&#34;------ successful get userinfo---------&#34;)
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as error:
+        print(error)
+        return jsonify({&#34;error&#34;: error})</code></pre>
+</details>
+</dd>
+<dt id="api.getUsername"><code class="name flex">
+<span>def <span class="ident">getUsername</span></span>(<span>UID)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>given user's UID, return this user's username</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getUsername(UID):
+    &#34;&#34;&#34;given user&#39;s UID, return this user&#39;s username&#34;&#34;&#34;
+    users = User.query.all()
+    user = list(filter(lambda x: x.UID == UID, users))[0]
+    return user.username</code></pre>
+</details>
+</dd>
+<dt id="api.getVotes"><code class="name flex">
+<span>def <span class="ident">getVotes</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>request a user's UID, return all questions and corresponding information
+has been voted by this user and this user's username and user image</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@app.route(&#39;/api/getVotes&#39;, methods=[&#34;POST&#34;])
+def getVotes():
+    &#34;&#34;&#34; request a user&#39;s UID, return all questions and corresponding information 
+    has been voted by this user and this user&#39;s username and user image
+    &#34;&#34;&#34;
+    &#34;&#34;&#34; request an UID, return all vote actions of a this user and its user name. For each vote action, 
+    return the questionID, ownerID, time, tag , question(description) and the voted option name
+    This API use the POST method. Assume not choose attitude
+    The returned json object is be in the form below:
+    [{&#39;anonymous&#39;: False,
+    &#39;dislikes&#39;: 0,
+    &#39;likes&#39;: 0,
+    &#39;option_list&#39;: [{&#39;optionID&#39;: 1,
+                &#39;option_image&#39;: &#39;none&#39;,
+                &#39;option_name&#39;: &#39;Food1&#39;,
+                &#39;option_vote&#39;: 0},
+                {&#39;optionID&#39;: 2,
+                &#39;option_image&#39;: &#39;none&#39;,
+                &#39;option_name&#39;: &#39;Food2&#39;,
+                &#39;option_vote&#39;: 0}],
+    &#39;ownerID&#39;: 1,
+    &#39;question&#39;: &#39;What food should I choose?&#39;,
+    &#39;questionID&#39;: 1,
+    &#39;tag&#39;: &#39;Food&#39;,
+    &#39;time&#39;: datetime.datetime(2021, 11, 20, 0, 0),
+    &#39;timeLimit&#39;: 1638259200,
+    &#39;userID&#39;: 5,
+    &#39;username&#39;: &#39;voteUser1&#39;,
+    &#39;vote_result&#39;: 1}]
+    &#34;&#34;&#34;
+    try:
+        uid = request.json[&#34;UID&#34;]
+        userVotes = UserVote.query.filter(UserVote.userID == uid).all()
+        questions = Question.query.all()
+        options = Option.query.all()
+        userAttitudes = UserAttitude.query.all()
+        userVotes = list(filter(lambda x: x.userID == uid, userVotes))
+        result = []
+        for vote in userVotes:
+            q = list(filter(lambda x: x.questionID ==
+                     vote.questionID, questions))[0]
+            att = -1
+            attitude = list(filter(lambda x: x.userID ==
+                            uid and x.questionID == q.questionID, userAttitudes))
+            if len(attitude) != 0:
+                att = attitude[0].attitude
+            all_options = list(
+                filter(lambda x: x.questionID == q.questionID, options))
+            total_votes = 0
+            option_list = []
+            for o in all_options:
+                temp = {&#39;optionID&#39;: o.OptionID,
+                        &#39;option_name&#39;: o.name,
+                        &#39;option_image&#39;: o.image,
+                        &#39;option_vote&#39;: o.votes}
+                option_list.append(temp)
+                total_votes += o.votes
+            vote_option = list(filter(lambda x: x.OptionID ==
+                               vote.vote_result, options))[0]
+            info = {&#39;userID&#39;: uid,
+                    &#39;questionID&#39;: q.questionID,
+                    &#39;ownerID&#39;: q.ownerID,
+                    &#39;owner_image&#39;: getUserImage(q.ownerID),
+                    &#39;time&#39;: q.time,
+                    &#39;tag&#39;: q.tag,
+                    &#39;question&#39;: q.question,
+                    &#39;anonymous&#39;: q.anonymous,
+                    &#39;likes&#39;: q.likes,
+                    &#39;dislikes&#39;: q.dislikes,
+                    &#39;timeLimit&#39;: int(q.timeLimit.timestamp()),
+                    &#39;option_list&#39;: option_list,
+                    &#39;username&#39;: getUsername(q.ownerID),
+                    &#39;vote_result&#39;: vote_option.OptionID,
+                    &#39;chosenAttitude&#39;: att,
+                    &#39;voted&#39;: vote_option.OptionID,
+                    &#39;total_votes&#39;: total_votes}
+            if datetime.datetime.fromtimestamp(info[&#39;timeLimit&#39;]) &lt; datetime.datetime.now():
+                info[&#39;expired&#39;] = True
+            else:
+                info[&#39;expired&#39;] = False
+            result.append(info)
+        result.sort(key=lambda k: k[&#39;time&#39;], reverse=True)
+        print(&#39;------------------successful ---------------------&#39;)
+        pp.pprint(result)
+        return jsonify(result)
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})
+    questions = Question.query.filter(
+        Question.tag == request.args.get(&#39;tag&#39;)).all()</code></pre>
 </details>
 </dd>
 <dt id="api.listHotTopics"><code class="name flex">
 <span>def <span class="ident">listHotTopics</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return the hottest topic of each tag.</p></div>
+<div class="desc"><p>Return the hottest topic (with most likes + dislikes) of each tag.
+The request should provide a 'UID' parameter.
+This API use the GET method.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@app.route(&#39;/api/listHotTopics&#39;)
+<pre><code class="python">@app.route(&#39;/api/listHotTopics&#39;, methods=[&#34;GET&#34;])
 def listHotTopics():
-    &#34;&#34;&#34; Return the hottest topic of each tag. &#34;&#34;&#34;
-    pass</code></pre>
+    &#34;&#34;&#34; Return the hottest topic (with most likes + dislikes) of each tag. 
+    The request should provide a &#39;UID&#39; parameter.
+    This API use the GET method.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    The returned json object is be in the form below:
+    [
+        {
+            &#34;questionID&#34;    : 123456,
+            &#34;ownerID&#34;       : 123456,
+            &#34;ownername&#34;     : &#34;xxx&#34;,
+            &#34;owner_image&#34;   : &#34;xxx&#34;,
+            &#34;time&#34;          : &lt;timestamp&gt;,
+            &#34;tag&#34;           : &#34;Food&#34;,
+            &#34;question&#34;      : &#34;What ... ?&#34;,
+            &#34;anonymous&#34;     : False,
+            &#34;likes&#34;         : 2,
+            &#34;dislikes&#34;      : 2,
+            &#34;timeLimit&#34;     : &lt;timestamp&gt;,
+            &#34;chosenAttitude&#34;: -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
+            &#34;voted&#34;         : 1,     (-1 for not voted, otherwise return the voted optionID)
+            &#34;total_votes&#34;   : 100,
+            &#34;expired&#34;       : False,
+            &#34;option_list&#34;       :
+            [
+                {
+                    &#34;optionID&#34;       : 123456,
+                    &#34;option_name&#34;    : &#34;option content&#34;,
+                    &#34;option_image&#34;   : &#34;ImageFiliePath&#34;,
+                    &#34;option_vote&#34;    : 123
+                },
+                ...
+            ]
+        },
+        ...
+    ]
+    &#34;&#34;&#34;
+    try:
+        UID = request.args.get(&#39;UID&#39;)
+        tags = [&#34;Style&#34;, &#34;Sports&#34;, &#34;Music&#34;, &#34;Movie&#34;, &#34;Food&#34;, &#34;Travel&#34;]
+        ret_list = []
+        for tag_ in tags:
+            q = Question.query\
+                .filter_by(tag=tag_)\
+                .filter(Question.timeLimit &gt; datetime.datetime.now())\
+                .order_by((Question.likes+Question.dislikes).desc())\
+                .first()
+            if not q:
+                continue
+            id = q.questionID
+            owner = User.query.get(q.ownerID)
+            expired = False
+            if q.timeLimit.timestamp() &lt; datetime.datetime.now().timestamp():
+                expired = True
+            options = Option.query.filter_by(questionID=id).all()
+            total_votes = 0
+            option_list = []
+            for op in options:
+                op_dict = {}
+                op_dict[&#34;optionID&#34;] = op.OptionID
+                op_dict[&#34;option_name&#34;] = op.name
+                op_dict[&#34;option_image&#34;] = op.image
+                op_dict[&#34;option_vote&#34;] = op.votes
+                total_votes += op.votes
+                option_list.append(op_dict)
+
+            q_dict = {
+                &#34;questionID&#34;: id,
+                &#34;ownerID&#34;: q.ownerID,
+                &#34;ownerName&#34;: owner.username,
+                &#34;owner_image&#34;: owner.image_file,
+                &#34;time&#34;: int(q.time.timestamp()),
+                &#34;tag&#34;: q.tag,
+                &#34;question&#34;: q.question,
+                &#34;anonymous&#34;: q.anonymous,
+                &#34;likes&#34;: q.likes,
+                &#34;dislikes&#34;: q.dislikes,
+                &#34;timeLimit&#34;: int(q.timeLimit.timestamp()),
+                &#34;option_list&#34;: option_list,
+                &#34;total_votes&#34;: total_votes,
+                &#34;expired&#34;: expired
+            }
+            print(UID, id)
+            attitude_ = UserAttitude.query.filter_by(
+                userID=UID, questionID=id).first()
+            if not attitude_:
+                q_dict[&#34;chosenAttitude&#34;] = -1
+            else:
+                q_dict[&#34;chosenAttitude&#34;] = attitude_.attitude
+            vote_ = UserVote.query.filter_by(userID=UID, questionID=id).first()
+            if not vote_:
+                q_dict[&#34;voted&#34;] = -1
+            else:
+                q_dict[&#34;voted&#34;] = vote_.vote_result
+            ret_list.append(q_dict)
+        print(ret_list)
+        return jsonify(ret_list)
+
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})</code></pre>
 </details>
 </dd>
 <dt id="api.listTopics"><code class="name flex">
-<span>def <span class="ident">listTopics</span></span>(<span>tag)</span>
+<span>def <span class="ident">listTopics</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return all topics of a specific tag.</p></div>
+<div class="desc"><p>The request should provide a 'tags' parameter whose value is a string.
+The request should provide a 'UID' parameter which is a int.
+Different tags should be separated by coma.
+Example url: "http://localhost:5000/api/listTopics?tags=abc,def".
+Return all topics of specific tags.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@app.route(&#39;/api/listTopics&#39;)
-def listTopics(tag):
-    &#34;&#34;&#34; Return all topics of a specific tag. &#34;&#34;&#34;
-    pass</code></pre>
+<pre><code class="python">@app.route(&#39;/api/listTopics&#39;, methods=[&#34;GET&#34;])
+def listTopics():
+    &#34;&#34;&#34; 
+    The request should provide a &#39;tags&#39; parameter whose value is a string.
+    The request should provide a &#39;UID&#39; parameter which is a int.
+    Different tags should be separated by coma.
+    Example url: &#34;http://localhost:5000/api/listTopics?tags=abc,def&#34;.
+    Return all topics of specific tags. 
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    The returned data should be in format below:
+    [{
+        &#34;questionID&#34;    : 123456,
+        &#34;ownerID&#34;       : 123456,
+        &#34;username&#34;      : &#34;name&#34;,
+        &#34;time&#34;          : 1636665474,
+        &#34;tag&#34;           : &#34;tagname&#34;,
+        &#34;question&#34;      : &#34;question content&#34;,
+        &#34;annoymous&#34;     : TRUE,
+        &#34;timeLimit&#34;     : 1636665474,
+        &#34;chosenAttitude&#34;: -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
+        &#34;voted&#34;         : 1,     (-1 for not voted, otherwise return the voted optionID)
+        &#34;total_votes&#34;   : 5,
+        &#34;expired&#34;       : TRUE,
+        &#34;time_to_expire&#34;: 123456,
+        &#34;owner_image&#34;   : &#34;image&#34;,
+        &#34;option_list&#34;: [
+            {
+                &#34;optionID&#34;       : 1234556,
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;base64 str or none&#34;,
+                &#34;option_vote&#34;    : 123
+            },
+            {
+                &#34;optionID&#34;       : 1234557,
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;base64 str or none&#34;,
+                &#34;option_vote&#34;    : 123
+            }
+        ]
+    }]
+    &#34;&#34;&#34;
+    question_dicts = []
+    for tag in request.args.get(&#39;tags&#39;).split(&#39;,&#39;):
+        questions = Question.query.filter(
+            Question.tag == tag).all()
+        question_dicts += [{&#39;questionID&#39;: q.questionID,
+                            &#39;ownerID&#39;: q.ownerID,
+                            &#39;time&#39;: int(q.time.timestamp()),
+                            &#39;tag&#39;: q.tag,
+                            &#39;question&#39;: q.question,
+                            &#39;anonymous&#39;: q.anonymous,
+                            &#39;likes&#39;: q.likes,
+                            &#39;dislikes&#39;: q.dislikes,
+                            &#39;timeLimit&#39;: int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
+
+    for q in question_dicts:
+        option_list = Option.query.filter(
+            Option.questionID == q[&#39;questionID&#39;]).all()
+        # TODO: return image
+        option_dicts = [{&#39;option_name&#39;: o.name, &#39;option_image&#39;: o.image, &#39;optionID&#39;: o.OptionID, &#39;option_vote&#39;: o.votes}
+                        for o in option_list]
+        total_votes = 0
+        for o in option_dicts:
+            total_votes += o[&#39;option_vote&#39;]
+        q[&#39;total_votes&#39;] = total_votes
+        q[&#39;option_list&#39;] = option_dicts
+        q[&#39;username&#39;] = User.query.filter(
+            User.UID == q[&#39;ownerID&#39;]).first().username
+        q[&#39;owner_image&#39;] = User.query.filter(
+            User.UID == q[&#39;ownerID&#39;]).first().image_file
+
+        UID = int(request.args.get(&#39;UID&#39;))
+        user_vote_record = UserVote.query.filter(
+            UserVote.userID == UID).filter(UserVote.questionID == q[&#39;questionID&#39;]).first()
+        if user_vote_record == None:
+            q[&#39;voted&#39;] = -1
+        else:
+            q[&#39;voted&#39;] = user_vote_record.vote_result
+        user_attitude_record = UserAttitude.query.filter(
+            UserAttitude.userID == UID).filter(UserAttitude.questionID == q[&#39;questionID&#39;]).first()
+        if user_attitude_record == None:
+            q[&#39;chosenAttitude&#39;] = -1
+        else:
+            q[&#39;chosenAttitude&#39;] = user_attitude_record.attitude
+        if datetime.datetime.fromtimestamp(q[&#39;timeLimit&#39;]) &lt; datetime.datetime.now():
+            q[&#39;expired&#39;] = True
+        else:
+            q[&#39;expired&#39;] = False
+            # q[&#39;time_to_expire&#39;] = time_to_expire(q.)
+    question_dicts.sort(key=lambda k: k[&#39;time&#39;], reverse=True)
+    return jsonify(question_dicts)</code></pre>
 </details>
 </dd>
 <dt id="api.login"><code class="name flex">
 <span>def <span class="ident">login</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>verify existed user, if success return True, otherwise return False</p></div>
+<div class="desc"><p>request an email address and a password,
+return {"success": True} if successfuly register login,
+otherwise return corresponding error</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@app.route(&#34;/api/login&#34;, methods=[&#39;GET&#39;, &#39;POST&#39;])
+<pre><code class="python">@app.route(&#34;/api/login&#34;, methods=[&#34;POST&#34;])
 def login():
-    &#34;&#34;&#34; verify existed user, if success return True, otherwise return False&#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-<dt id="api.provideOptions"><code class="name flex">
-<span>def <span class="ident">provideOptions</span></span>(<span>question)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return a list of possible options based on the question.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@app.route(&#39;/api/provideOptions&#39;)
-def provideOptions(question):
-    &#34;&#34;&#34; Return a list of possible options based on the question. &#34;&#34;&#34;
-    pass</code></pre>
+    &#34;&#34;&#34; request an email address and a password, 
+    return {&#34;success&#34;: True} if successfuly register login, 
+    otherwise return corresponding error&#34;&#34;&#34;
+    try:
+        email = request.json[&#34;email&#34;]
+        password = request.json[&#34;password&#34;]
+        if email and password:
+            user = list(filter(
+                lambda x: x[&#34;email&#34;] == email and x[&#34;password&#34;] == password, getAllUsers()))
+            print(&#34;User Information:&#34;, user)
+            # Check if user exists
+            if len(user) == 1:
+                print(&#34;Successfully Login&#34;)
+                UID = getUID(email)
+                return jsonify({&#34;success&#34;: UID})
+            else:
+                return jsonify({&#34;error&#34;: &#34;Invalid credentials&#34;})
+        else:
+            return jsonify({&#34;error&#34;: &#34;Invalid form&#34;})
+    except Exception as error:
+        print(error)
+        return jsonify({&#34;error&#34;: &#34;Invalid form&#34;})</code></pre>
 </details>
 </dd>
 <dt id="api.recordAttitude"><code class="name flex">
 <span>def <span class="ident">recordAttitude</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Record the "like" or "dislike" action of a user.
-This API use the POST method.
-The posted json object should be in the form below:
-{
-"userID"
-: 123456,
-"questionID"
-: 123456,
-"attitude"
-: 0
-}</p></div>
+<div class="desc"><p>Record the "like" or "dislike" action of a user, given userID, questionID and attitude.
+This API use the POST method.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@app.route(&#39;/api/recordAttitude&#39;, methods=[&#34;POST&#34;])
 def recordAttitude():
-    &#34;&#34;&#34; Record the &#34;like&#34; or &#34;dislike&#34; action of a user. 
+    &#34;&#34;&#34; Record the &#34;like&#34; or &#34;dislike&#34; action of a user, given userID, questionID and attitude. 
     This API use the POST method.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
     The posted json object should be in the form below:
+    (&#34;attitude&#34; is an interger, 0 represents like, 1 represents dislike.)
     {
         &#34;userID&#34;        : 123456,
         &#34;questionID&#34;    : 123456,
         &#34;attitude&#34;      : 0
     }
     &#34;&#34;&#34;
-    method = request.method
-    if method.lower() == &#39;post&#39;:
-        userID = request[&#39;userID&#39;]
-        questionID = request[&#39;questionID&#39;]
-        attitude = request[&#39;attitude&#39;]
-        if userID and questionID and attitude:
-            user_attitude = UserAttitude(userID, questionID, attitude)
-            db.session.add(user_attitude)
+    try:
+        userID = request.json[&#39;userID&#39;]
+        questionID = request.json[&#39;questionID&#39;]
+        attitude = request.json[&#39;attitude&#39;]
+        if userID and questionID:
+            if attitude != 0 and attitude != 1:
+                print(&#34;invalid attitude&#34;)
+                return jsonify({&#34;error&#34;: &#34;invalid attitude&#34;})
             question = Question.query.get(questionID)
+            user_attitude = UserAttitude.query.filter_by(
+                userID=userID, questionID=questionID).first()
+            if user_attitude:
+                if user_attitude.attitude == attitude:
+                    print(&#34;repeated attitude&#34;)
+                    return jsonify({&#34;error&#34;: &#34;repeated attitude&#34;})
+                else:
+                    if user_attitude.attitude == 0:
+                        question.likes -= 1
+                    else:
+                        question.dislikes -= 1
+                    db.session.delete(user_attitude)
             if attitude == 0:
                 question.likes += 1
             else:
                 question.dislikes += 1
-            db.session.commit()</code></pre>
-</details>
-</dd>
-<dt id="api.recordFeedback"><code class="name flex">
-<span>def <span class="ident">recordFeedback</span></span>(<span>)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Record the feedback of a user's question.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@app.route(&#39;/api/recordFeedback&#39;)
-def recordFeedback():
-    &#34;&#34;&#34; Record the feedback of a user&#39;s question. &#34;&#34;&#34;
-    pass</code></pre>
+            user_attitude = UserAttitude(userID, questionID, attitude)
+            db.session.add(user_attitude)
+            db.session.commit()
+            print(&#34;Success!&#34;)
+            return jsonify({&#34;success&#34;: True})
+        else:
+            print(&#34;Missing userID or questionID&#34;)
+            return jsonify({&#34;error&#34;: &#34;Missing userID or questionID&#34;})
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})</code></pre>
 </details>
 </dd>
 <dt id="api.recordPostedQuestion"><code class="name flex">
@@ -547,47 +1943,17 @@ def recordFeedback():
 </code></dt>
 <dd>
 <div class="desc"><p>Record the posted question into our database.
-This API use the POST method.
-The posted json object should be in the form below:</p>
-<p>{
-"ownerID"
-: 123456,
-"time"
-: 1636665474,
-"tag"
-: "tagname",
-"question"
-: "question content",
-"annoymous"
-: TRUE,
-"isAutoSelect"
-: FALSE,
-"timeLimit"
-: 1636665474,
-"options": [
-{
-"optionText"
-: "option content",
-"optionImage"
-: "ImageFiliePath"
-},
-{
-"optionText"
-: "option content",
-"optionImage"
-: "ImageFiliePath"
-}
-]
-}</p>
-<p>If no image, the "optionImage" field should be an empty string</p></div>
+This API use the POST method.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@app.route(&#39;/api/recordPostedQuestion&#39;, methods=[&#34;POST&#34;])
 def recordPostedQuestion():
-    &#34;&#34;&#34; Record the posted question into our database. 
+    &#34;&#34;&#34; Record the posted question into our database.
     This API use the POST method.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
     The posted json object should be in the form below:
 
     {
@@ -596,57 +1962,56 @@ def recordPostedQuestion():
         &#34;tag&#34;           : &#34;tagname&#34;,
         &#34;question&#34;      : &#34;question content&#34;,
         &#34;annoymous&#34;     : TRUE,
-        &#34;isAutoSelect&#34;  : FALSE,
         &#34;timeLimit&#34;     : 1636665474,
         &#34;options&#34;: [
             {
-                &#34;optionText&#34;    : &#34;option content&#34;,
-                &#34;optionImage&#34;   : &#34;ImageFiliePath&#34;
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;ImageFiliePath&#34;
             },
             {
-                &#34;optionText&#34;    : &#34;option content&#34;,
-                &#34;optionImage&#34;   : &#34;ImageFiliePath&#34;
+                &#34;option_name&#34;    : &#34;option content&#34;,
+                &#34;option_image&#34;   : &#34;ImageFiliePath&#34;
             }
         ]
     }
 
+    &#34;time&#34; should be a unix timestamp indicating the time the question is posted
+    &#34;timeLimit&#34; should be a unix timestamp indicating the time the question expires
     If no image, the &#34;optionImage&#34; field should be an empty string
     &#34;&#34;&#34;
     method = request.method
     if method.lower() == &#39;post&#39;:
-        ownerID = request[&#39;ownerID&#39;]
-        time = request[&#39;time&#39;]
-        tag = request[&#39;tag&#39;]
-        question = request[&#39;question&#39;]
-        anonymous = request[&#39;anonymous&#39;]
-        isAutoSelect = request[&#39;isAutoSelect&#39;]
-        timeLimit = request[&#39;timeLimit&#39;]
+        ownerID = request.json[&#39;ownerID&#39;]
+        time = datetime.datetime.fromtimestamp(request.json[&#39;time&#39;])
+        tag = request.json[&#39;tag&#39;]
+        question = request.json[&#39;question&#39;]
+        anonymous = request.json[&#39;anonymous&#39;]
+        timeLimit = datetime.datetime.fromtimestamp(request.json[&#39;timeLimit&#39;])
 
+        question = Question(ownerID, time, tag, question,
+                            anonymous, timeLimit)
+        data = request.json[&#39;options&#39;]
+        for op in data:
+            option = None
+            if &#39;option_image&#39; not in op:
+                option = Option(op[&#39;option_name&#39;])
+            else:
+                option_name = op[&#39;option_name&#39;]
+                option_image = op[&#39;option_image&#39;][0][&#39;thumbUrl&#39;]
+                option = Option(option_name, option_image)
+                print(&#34;--------- try-------------&#34;)
+                print(option)
+            question.option.append(option)
         try:
-            question = Question(ownerID, time, tag, question,
-                                anonymous, isAutoSelect, timeLimit)
-            db.session.add(question)
-            db.session.refresh(question)
-            questionID = question.id
-            db.session.commit()
-        except Exception as e:
-            return ({&#39;error&#39;: e})
-        # TODO: get questionID
-        # Insert options in the Option table
-        for op in request[&#39;options&#39;]:
-            try:
-                # TODO: should not add Option this way, because there is a relationship with Question
-                if(op[&#39;optionImage&#39;] == &#39;&#39;):
-                    option = Option(questionID, op[&#39;optionText&#39;])
-                else:
-                    option = Option(questionID,
-                                    op[&#39;optionText&#39;], op[&#39;optionImage&#39;])
-                db.session.add(option)
-                db.session.commit()
-            except Exception as e:
-                # TODO: delete the question and cascade deletion of child
-                pass
 
+            db.session.add(question)
+            # db.session.refresh(question)
+            # questionID = question.id
+            db.session.commit()
+
+        except Exception as e:
+            print(e)
+            return ({&#39;error&#39;: e})
     return ({&#39;success&#39;: True})</code></pre>
 </details>
 </dd>
@@ -654,25 +2019,18 @@ def recordPostedQuestion():
 <span>def <span class="ident">recordVote</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Record the "vote" action of a user.
-This API use the POST method.
-The posted json object should be in the form below:
-{
-"userID"
-: 123456,
-"questionID"
-: 123456,
-"optionID"
-: 123456
-}</p></div>
+<div class="desc"><p>Record the "vote" action of a user, given userID, questionID and optionID.
+This API use the POST method.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@app.route(&#39;/api/recordVote&#39;, methods=[&#34;POST&#34;])
 def recordVote():
-    &#34;&#34;&#34; Record the &#34;vote&#34; action of a user. 
+    &#34;&#34;&#34; Record the &#34;vote&#34; action of a user, given userID, questionID and optionID. 
     This API use the POST method.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
     The posted json object should be in the form below:
     {
         &#34;userID&#34;        : 123456,
@@ -680,36 +2038,95 @@ def recordVote():
         &#34;optionID&#34;      : 123456
     }
     &#34;&#34;&#34;
-    method = request.method
-    if method.lower() == &#39;post&#39;:
-        userID = request[&#39;userID&#39;]
-        questionID = request[&#39;questionID&#39;]
-        vote_result = request[&#39;optionID&#39;]
+    try:
+        userID = request.json[&#39;userID&#39;]
+        questionID = request.json[&#39;questionID&#39;]
+        vote_result = request.json[&#39;optionID&#39;]
         if userID and questionID and vote_result:
-            user_vote = UserVote(userID, questionID, vote_result)
-            db.session.add(user_vote)
             option = Option.query.get(vote_result)
             option.votes += 1
-            db.session.commit()</code></pre>
+            user_vote = UserVote(userID, questionID, vote_result)
+            db.session.add(user_vote)
+            db.session.commit()
+            print(&#34;Success!&#34;)
+            return jsonify({&#34;success&#34;: True})
+        else:
+            print(&#34;missing data&#34;)
+            return jsonify({&#34;error&#34;: &#34;Missing userID or questionID or vote_result&#34;})
+    except Exception as e:
+        print(e)
+        return jsonify({&#34;error&#34;: e})</code></pre>
 </details>
 </dd>
 <dt id="api.register"><code class="name flex">
 <span>def <span class="ident">register</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>add new user to the database</p></div>
+<div class="desc"><p>request an email address, a password, a confirm_password,
+a username and a random user image string,
+return {"success": True} if successfuly register a new user,
+otherwise return corresponding error</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@app.route(&#34;/api/register&#34;, methods=[&#39;GET&#39;, &#39;POST&#39;])
+<pre><code class="python">@app.route(&#34;/api/register&#34;, methods=[&#34;POST&#34;])
 def register():
-    &#34;&#34;&#34; add new user to the database &#34;&#34;&#34;
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        flash(f&#39;Account created for {form.username.data}!&#39;, &#39;success&#39;)
-        return redirect(url_for(&#39;home&#39;))
-    return render_template(&#39;register.html&#39;, title=&#39;Register&#39;, form=form)</code></pre>
+    &#34;&#34;&#34; request an email address, a password, a confirm_password, 
+    a username and a random user image string,
+    return {&#34;success&#34;: True} if successfuly register a new user, 
+    otherwise return corresponding error&#34;&#34;&#34;
+    try:
+        email = request.json[&#34;email&#34;]
+        password = request.json[&#34;password&#34;]
+        confirm_password = request.json[&#34;confirm_password&#34;]
+        username = request.json[&#34;username&#34;]
+        image_file = request.json[&#34;image_file&#34;]
+        print({&#34;email&#34;: email, &#34;password&#34;: password,
+              &#34;confirm_password&#34;: confirm_password, &#34;username&#34;: username})
+
+        # registration information check
+        if not (email and password and confirm_password and username):
+            return jsonify({&#34;error&#34;: &#34;Invalid form&#34;})
+        elif password != confirm_password:
+            return jsonify({&#34;error&#34;: &#34;Inconsistent confirm password&#34;})
+
+        # Email validation check
+        if not re.match(r&#34;[\w._]{5,}@\w{3,}\.\w{2,4}&#34;, email):
+            return jsonify({&#34;error&#34;: &#34;Invalid email&#34;})
+
+        # Check to see if user already exists
+        users = getAllUsers()
+        if len(list(filter(lambda x: x[&#34;email&#34;] == email, users))) == 1:
+            return jsonify({&#34;error&#34;: &#34;Email address already existed&#34;})
+
+        # add a new user
+        try:
+            user = User(username, email, password,
+                        confirm_password, image_file)
+            db.session.add(user)
+            db.session.commit()
+            print(&#34;Successfully add a user!&#34;)
+        except Exception as error:
+            print(error)
+        return jsonify({&#34;success&#34;: True})
+
+    except Exception as error:
+        print(error)
+        return jsonify({&#34;error&#34;: &#34;Invalid form&#34;})</code></pre>
+</details>
+</dd>
+<dt id="api.time_to_expire"><code class="name flex">
+<span>def <span class="ident">time_to_expire</span></span>(<span>expire_dt)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_to_expire(expire_dt):
+    return expire_dt.timestamp() - datetime.datetime.now().timestamp()</code></pre>
 </details>
 </dd>
 </dl>
@@ -717,149 +2134,9 @@ def register():
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="api.Feedback"><code class="flex name class">
-<span>class <span class="ident">Feedback</span></span>
-<span>(</span><span>questionID, text, image=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Base class for SQLAlchemy declarative base model.</p>
-<p>To define models, subclass :attr:<code>db.Model &lt;SQLAlchemy.Model&gt;</code>, not this
-class. To customize <code>db.Model</code>, subclass this and pass it as
-<code>model_class</code> to :class:<code>SQLAlchemy</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Feedback(db.Model):
-    FeedbackID = db.Column(db.Integer, primary_key=True)
-    questionID = db.Column(db.Integer, db.ForeignKey(
-        &#39;question.QuestionID&#39;), nullable=False)
-    text = db.Column(db.String(500))
-    image = db.Column(db.String(50))
-
-    def __init__(self, questionID, text, image=None):
-        self.questionID = questionID
-        self.text = text
-        if image != None:
-            self.image = None
-        else:
-            self.image = &#39;none&#39;
-
-    def __repr__(self):
-        return f&#34;Feedback(&#39;{self.FeedbackID}&#39;, &#39;{self.questionID}&#39;, &#39;{self.text}&#39;)&#34;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>sqlalchemy.orm.decl_api.Model</li>
-<li>flask_sqlalchemy.model.Model</li>
-</ul>
-<h3>Instance variables</h3>
-<dl>
-<dt id="api.Feedback.FeedbackID"><code class="name">var <span class="ident">FeedbackID</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __get__(self, instance, owner):
-    if instance is None:
-        return self
-
-    dict_ = instance_dict(instance)
-    if self._supports_population and self.key in dict_:
-        return dict_[self.key]
-    else:
-        try:
-            state = instance_state(instance)
-        except AttributeError as err:
-            util.raise_(
-                orm_exc.UnmappedInstanceError(instance),
-                replace_context=err,
-            )
-        return self.impl.get(state, dict_)</code></pre>
-</details>
-</dd>
-<dt id="api.Feedback.image"><code class="name">var <span class="ident">image</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __get__(self, instance, owner):
-    if instance is None:
-        return self
-
-    dict_ = instance_dict(instance)
-    if self._supports_population and self.key in dict_:
-        return dict_[self.key]
-    else:
-        try:
-            state = instance_state(instance)
-        except AttributeError as err:
-            util.raise_(
-                orm_exc.UnmappedInstanceError(instance),
-                replace_context=err,
-            )
-        return self.impl.get(state, dict_)</code></pre>
-</details>
-</dd>
-<dt id="api.Feedback.questionID"><code class="name">var <span class="ident">questionID</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __get__(self, instance, owner):
-    if instance is None:
-        return self
-
-    dict_ = instance_dict(instance)
-    if self._supports_population and self.key in dict_:
-        return dict_[self.key]
-    else:
-        try:
-            state = instance_state(instance)
-        except AttributeError as err:
-            util.raise_(
-                orm_exc.UnmappedInstanceError(instance),
-                replace_context=err,
-            )
-        return self.impl.get(state, dict_)</code></pre>
-</details>
-</dd>
-<dt id="api.Feedback.text"><code class="name">var <span class="ident">text</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __get__(self, instance, owner):
-    if instance is None:
-        return self
-
-    dict_ = instance_dict(instance)
-    if self._supports_population and self.key in dict_:
-        return dict_[self.key]
-    else:
-        try:
-            state = instance_state(instance)
-        except AttributeError as err:
-            util.raise_(
-                orm_exc.UnmappedInstanceError(instance),
-                replace_context=err,
-            )
-        return self.impl.get(state, dict_)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
 <dt id="api.Option"><code class="flex name class">
 <span>class <span class="ident">Option</span></span>
-<span>(</span><span>questionID, name, image=None)</span>
+<span>(</span><span>name, image=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base class for SQLAlchemy declarative base model.</p>
@@ -871,24 +2148,24 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Option(db.Model):
+    __tablename__ = &#34;option&#34;
     OptionID = db.Column(db.Integer, primary_key=True)
     questionID = db.Column(db.Integer, db.ForeignKey(
-        &#39;question.QuestionID&#39;), nullable=False)
+        &#39;question.questionID&#39;), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    image = db.Column(db.String(50))
+    image = db.Column(db.String(100000000000000000000000000000))
     votes = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, questionID, name, image=None):
-        self.questionID = questionID
+    def __init__(self, name, image=None):
         self.name = name
         if image != None:
-            self.image = None
+            self.image = image
         else:
             self.image = &#39;none&#39;
         self.votes = 0
 
     def __repr__(self):
-        return f&#34;Option(&#39;{self.OptionID}&#39;, &#39;{self.questionID}&#39;, &#39;{self.votes}&#39;)&#34;</code></pre>
+        return f&#34;Option(&#39;{self.OptionID}&#39;, &#39;{self.questionID}&#39;, &#39;{self.votes}&#39;, &#39;{self.name}&#39;, &#39;{self.image}&#39;)&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1051,7 +2328,7 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
 </dd>
 <dt id="api.Question"><code class="flex name class">
 <span>class <span class="ident">Question</span></span>
-<span>(</span><span>ownerID, time, tag, question, anonymous, isAutoSelect, timeLimit)</span>
+<span>(</span><span>ownerID, time, tag, question, anonymous, timeLimit)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base class for SQLAlchemy declarative base model.</p>
@@ -1063,7 +2340,8 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Question(db.Model):
-    QuestionID = db.Column(db.Integer, primary_key=True)
+    __tablename__ = &#34;question&#34;
+    questionID = db.Column(db.Integer, primary_key=True)
     ownerID = db.Column(db.Integer, db.ForeignKey(&#39;user.UID&#39;), nullable=False)
     time = db.Column(db.DateTime)
     tag = db.Column(db.String(20))
@@ -1071,14 +2349,12 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
     anonymous = db.Column(db.Boolean)
     likes = db.Column(db.Integer)
     dislikes = db.Column(db.Integer)
-    feedback = db.Column(db.Integer)
-    isAutoSelect = db.Column(db.Boolean)
-    timeLimit = db.Column(db.Integer)
+    timeLimit = db.Column(db.DateTime)
 
-    options = db.relationship(
+    option = db.relationship(
         &#34;Option&#34;, cascade=&#34;all, delete&#34;, backref=&#34;Question&#34;)
 
-    def __init__(self, ownerID, time, tag, question, anonymous, isAutoSelect, timeLimit):
+    def __init__(self, ownerID, time, tag, question, anonymous,  timeLimit):
         self.ownerID = ownerID
         self.time = time
         self.tag = tag
@@ -1086,12 +2362,10 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
         self.anonymous = anonymous
         self.likes = 0
         self.dislikes = 0
-        self.feedbackID = -1
-        self.isAutoSelect = isAutoSelect
         self.timeLimit = timeLimit
 
     def __repr__(self):
-        return f&#34;Question(&#39;{self.QuestionID}&#39;, &#39;{self.ownerID}&#39;, &#39;{self.time}&#39;)&#34;</code></pre>
+        return f&#34;Question(&#39;{self.questionID}&#39;, &#39;{self.ownerID}&#39;, &#39;{self.time}&#39;)&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1100,57 +2374,7 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="api.Question.QuestionID"><code class="name">var <span class="ident">QuestionID</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __get__(self, instance, owner):
-    if instance is None:
-        return self
-
-    dict_ = instance_dict(instance)
-    if self._supports_population and self.key in dict_:
-        return dict_[self.key]
-    else:
-        try:
-            state = instance_state(instance)
-        except AttributeError as err:
-            util.raise_(
-                orm_exc.UnmappedInstanceError(instance),
-                replace_context=err,
-            )
-        return self.impl.get(state, dict_)</code></pre>
-</details>
-</dd>
 <dt id="api.Question.anonymous"><code class="name">var <span class="ident">anonymous</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __get__(self, instance, owner):
-    if instance is None:
-        return self
-
-    dict_ = instance_dict(instance)
-    if self._supports_population and self.key in dict_:
-        return dict_[self.key]
-    else:
-        try:
-            state = instance_state(instance)
-        except AttributeError as err:
-            util.raise_(
-                orm_exc.UnmappedInstanceError(instance),
-                replace_context=err,
-            )
-        return self.impl.get(state, dict_)</code></pre>
-</details>
-</dd>
-<dt id="api.Question.author"><code class="name">var <span class="ident">author</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -1200,56 +2424,6 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
         return self.impl.get(state, dict_)</code></pre>
 </details>
 </dd>
-<dt id="api.Question.feedback"><code class="name">var <span class="ident">feedback</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __get__(self, instance, owner):
-    if instance is None:
-        return self
-
-    dict_ = instance_dict(instance)
-    if self._supports_population and self.key in dict_:
-        return dict_[self.key]
-    else:
-        try:
-            state = instance_state(instance)
-        except AttributeError as err:
-            util.raise_(
-                orm_exc.UnmappedInstanceError(instance),
-                replace_context=err,
-            )
-        return self.impl.get(state, dict_)</code></pre>
-</details>
-</dd>
-<dt id="api.Question.isAutoSelect"><code class="name">var <span class="ident">isAutoSelect</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __get__(self, instance, owner):
-    if instance is None:
-        return self
-
-    dict_ = instance_dict(instance)
-    if self._supports_population and self.key in dict_:
-        return dict_[self.key]
-    else:
-        try:
-            state = instance_state(instance)
-        except AttributeError as err:
-            util.raise_(
-                orm_exc.UnmappedInstanceError(instance),
-                replace_context=err,
-            )
-        return self.impl.get(state, dict_)</code></pre>
-</details>
-</dd>
 <dt id="api.Question.likes"><code class="name">var <span class="ident">likes</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1275,7 +2449,7 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
         return self.impl.get(state, dict_)</code></pre>
 </details>
 </dd>
-<dt id="api.Question.options"><code class="name">var <span class="ident">options</span></code></dt>
+<dt id="api.Question.option"><code class="name">var <span class="ident">option</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -1326,6 +2500,31 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
 </details>
 </dd>
 <dt id="api.Question.question"><code class="name">var <span class="ident">question</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="api.Question.questionID"><code class="name">var <span class="ident">questionID</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -1429,7 +2628,7 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
 </dd>
 <dt id="api.User"><code class="flex name class">
 <span>class <span class="ident">User</span></span>
-<span>(</span><span>username, email, password, image_file=None)</span>
+<span>(</span><span>username, email, password, confirm_password, image_file=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base class for SQLAlchemy declarative base model.</p>
@@ -1441,24 +2640,24 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class User(db.Model):
+    __tablename__ = &#34;user&#34;
     UID = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
+    username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False,
-                           default=&#39;default.jpg&#39;)
     password = db.Column(db.String(60), nullable=False)
-    questions = db.relationship(&#39;Question&#39;, backref=&#39;author&#39;, lazy=True)
+    image_file = db.Column(db.String(999))
 
-    def __init__(self, username, email, password, image_file=None):
+    def __init__(self, username, email, password, confirm_password, image_file=None):
         self.username = username
         self.email = email
         self.password = password
-
         if image_file != None:
             self.image_file = image_file
+        else:
+            self.image_file = None
 
     def __repr__(self):
-        return f&#34;User(&#39;{self.UID}&#39;, &#39;{self.username}&#39;, &#39;{self.email}&#39;, &#39;{self.image_file}&#39;)&#34;</code></pre>
+        return f&#34;User(&#39;{self.UID}&#39;, &#39;{self.username}&#39;, &#39;{self.email}&#39;, &#39;{self.password}&#39;, &#39;{self.image_file}&#39;)&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1567,31 +2766,6 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
         return self.impl.get(state, dict_)</code></pre>
 </details>
 </dd>
-<dt id="api.User.questions"><code class="name">var <span class="ident">questions</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __get__(self, instance, owner):
-    if instance is None:
-        return self
-
-    dict_ = instance_dict(instance)
-    if self._supports_population and self.key in dict_:
-        return dict_[self.key]
-    else:
-        try:
-            state = instance_state(instance)
-        except AttributeError as err:
-            util.raise_(
-                orm_exc.UnmappedInstanceError(instance),
-                replace_context=err,
-            )
-        return self.impl.get(state, dict_)</code></pre>
-</details>
-</dd>
 <dt id="api.User.username"><code class="name">var <span class="ident">username</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1637,7 +2811,7 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
     userID = db.Column(db.Integer, db.ForeignKey(
         &#39;user.UID&#39;), nullable=False)
     questionID = db.Column(db.Integer, db.ForeignKey(
-        &#39;question.QuestionID&#39;), nullable=False)
+        &#39;question.questionID&#39;), nullable=False)
     # attitude is an interger, 0 represents like, 1 represents dislike
     attitude = db.Column(db.Integer, nullable=False)
 
@@ -1776,7 +2950,7 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
     userID = db.Column(db.Integer, db.ForeignKey(
         &#39;user.UID&#39;), nullable=False)
     questionID = db.Column(db.Integer, db.ForeignKey(
-        &#39;question.QuestionID&#39;), nullable=False)
+        &#39;question.questionID&#39;), nullable=False)
     # vote_result is an interger represents the option user choose
     vote_result = db.Column(db.Integer, nullable=False)
 
@@ -1908,32 +3082,30 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
 <ul id="index">
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="api.cancelAttitude" href="#api.cancelAttitude">cancelAttitude</a></code></li>
+<li><code><a title="api.expired" href="#api.expired">expired</a></code></li>
+<li><code><a title="api.getAllQuestions" href="#api.getAllQuestions">getAllQuestions</a></code></li>
+<li><code><a title="api.getAllUsers" href="#api.getAllUsers">getAllUsers</a></code></li>
 <li><code><a title="api.getAttitudes" href="#api.getAttitudes">getAttitudes</a></code></li>
 <li><code><a title="api.getHistoricalQuestions" href="#api.getHistoricalQuestions">getHistoricalQuestions</a></code></li>
+<li><code><a title="api.getUID" href="#api.getUID">getUID</a></code></li>
+<li><code><a title="api.getUser" href="#api.getUser">getUser</a></code></li>
+<li><code><a title="api.getUserImage" href="#api.getUserImage">getUserImage</a></code></li>
+<li><code><a title="api.getUserinfo" href="#api.getUserinfo">getUserinfo</a></code></li>
+<li><code><a title="api.getUsername" href="#api.getUsername">getUsername</a></code></li>
 <li><code><a title="api.getVotes" href="#api.getVotes">getVotes</a></code></li>
-<li><code><a title="api.get_current_time" href="#api.get_current_time">get_current_time</a></code></li>
 <li><code><a title="api.listHotTopics" href="#api.listHotTopics">listHotTopics</a></code></li>
 <li><code><a title="api.listTopics" href="#api.listTopics">listTopics</a></code></li>
 <li><code><a title="api.login" href="#api.login">login</a></code></li>
-<li><code><a title="api.provideOptions" href="#api.provideOptions">provideOptions</a></code></li>
 <li><code><a title="api.recordAttitude" href="#api.recordAttitude">recordAttitude</a></code></li>
-<li><code><a title="api.recordFeedback" href="#api.recordFeedback">recordFeedback</a></code></li>
 <li><code><a title="api.recordPostedQuestion" href="#api.recordPostedQuestion">recordPostedQuestion</a></code></li>
 <li><code><a title="api.recordVote" href="#api.recordVote">recordVote</a></code></li>
 <li><code><a title="api.register" href="#api.register">register</a></code></li>
+<li><code><a title="api.time_to_expire" href="#api.time_to_expire">time_to_expire</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
-<li>
-<h4><code><a title="api.Feedback" href="#api.Feedback">Feedback</a></code></h4>
-<ul class="">
-<li><code><a title="api.Feedback.FeedbackID" href="#api.Feedback.FeedbackID">FeedbackID</a></code></li>
-<li><code><a title="api.Feedback.image" href="#api.Feedback.image">image</a></code></li>
-<li><code><a title="api.Feedback.questionID" href="#api.Feedback.questionID">questionID</a></code></li>
-<li><code><a title="api.Feedback.text" href="#api.Feedback.text">text</a></code></li>
-</ul>
-</li>
 <li>
 <h4><code><a title="api.Option" href="#api.Option">Option</a></code></h4>
 <ul class="two-column">
@@ -1948,16 +3120,13 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
 <li>
 <h4><code><a title="api.Question" href="#api.Question">Question</a></code></h4>
 <ul class="two-column">
-<li><code><a title="api.Question.QuestionID" href="#api.Question.QuestionID">QuestionID</a></code></li>
 <li><code><a title="api.Question.anonymous" href="#api.Question.anonymous">anonymous</a></code></li>
-<li><code><a title="api.Question.author" href="#api.Question.author">author</a></code></li>
 <li><code><a title="api.Question.dislikes" href="#api.Question.dislikes">dislikes</a></code></li>
-<li><code><a title="api.Question.feedback" href="#api.Question.feedback">feedback</a></code></li>
-<li><code><a title="api.Question.isAutoSelect" href="#api.Question.isAutoSelect">isAutoSelect</a></code></li>
 <li><code><a title="api.Question.likes" href="#api.Question.likes">likes</a></code></li>
-<li><code><a title="api.Question.options" href="#api.Question.options">options</a></code></li>
+<li><code><a title="api.Question.option" href="#api.Question.option">option</a></code></li>
 <li><code><a title="api.Question.ownerID" href="#api.Question.ownerID">ownerID</a></code></li>
 <li><code><a title="api.Question.question" href="#api.Question.question">question</a></code></li>
+<li><code><a title="api.Question.questionID" href="#api.Question.questionID">questionID</a></code></li>
 <li><code><a title="api.Question.tag" href="#api.Question.tag">tag</a></code></li>
 <li><code><a title="api.Question.time" href="#api.Question.time">time</a></code></li>
 <li><code><a title="api.Question.timeLimit" href="#api.Question.timeLimit">timeLimit</a></code></li>
@@ -1965,12 +3134,11 @@ class. To customize <code>db.Model</code>, subclass this and pass it as
 </li>
 <li>
 <h4><code><a title="api.User" href="#api.User">User</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="api.User.UID" href="#api.User.UID">UID</a></code></li>
 <li><code><a title="api.User.email" href="#api.User.email">email</a></code></li>
 <li><code><a title="api.User.image_file" href="#api.User.image_file">image_file</a></code></li>
 <li><code><a title="api.User.password" href="#api.User.password">password</a></code></li>
-<li><code><a title="api.User.questions" href="#api.User.questions">questions</a></code></li>
 <li><code><a title="api.User.username" href="#api.User.username">username</a></code></li>
 </ul>
 </li>
