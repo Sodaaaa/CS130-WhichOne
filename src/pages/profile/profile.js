@@ -227,7 +227,7 @@ export default class profile extends Component {
               </Button>
             </div>
             <Descriptions bordered>
-              <Descriptions.Item label="UserName">
+              <Descriptions.Item label="Name">
                 {this.state.username}
               </Descriptions.Item>
               <Descriptions.Item label="Email">
