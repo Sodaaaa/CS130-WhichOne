@@ -2,19 +2,16 @@ import React, { Component } from "react";
 import {
   Descriptions,
   Avatar,
-  Image,
   Button,
-  Upload,
-  message,
   Tabs,
 } from "antd";
-import { UploadOutlined, UserOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { UserOutlined } from "@ant-design/icons";
+// import { Link } from "react-router-dom";
 import { Layout } from "antd/lib";
 import "./profile.css";
 import MenuBar from "../../components/MenuBar/MenuBar";
 import axios from "axios";
-import OptionList from "../../components/optionList/OptionList";
+// import OptionList from "../../components/optionList/OptionList";
 import QuestionList from "../../components/questionList/questionList";
 
 const { Header, Content } = Layout;
@@ -55,7 +52,7 @@ export default class profile extends Component {
   populateList(res, questionList, optionList) {
     for (let i = 0; i < res.data.length; i++) {
       optionList.push(res.data[i].option_list);
-      console.log(optionList);
+      // console.log(optionList);
       let expiryDate = new Date(res.data[i].timeLimit * 1000);
       let question = {
         title: res.data[i].question,
@@ -89,7 +86,9 @@ export default class profile extends Component {
               icon={<UserOutlined />}
             />
           ) : (
-            <Avatar src={"https://joeschmoe.io/api/v1/" + res.data[i].owner_image} />
+            <Avatar
+              src={"https://joeschmoe.io/api/v1/" + res.data[i].owner_image}
+            />
           ),
       };
       // console.log(question);
@@ -110,8 +109,7 @@ export default class profile extends Component {
         UID: Number(localStorage.getItem("UID")),
       })
       .then((res) => {
-        console.log(res);
-        console.log("avatar:" + res.data[0].image_file);
+        // console.log(res);
         this.setState({
           avatar:
             res.data[0].owner_image === undefined ? (
@@ -140,7 +138,7 @@ export default class profile extends Component {
         UID: Number(localStorage.getItem("UID")),
       })
       .then((res) => {
-        console.log("result is", res);
+        // console.log("result is", res);
         this.populateList(res, questionList, optionList);
         this.setState({
           questionlistData: questionList,
@@ -157,14 +155,14 @@ export default class profile extends Component {
         UID: Number(localStorage.getItem("UID")),
       })
       .then((res) => {
-        console.log("vote result is", res);
+        // console.log("vote result is", res);
         this.populateList(res, votelist, optionList2);
         this.setState({
           votelistData: votelist,
           optionListData2: optionList2,
           votePopulated: true,
         });
-        console.log("history vote data is", this.state.votelistData);
+        // console.log("history vote data is", this.state.votelistData);
         // console.log("option2: " + this.state.optionListData2);
       });
 
@@ -227,7 +225,7 @@ export default class profile extends Component {
               </Button>
             </div>
             <Descriptions bordered>
-              <Descriptions.Item label="UserName">
+              <Descriptions.Item label="Name">
                 {this.state.username}
               </Descriptions.Item>
               <Descriptions.Item label="Email">

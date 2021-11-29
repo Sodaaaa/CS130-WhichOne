@@ -1,15 +1,13 @@
-import React, { Component, useState, createElement } from "react";
+import React, { Component } from "react";
 import OptionList from "../../components/optionList/OptionList";
 import {
-  MessageOutlined,
   DislikeOutlined,
   LikeOutlined,
   DislikeFilled,
   LikeFilled,
-  StarOutlined,
   RightCircleTwoTone,
 } from "@ant-design/icons";
-import { List, Avatar, Space, Alert, notification, Tag } from "antd";
+import { List, Avatar, Space, notification, Tag } from "antd";
 import axios from "axios";
 import { Collapse } from "antd";
 import "./questionList.css";
@@ -217,7 +215,12 @@ class QuestionList extends Component {
                       {item.dislikes}
                     </Space>
                   </span>,
-                  <p> {item.expired ? "expired on "+item.expiryTime : "expires on "+item.expiryTime} </p>,
+                  <p>
+                    {" "}
+                    {item.expired
+                      ? "expired on " + item.expiryTime
+                      : "expires on " + item.expiryTime}{" "}
+                  </p>,
                 ]}
                 // extra={
                 //   <img

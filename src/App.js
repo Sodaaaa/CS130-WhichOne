@@ -1,7 +1,7 @@
-import logo from "./logo.svg";
+// import logo from "./logo.svg";
 import "./App.css";
 import React from "react";
-import { Link, Route, Switch, BrowserRouter } from "react-router-dom";
+import { Route, Switch, BrowserRouter } from "react-router-dom";
 import login from "./pages/login/login";
 import homepage from "./pages/homepage/homepage";
 import question from "./pages/question/question";

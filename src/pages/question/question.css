@@ -6,6 +6,7 @@
   background-color: #ffffff;
   padding: 50px 50px;
   background: url("../../img/background.jfif") no-repeat;
+  background-size: cover;
 }
 
 .question-title {
@@ -40,13 +41,12 @@
 }
 
 .question-add-btn {
-  margin-left: 195px;
+  margin-left: 200px;
   width: 150px;
 }
 
 .no-loggin-alert {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 30px;
   padding-top: 60px;
   padding-bottom: 5px;
   border-radius: 20px;

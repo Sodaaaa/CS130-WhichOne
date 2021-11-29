@@ -7,6 +7,7 @@ import {
   BarsOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import "./MenuBar.css";
 
 const { Header } = Layout;
 
@@ -32,7 +33,10 @@ export default class MenuBar extends Component {
     }
     return (
       <Header>
-        <div className="logo"> Which One </div>
+        <div className="logo">
+          <img className="logo-img" src="logo.png" />
+          <span> Which One </span>
+        </div>
         <Menu
           theme="light"
           mode="horizontal"

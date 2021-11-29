@@ -15,7 +15,7 @@ class OptionList extends Component {
       questionID: this.props.questionID,
       loggedIn: localStorage.getItem("loggedIn") == "true",
     };
-    console.log("voted", this.state.voted);
+    // console.log("voted", this.state.voted);
   }
 
   openNotification = () => {
@@ -35,8 +35,8 @@ class OptionList extends Component {
       return;
     }
 
-    console.log("radio checked", e.target.value);
-    console.log("target: ", e.target);
+    // console.log("radio checked", e.target.value);
+    // console.log("target: ", e.target);
     this.setState({
       value: e.target.value,
       idx: e.target.idx,
@@ -52,7 +52,7 @@ class OptionList extends Component {
   // }
 
   vote = () => {
-    console.log("option chosen: ", this.state.value);
+    // console.log("option chosen: ", this.state.value);
     if (this.state.value != -1) {
       this.state.listData[this.state.idx].option_vote += 1;
       this.state.totalVotes += 1;
@@ -67,7 +67,7 @@ class OptionList extends Component {
           optionID: Number(this.state.value),
         })
         .then((res) => {
-          console.log(res);
+          // console.log(res);
           this.setState({ listData: this.state.listData });
           // this.onTriggerCallBack();
         });
@@ -78,8 +78,8 @@ class OptionList extends Component {
 
   render() {
     const { value, listData } = this.state;
-    console.log("expired is ", this.state.expired);
-    console.log("optionList: ", listData);
+    // console.log("expired is ", this.state.expired);
+    // console.log("optionList: ", listData);
     return (
       <div>
         <Radio.Group
