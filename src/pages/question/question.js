@@ -66,12 +66,12 @@ export default class question extends Component {
   customRequest(option) {
     const formData = new FormData();
     formData.append("files[]", option.file);
-    console.log(option.file);
-    console.log(option);
+    // console.log(option.file);
+    // console.log(option);
     const reader = new FileReader();
     reader.readAsDataURL(option.file);
     reader.onloadend = function (e) {
-      console.log(e.target.result); // print base64
+      // console.log(e.target.result); // print base64
       if (e && e.target && e.target.result) {
         option.onSuccess();
       }
@@ -79,7 +79,7 @@ export default class question extends Component {
   }
 
   onSubmit = (values) => {
-    console.log(values);
+    // console.log(values);
     const expiredTimeUnix = Math.round(values.expiredDate._d.getTime() / 1000);
     const currentTimeUnix = Math.round(new Date().getTime() / 1000);
     // console.log(expiredTimeUnix, currentTimeUnix)
@@ -98,7 +98,7 @@ export default class question extends Component {
         options: values.options,
       })
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         if (res.data.error) {
           console.log("post failed");
           alert(res.data.error);
@@ -130,7 +130,7 @@ export default class question extends Component {
     this.showAutoModal();
     var topic = this.formRef.current.getFieldValue("topic");
     var options = this.formRef.current.getFieldValue("options");
-    console.log(this.state.modalText);
+    // console.log(this.state.modalText);
     if (topic == undefined) {
       this.setState({ modalText: "Please provide a topic!" });
     } else if (options == undefined || options.length < 2) {
@@ -146,7 +146,7 @@ export default class question extends Component {
       }
       if (!hasUndefined) {
         this.setState({ hasUndefined: false });
-        console.log(options.length);
+        // console.log(options.length);
         // var rand = Math.floor(Math.random()*options.length);
         // var rOption = options[rand];
         this.setState({ modalTopic: topic });
@@ -154,7 +154,7 @@ export default class question extends Component {
         // this.setState({modalText: "We auto select an option for you: "+rOption.optionText})        // this.setState({randomOption: rOption.optionText})
         // console.log(rOption.optionText)
         for (let i in options) {
-          console.log(options);
+          // console.log(options);
           if (i == options.length - 1 && i % 3 == 0) {
             this.state.optionList.push({
               title: options[i].option_name,

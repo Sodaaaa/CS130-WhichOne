@@ -3,14 +3,7 @@ import { Layout } from "antd/lib";
 import {
   Form,
   Input,
-  InputNumber,
-  Cascader,
-  Select,
-  Row,
-  Col,
-  Checkbox,
   Button,
-  AutoComplete,
 } from "antd";
 import { Redirect } from "react-router-dom";
 import "./register.css";
@@ -18,7 +11,7 @@ import MenuBar from "../../components/MenuBar/MenuBar";
 import Background from "../../img/background.jfif";
 import axios from "axios";
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 
 export default class register extends Component {
   formRef = React.createRef();
@@ -33,7 +26,7 @@ export default class register extends Component {
 
   handleSubmit = () => {
     //event.preventDefault();
-    console.log("submitted");
+    // console.log("submitted");
 
     axios
       .post("/api/register", {
@@ -44,8 +37,8 @@ export default class register extends Component {
         image_file: this.state.image_file,
       })
       .then((res) => {
-        console.log("image_file seed is", this.state.image_file);
-        console.log(res);
+        // console.log("image_file seed is", this.state.image_file);
+        // console.log(res);
         if (res.data.error) {
           console.log("error");
           //this.setState({loggedIn:false});

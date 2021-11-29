@@ -59,7 +59,7 @@ class CustomTag extends Component {
     this.setState({ selectedTags: nextSelectedTags });
 
     const list = [];
-    console.log("selectedTags: ", nextSelectedTags);
+    // console.log("selectedTags: ", nextSelectedTags);
     this.onTriggerCallBack(nextSelectedTags);
   }
 

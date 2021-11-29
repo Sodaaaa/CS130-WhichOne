@@ -1,12 +1,12 @@
 import React, { Component, useState } from "react";
 import { Layout } from "antd/lib";
 import CustomTag from "../../components/tag/CustomTag";
-import OptionList from "../../components/optionList/OptionList";
+// import OptionList from "../../components/optionList/OptionList";
 import MenuBar from "../../components/MenuBar/MenuBar";
-import { List, Avatar, Space } from "antd";
+import { Avatar, Space } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import "./vote.css";
-import { cloneNode } from "@babel/types";
+// import { cloneNode } from "@babel/types";
 import QuestionList from "../../components/questionList/questionList";
 import axios from "axios";
 import Background from "../../img/background.jfif";
@@ -45,9 +45,9 @@ export default class vote extends Component {
   populateList(res, questionList, optionList) {
     for (let i = 0; i < res.data.length; i++) {
       optionList.push(res.data[i].option_list);
-      console.log(optionList);
+      // console.log(optionList);
       let expiryDate = new Date(res.data[i].timeLimit * 1000);
-      console.log(res.data[i].timeLimit * 1000);
+      // console.log(res.data[i].timeLimit * 1000);
       let question = {
         title: res.data[i].question,
         description: res.data[i].tag,
@@ -84,7 +84,7 @@ export default class vote extends Component {
             />
           ),
       };
-      console.log(question);
+      // console.log(question);
       if (res.data[i].anonymous) {
         question.avatar = <Avatar>A</Avatar>;
         question.username = "Anonymous";
@@ -104,7 +104,7 @@ export default class vote extends Component {
         params: { UID: Number(localStorage.getItem("UID")) },
       })
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         this.populateList(res, questionList, optionList);
         this.setState({
           listData: questionList,
@@ -116,7 +116,7 @@ export default class vote extends Component {
   }
 
   handleCallback = (tags) => {
-    console.log("tags: " + tags);
+    // console.log("tags: " + tags);
     if (tags.length != 0) {
       const questionList = [];
       const optionList = [];
@@ -128,17 +128,17 @@ export default class vote extends Component {
           },
         })
         .then((res) => {
-          console.log("filtered questions: ", res);
+          // console.log("filtered questions: ", res);
           this.populateList(res, questionList, optionList);
           this.setState({
             listData: questionList,
             optionListData: optionList,
             listPopulated: true,
           });
-          console.log("filtered optionListData", this.state.optionListData);
+          // console.log("filtered optionListData", this.state.optionListData);
           // localStorage.setItem("tag", "null");
           localStorage.removeItem("tag");
-          console.log(localStorage.getItem("tag"));
+          // console.log(localStorage.getItem("tag"));
         });
     } else {
       this.getAllQuestions();

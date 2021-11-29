@@ -1,13 +1,13 @@
 import React, { Component } from "react";
-import { withRouter } from "react-router";
-import { Link, Redirect } from "react-router-dom";
+// import { withRouter } from "react-router";
+import { Link } from "react-router-dom";
 import { Layout } from "antd/lib";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button } from "antd";
 import "./login.css";
 import MenuBar from "../../components/MenuBar/MenuBar";
 import Background from "../../img/background.jfif";
-import { conditionalExpression } from "@babel/types";
+// import { conditionalExpression } from "@babel/types";
 import axios from "axios";
 const { Content } = Layout;
 
@@ -19,21 +19,14 @@ export default class login extends Component {
   }
 
   handleSubmit = () => {
-    //event.preventDefault();
-    //console.log(this.state.username);
-    //console.log(this.state.verified);
-    //s.login();
     axios
       .post("/api/login", {
         email: document.getElementById("user").value,
         password: document.getElementById("pw").value,
       })
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         if (res.data.error) {
-          // console.log("error");
-          //this.setState({loggedIn:false});
-          //alert("Log in failed: please check your username or password.")
           alert(res.data.error);
           document.getElementById("user").value = "";
           document.getElementById("pw").value = "";
@@ -54,7 +47,7 @@ export default class login extends Component {
   };
   onFinish = () => {
     // event.preventDefault();
-    console.log("finished");
+    console.log("validation passed");
     //this.setState({verified:true});
     this.handleSubmit();
   };
@@ -64,23 +57,7 @@ export default class login extends Component {
     alert("Please check and correct your input.");
   };
 
-  // onUserNameChange = event => {
-  //   this.setState({
-  //     username: event.target.value
-  //   });
-  // }
-
-  // onPasswordChange = event => {
-  //   this.setState({
-  //     password: event.target.value
-  //   });
-  // }
-
   render() {
-    // if (this.state.loggedIn) {
-    //   return <Redirect to='/homepage'/>
-    //   // history.pushState('/homepage')
-    // }
     return (
       <Layout className="layout">
         <MenuBar selected="login"></MenuBar>
