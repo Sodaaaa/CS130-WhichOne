@@ -260,6 +260,7 @@ class QuestionList extends Component {
                   expired={item.expired}
                   voted={item.voted}
                   totalVotes={item.total_votes}
+                  uid={item.uid}
                   questionID={item.ID}
                   // parentCallback={this.handleOptionCallBack}
                 />

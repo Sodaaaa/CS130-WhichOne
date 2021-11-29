@@ -12,10 +12,11 @@ class OptionList extends Component {
       expired: this.props.expired,
       voted: this.props.voted,
       totalVotes: this.props.totalVotes,
+      userID: this.props.uid,
       questionID: this.props.questionID,
       loggedIn: localStorage.getItem("loggedIn") == "true",
     };
-    // console.log("voted", this.state.voted);
+    console.log("uid: ", this.state.userID);
   }
 
   openNotification = () => {
@@ -114,7 +115,7 @@ class OptionList extends Component {
                     />
                   )}
                 </Radio>
-                {this.state.voted != -1 || this.state.expired ? (
+                {this.state.voted != -1 || this.state.expired || this.state.userID === Number(localStorage.getItem('UID')) ? (
                   <div>
                     <Progress
                       percent={
