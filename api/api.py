@@ -63,6 +63,7 @@ def getUID(email):
     user = list(filter(lambda x: x.email == email, users))[0]
     return user.UID
 
+
 def getUserImage(UID):
     """given user's UID, return this user's user image"""
     users = User.query.all()
@@ -278,6 +279,8 @@ def getUserinfo():
 def recordPostedQuestion():
     """ Record the posted question into our database.
     This API use the POST method.
+    """
+    """
     The posted json object should be in the form below:
 
     {
@@ -344,6 +347,8 @@ def getAllQuestions():
     """ 
     The request should provide a 'UID' parameter which is a int
     Return all questions. 
+    """
+    """
     The returned data should be in format below:
     [{
         "questionID"    : 123456,
@@ -431,7 +436,9 @@ def listTopics():
     The request should provide a 'UID' parameter which is a int
     Different tags should be separated by coma
     Example url: "http://localhost:5000/api/listTopics?tags=abc,def"
-    Return all topics of a specific tag. 
+    Return all topics of specific tags. 
+    """
+    """
     The returned data should be in format below:
     [{
         "questionID"    : 123456,
@@ -702,7 +709,7 @@ def getHistoricalQuestions():
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
-                    'owner_image':getUserImage(uid),
+                    'owner_image': getUserImage(uid),
                     'time': q.time,
                     'tag': q.tag,
                     'question': q.question,
@@ -793,7 +800,7 @@ def getVotes():
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
-                    'owner_image':getUserImage(q.ownerID),
+                    'owner_image': getUserImage(q.ownerID),
                     'time': q.time,
                     'tag': q.tag,
                     'question': q.question,
@@ -891,7 +898,7 @@ def getAttitudes():
             info = {'userID': uid,
                     'questionID': q.questionID,
                     'ownerID': q.ownerID,
-                    'owner_image':getUserImage(q.ownerID),
+                    'owner_image': getUserImage(q.ownerID),
                     'time': q.time,
                     'tag': q.tag,
                     'question': q.question,
