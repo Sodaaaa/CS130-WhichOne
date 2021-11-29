@@ -88,7 +88,6 @@ class Question(db.Model):
     anonymous = db.Column(db.Boolean)
     likes = db.Column(db.Integer)
     dislikes = db.Column(db.Integer)
-    feedbackID = db.Column(db.Integer)
     timeLimit = db.Column(db.DateTime)
 
     option = db.relationship(
@@ -102,7 +101,6 @@ class Question(db.Model):
         self.anonymous = anonymous
         self.likes = 0
         self.dislikes = 0
-        self.feedbackID = -1
         self.timeLimit = timeLimit
 
     def __repr__(self):
@@ -128,26 +126,6 @@ class Option(db.Model):
 
     def __repr__(self):
         return f"Option('{self.OptionID}', '{self.questionID}', '{self.votes}', '{self.name}', '{self.image}')"
-
-
-class Feedback(db.Model):
-    __tablename__ = "feedback"
-    FeedbackID = db.Column(db.Integer, primary_key=True)
-    questionID = db.Column(db.Integer, db.ForeignKey(
-        'question.questionID'), nullable=False)
-    text = db.Column(db.String(500))
-    image = db.Column(db.String(50))
-
-    def __init__(self, questionID, text, image=None):
-        self.questionID = questionID
-        self.text = text
-        if image != None:
-            self.image = None
-        else:
-            self.image = 'none'
-
-    def __repr__(self):
-        return f"Feedback('{self.FeedbackID}', '{self.questionID}', '{self.text}')"
 
 
 class UserVote(db.Model):
@@ -390,7 +368,6 @@ def getAllQuestions():
                        'anonymous': q.anonymous,
                        'likes': q.likes,
                        'dislikes': q.dislikes,
-                       'feedbackID': q.feedbackID,
                        'timeLimit': int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
     for q in question_dicts:
         option_list = Option.query.filter(
@@ -483,7 +460,6 @@ def listTopics():
                             'anonymous': q.anonymous,
                             'likes': q.likes,
                             'dislikes': q.dislikes,
-                            'feedbackID': q.feedbackID,
                             'timeLimit': int(q.timeLimit.timestamp())} for q in questions if not expired(q.timeLimit)]
 
     for q in question_dicts:
@@ -663,7 +639,6 @@ def getHistoricalQuestions():
     The returned json object is be in the form below:
     [{   'anonymous': False,
         'dislikes': 0,
-        'feedbackID': -1,
         'likes': 0,
         'option_list': [   {   'optionID': 1,
                                'option_image': 'none',
@@ -722,7 +697,6 @@ def getHistoricalQuestions():
                     'anonymous': q.anonymous,
                     'likes': q.likes,
                     'dislikes': q.dislikes,
-                    'feedbackID': q.feedbackID,
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
                     'username': getUsername(uid),
@@ -754,7 +728,6 @@ def getVotes():
     The returned json object is be in the form below:
     [{'anonymous': False,
     'dislikes': 0,
-    'feedbackID': -1,
     'likes': 0,
     'option_list': [{'optionID': 1,
                 'option_image': 'none',
@@ -813,7 +786,6 @@ def getVotes():
                     'anonymous': q.anonymous,
                     'likes': q.likes,
                     'dislikes': q.dislikes,
-                    'feedbackID': q.feedbackID,
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
                     'username': getUsername(q.ownerID),
@@ -848,7 +820,6 @@ def getAttitudes():
     [{   'anonymous': False,
         'attitude': 'Like',
         'dislikes': 0,
-        'feedbackID': -1,
         'likes': 0,
         'option_list': [   {   'optionID': 5,
                                'option_image': 'none',
@@ -911,7 +882,6 @@ def getAttitudes():
                     'anonymous': q.anonymous,
                     'likes': q.likes,
                     'dislikes': q.dislikes,
-                    'feedbackID': q.feedbackID,
                     'timeLimit': int(q.timeLimit.timestamp()),
                     'option_list': option_list,
                     'username': getUsername(q.ownerID),
@@ -951,7 +921,6 @@ def listHotTopics():
             "anonymous"     : False,
             "likes"         : 2,
             "dislikes"      : 2,
-            "feedbackID"    : 1,
             "timeLimit"     : <timestamp>,
             "chosenAttitude": -1,    (-1 for not chosen, 0 for liked, 1 for disliked)
             "voted"         : 1,     (-1 for not voted, otherwise return the voted optionID)
@@ -1011,7 +980,6 @@ def listHotTopics():
                 "anonymous": q.anonymous,
                 "likes": q.likes,
                 "dislikes": q.dislikes,
-                "feedbackID": q.feedbackID,
                 "timeLimit": int(q.timeLimit.timestamp()),
                 "option_list": option_list,
                 "total_votes": total_votes,
