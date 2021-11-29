@@ -24,18 +24,43 @@ class MyTestClass(unittest.TestCase):
     # test method for register function
     def test_right_register(self):
         self.__request_data = {'username': 'testuser2', 'email': 'testuser2@gmail.com',
-                               'password': '1234562', 'confirm_password': '1234562'}
+                               'password': '1234562', 'confirm_password': '1234562', 'image_file': '20'}
         self.__url = "http://127.0.0.1:3000/api/register"
         req = urllib.request.Request(self.__url, data=json.dumps(
             self.__request_data).encode('utf8'))
         req.add_header('Content-Type', 'application/json')
         response = urllib.request.urlopen(req)
-        print("Start to test register function")
+        print("\nStart to test register function")
         self.assertEqual(response.getcode(), 200)
-        print("Finish test : success the sucessful registrition, code is 200")
+        print("Finish test : success the registrition, code is 200")
 
-    # test method for login function
     def test_wrong_register(self):
+        self.__request_data = {'username': 'testuser2', 'password': '1234562', 'confirm_password': '1234562'}
+        self.__url = "http://127.0.0.1:3000/api/register"
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("\nStart to test register function")
+        self.assertEqual("error" in str(response.read()), True)
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success the wrong registrition, error in response and code is 200")
+    
+    def test_wrong_register2(self):
+        self.__request_data = {'username': 'testuser2', 'email': 'testuser2@gmail.com', 'password': '1234562', 'confirm_password': '12345'}
+        self.__url = "http://127.0.0.1:3000/api/register"
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("\nStart to test register function")
+        self.assertEqual("error" in str(response.read()), True)
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success the wrong registrition, error in response and code is 200")
+
+    
+    # test method for login function
+    def test_right_login(self):
         self.__request_data = {
             'email': 'testuser2@gmail.com', 'password': '1234562'}
         self.__url = "http://127.0.0.1:3000/api/login"
@@ -43,9 +68,22 @@ class MyTestClass(unittest.TestCase):
             self.__request_data).encode('utf8'))
         req.add_header('Content-Type', 'application/json')
         response = urllib.request.urlopen(req)
-        print("Start to test register function")
+        print("\nStart to test login function")
         self.assertEqual(response.getcode(), 200)
         print("Finish test : success the login function, code is 200")
+
+    def test_wrong_login(self):
+        self.__request_data = {
+            'email': 'nonexistUser@gmai.com', 'password': '1234562'}
+        self.__url = "http://127.0.0.1:3000/api/login"
+        req = urllib.request.Request(self.__url, data=json.dumps(
+            self.__request_data).encode('utf8'))
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print("\nStart to test login function")
+        self.assertEqual("error" in str(response.read()), True)
+        self.assertEqual(response.getcode(), 200)
+        print("Finish test : success the failure login, nonexist user couldn't login and code is 200")
 
     # test method for getAllQuestions
     def test_get_all_questions(self):
