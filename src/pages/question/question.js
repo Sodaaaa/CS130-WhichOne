@@ -38,7 +38,9 @@ export default class question extends Component {
     this.myLucky = React.createRef();
     this.state = {
       autoVisible: false,
+      autoFailedVisible: false,
       postVisible: false,
+      postFailedVisible: false,
       modalText: "",
       modalTopic: "",
       blocks: [{ padding: "13px", background: "#6C5CE7" }],
@@ -79,7 +81,6 @@ export default class question extends Component {
   }
 
   onSubmit = (values) => {
-    // console.log(values);
     const expiredTimeUnix = Math.round(values.expiredDate._d.getTime() / 1000);
     const currentTimeUnix = Math.round(new Date().getTime() / 1000);
     // console.log(expiredTimeUnix, currentTimeUnix)
@@ -87,35 +88,41 @@ export default class question extends Component {
     if (values.anonymous) {
       isAnonymous = true;
     }
-    axios
-      .post("/api/recordPostedQuestion", {
-        ownerID: localStorage.getItem("UID"),
-        time: currentTimeUnix,
-        tag: values.tag,
-        question: values.topic,
-        anonymous: isAnonymous,
-        timeLimit: expiredTimeUnix,
-        options: values.options,
-      })
-      .then((res) => {
-        // console.log(res);
-        if (res.data.error) {
-          console.log("post failed");
-          alert(res.data.error);
-          this.formRef.current.resetFields();
-          this.showPostModal();
-          this.setState({ modalText: "Post failed..." });
-        } else {
-          console.log("post successfully");
-          this.showPostModal();
-          this.setState({
-            modalText:
-              "You have successfully posted a question! Click Confirm to view it on the vote page...",
-          });
-          // this.props.history.push('/vote');
-          // window.location.href = "./vote";
-        }
-      });
+    if (values.options == undefined || values.options.length < 2) {
+      this.showPostFailedModal();
+      this.setState({ modalText: "Please provide at least TWO options!" });
+    }
+    else{    
+      axios
+        .post("/api/recordPostedQuestion", {
+          ownerID: localStorage.getItem("UID"),
+          time: currentTimeUnix,
+          tag: values.tag,
+          question: values.topic,
+          anonymous: isAnonymous,
+          timeLimit: expiredTimeUnix,
+          options: values.options,
+        })
+        .then((res) => {
+          // console.log(res);
+          if (res.data.error) {
+            console.log("post failed");
+            alert(res.data.error);
+            this.formRef.current.resetFields();
+            this.showPostModal();
+            this.setState({ modalText: "Post failed..." });
+          } else {
+            console.log("post successfully");
+            this.showPostModal();
+            this.setState({
+              modalText:
+                "You have successfully posted a question! Click Confirm to view it on the vote page...",
+            });
+            // this.props.history.push('/vote');
+            // window.location.href = "./vote";
+          }
+        });
+    }
   };
 
   onFinishFailed = () => {
@@ -127,15 +134,18 @@ export default class question extends Component {
   autoSelect = () => {
     // console.log(values);
     this.setState({ hasUndefined: true });
-    this.showAutoModal();
+    
     var topic = this.formRef.current.getFieldValue("topic");
     var options = this.formRef.current.getFieldValue("options");
     // console.log(this.state.modalText);
     if (topic == undefined) {
+      this.showAutoFailedModal();
       this.setState({ modalText: "Please provide a topic!" });
     } else if (options == undefined || options.length < 2) {
+      this.showAutoFailedModal();
       this.setState({ modalText: "Please provide at least TWO options!" });
     } else {
+      this.showAutoModal();
       var hasUndefined = false;
       for (let i in options) {
         if (options[i] == undefined) {
@@ -201,9 +211,17 @@ export default class question extends Component {
     this.state.optionList = [];
   };
 
+  showAutoFailedModal = () => {
+    this.setState({ autoFailedVisible: true });
+  };
+
+  hideAutoFailedModal = () => {
+    this.setState({ autoFailedVisible: false });
+    this.state.optionList = [];
+  };
+
   handlePostConfirm = () => {
-    this.hidePostModal();
-    this.formRef.current.resetFields();
+    this.hidePostModal();    
     window.location.href = "./vote";
   };
 
@@ -213,6 +231,16 @@ export default class question extends Component {
 
   hidePostModal = () => {
     this.setState({ postVisible: false });
+    this.formRef.current.resetFields();
+    this.state.optionList = [];
+  };
+
+  showPostFailedModal = () => {
+    this.setState({ postFailedVisible: true });
+  };
+
+  hidePostFailedModal = () => {
+    this.setState({ postFailedVisible: false });
     this.state.optionList = [];
   };
 
@@ -401,6 +429,23 @@ export default class question extends Component {
                       </div>
                     )}
                   </Modal>
+                  <Modal
+                    className="auto-select-modal"
+                    title="Auto Select"
+                    visible={this.state.autoFailedVisible}
+                    onOk={this.hideAutoFailedModal}
+                    onCancel={this.hideAutoFailedModal}
+                    okText="Confirm"
+                    // cancelText="Cancel"
+                    focusTriggerAfterClose={false}
+                    footer={
+                      <Button key="back" onClick={this.hideAutoFailedModal}>
+                        Confirm
+                      </Button>
+                    }
+                  >
+                    <p>{this.state.modalText}</p>
+                  </Modal>
                   <Button
                     type="primary"
                     htmlType="submit"
@@ -413,11 +458,28 @@ export default class question extends Component {
                     title="Post a Question"
                     visible={this.state.postVisible}
                     onOk={this.handlePostConfirm}
-                    // onCancel={this.hidePostModal}
+                    onCancel={this.hidePostModal}
                     okText="Confirm"
                     // cancelText="Cancel"
                     footer={
                       <Button key="back" onClick={this.handlePostConfirm}>
+                        Confirm
+                      </Button>
+                    }
+                    focusTriggerAfterClose={false}
+                  >
+                    <p>{this.state.modalText}</p>
+                  </Modal>
+                  <Modal
+                    className="post-modal"
+                    title="Post a Question"
+                    visible={this.state.postFailedVisible}
+                    onOk={this.hidePostFailedModal}
+                    onCancel={this.hidePostFailedModal}
+                    okText="Confirm"
+                    // cancelText="Cancel"
+                    footer={
+                      <Button key="back" onClick={this.hidePostFailedModal}>
                         Confirm
                       </Button>
                     }
