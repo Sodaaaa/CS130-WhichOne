@@ -1,76 +1,60 @@
-# Getting Started with Create React App
+# CS130 - Which One
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+As students, we face all kinds of decisions in our daily life. There are often times that we have many options to choose from but don’t know which one is the best. In this project, we built a website called “Which One” to help people easily make decisions whenever they need.
 
-## Available Scripts
+## Dependencies
 
-In the project directory, you can run:
+### Front End
+We use React to implement the frontend. 
+To install the dependencies, run:
+```
+npm install
+```
+
+The packages we used include:
+- `@lucky-canvas/react: 0.0.4`
+- `@testing-library/jest-dom: 5.11.4`
+- `@testing-library/react: 11.1.0`
+- `@testing-library/user-event: 12.1.10`
+- `antd: 4.16.13`
+- `axios: 0.24.0`
+- `parcel-bundler: 1.12.5`
+- `react: 17.0.2`
+- `react-axios: 2.0.5`
+- `react-dom: 17.0.2`
+- `react-router: 6.0.1`
+- `react-router-dom: 5.3.0`
+- `react-scripts: 4.0.3`
+- `web-vitals: 1.0.1`
+
+### Back End
+
+We use flask in the backend to interact with the frontend. 
+We use flask-sqlalchemy to connect with our local SQLite database.
+
+To install the dependencies, run:
+```
+pip install flask
+pip install flask-sqlalchemy
+```
+
+## Launch Website
 
 ### `yarn start`
+yarn start command in the main directory start the frontend of our web application. 
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
 ### `yarn start-api`
-start the backend flask api terminal, test the api in another terminal by python test.py
+yarn start-api command in the main directory start the backend of our web application. 
 
+You can interact with the frontend by webpage with our local database api/data.db
 
-## Learn More
+## Testing
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-=======
-# CS130-WhichOne
+### `python test.py`
+In the api directory, you could run 'python test.py' and see the 13 unittest for backend in the 
+terminal.
