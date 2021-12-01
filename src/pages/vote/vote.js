@@ -39,6 +39,7 @@ export default class vote extends Component {
       listData: [],
       optionListData: [],
       listPopulated: false,
+      defaultPage: 0,
     };
   }
 
@@ -116,7 +117,7 @@ export default class vote extends Component {
   }
 
   handleCallback = (tags) => {
-    // console.log("tags: " + tags);
+    console.log("tags: " + tags);
     if (tags.length != 0) {
       const questionList = [];
       const optionList = [];
@@ -128,16 +129,19 @@ export default class vote extends Component {
           },
         })
         .then((res) => {
-          // console.log("filtered questions: ", res);
+          console.log("filtered questions: ", res);
           this.populateList(res, questionList, optionList);
           this.setState({
             listData: questionList,
             optionListData: optionList,
             listPopulated: true,
+            defaultPage: 0,
           });
           // console.log("filtered optionListData", this.state.optionListData);
           // localStorage.setItem("tag", "null");
+          console.log("default", this.state.defaultPage);
           localStorage.removeItem("tag");
+          // if (this.state.defaultPage === 0) this.setState({});
           // console.log(localStorage.getItem("tag"));
         });
     } else {
@@ -178,6 +182,7 @@ export default class vote extends Component {
                 <QuestionList
                   questionList={this.state.listData}
                   optionList={this.state.optionListData}
+                  currentPage={this.state.defaultPage}
                 />
               )}
             </div>

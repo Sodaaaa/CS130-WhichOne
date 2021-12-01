@@ -34,6 +34,7 @@ export default class profile extends Component {
       email: null,
       loading: false,
       avatar: null,
+      defaultPage: 0,
     };
   }
 
@@ -235,6 +236,7 @@ export default class profile extends Component {
                   <QuestionList
                     questionList={this.state.questionlistData}
                     optionList={this.state.optionListData}
+                    currentPage={this.state.defaultPage}
                   />
                 )}
               </TabPane>
@@ -243,6 +245,7 @@ export default class profile extends Component {
                   <QuestionList
                     questionList={this.state.votelistData}
                     optionList={this.state.optionListData2}
+                    currentPage={this.state.defaultPage}
                   />
                 )}
               </TabPane>
@@ -251,6 +254,7 @@ export default class profile extends Component {
                   <QuestionList
                     questionList={this.state.attitudeData}
                     optionList={this.state.optionListData3}
+                    currentPage={this.state.defaultPage}
                   />
                 )}
               </TabPane>

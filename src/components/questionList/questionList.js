@@ -38,7 +38,7 @@ class QuestionList extends Component {
       listData: this.props.questionList,
       loggedIn: localStorage.getItem("loggedIn") == "true",
       optionListData: this.props.optionList,
-      currentPage: 0,
+      currentPage: this.props.currentPage,
     };
   }
 
@@ -144,8 +144,11 @@ class QuestionList extends Component {
   };
 
   componentDidUpdate(prevProps) {
+    console.log("prev: ", prevProps);
+    console.log("current: ", this.props);
+
     if (prevProps.questionList != this.props.questionList) {
-      this.setState({ listData: this.props.questionList });
+      this.setState({ listData: this.props.questionList, currentPage: 0 });
     }
     // console.log('prevOptions: ', prevProps.optionList);
     // console.log('this.props.options', this.props.optionList)
@@ -156,6 +159,7 @@ class QuestionList extends Component {
 
   render() {
     //console.log("inside questionList: ", this.state.listData)
+    console.log("current page", this.state.currentPage);
     return this.state.listData.length === 0 ? (
       <List
         style={{ backgroundColor: "white" }}

@@ -308,7 +308,7 @@ export default class question extends Component {
                       {fields.map(({ key, name, fieldKey, ...restField }) => (
                         <Space
                           key={key}
-                          style={{ display: "flex", marginLeft: 135 }}
+                          style={{ display: "flex", marginLeft: 155 }}
                           align="baseline"
                         >
                           <Form.Item

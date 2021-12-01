@@ -66,7 +66,7 @@
 }
 
 .homepage-content {
-  padding-top: 20px;
+  padding-top: 50px;
   padding-bottom: 20px;
   background-color: #ffffff;
   background: url("../../img/background.jfif") no-repeat;
@@ -108,7 +108,7 @@
 }
 
 .homepage-row {
-  margin-top: 30px;
+  margin-top: 70px;
 }
 .homepage-col {
   text-align: center;
@@ -120,5 +120,5 @@
   color: #ffffff;
   background-color: #6c5ce7;
   float: right;
-  margin: 0px 20px 0 40px;
+  margin: 10px 50px 0px 40px;
 }
