@@ -58,3 +58,6 @@ You can interact with the frontend by webpage with our local database api/data.d
 ### `python test.py`
 In the api directory, you could run 'python test.py' and see the 13 unittest for backend in the 
 terminal.
+
+## Video Demo
+https://youtu.be/7ozEroid4Zs
