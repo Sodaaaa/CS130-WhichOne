@@ -5,6 +5,27 @@ As students, we face all kinds of decisions in our daily life. There are often t
 ## Dependencies
 
 ### Front End
+We use React to implement the frontend. 
+To install the dependencies, run:
+```
+npm install
+```
+
+The packages we used include:
+- `@lucky-canvas/react: 0.0.4`
+- `@testing-library/jest-dom: 5.11.4`
+- `@testing-library/react: 11.1.0`
+- `@testing-library/user-event: 12.1.10`
+- `antd: 4.16.13`
+- `axios: 0.24.0`,
+- `parcel-bundler: 1.12.5`,
+- `react: 17.0.2`,
+- `react-axios: 2.0.5`,
+- `react-dom: 17.0.2`,
+- `react-router: 6.0.1`,
+- `react-router-dom: 5.3.0`,
+- `react-scripts: 4.0.3`,
+- `web-vitals: 1.0.1`
 
 ### Back End
 
